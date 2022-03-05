@@ -1,0 +1,47 @@
+version: '3'
+
+services:
+    dev:
+        container_name: althingi-store
+        build:
+            context: .
+            dockerfile: Dockerfile
+            args:
+                - ENV=development
+                - IDE_KEY=VSCODE
+        ports:
+            - 9090:80
+        environment:
+            - STORE_DB_HOST=mongo
+            - STORE_DB_USER=root
+            - STORE_DB_PASSWORD=example
+        volumes:
+            - ./config:/var/app/config
+            - ./src:/var/app/src
+            - ./test:/var/app/test
+            - ./vendor:/var/app/vendor
+            - ./www:/var/app/www
+            - ./composer.json:/var/app/composer.json
+            - ./composer.lock:/var/app/composer.lock
+        depends_on:
+            - mongo
+
+    mongo:
+        image: mongo:5.0.6-focal
+        restart: always
+        environment:
+            MONGO_INITDB_ROOT_USERNAME: root
+            MONGO_INITDB_ROOT_PASSWORD: example
+        ports:
+            - 27017:27017
+
+    test:
+        container_name: althingi-store-test
+        build:
+            context: .
+            dockerfile: Dockerfile
+            args:
+                - ENV=development
+        volumes:
+            - ./test:/var/app/test
+        command: bash -c "./vendor/bin/phpunit ./test/"
