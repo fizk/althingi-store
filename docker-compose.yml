@@ -1,8 +1,8 @@
 version: '3'
 
 services:
-    dev:
-        container_name: althingi-store
+    run:
+        container_name: local-althingi-store-run
         build:
             context: .
             dockerfile: Dockerfile
@@ -26,7 +26,31 @@ services:
         depends_on:
             - mongo
 
+    test:
+        container_name: local-althingi-store-test
+        build:
+            context: .
+            dockerfile: Dockerfile
+            args:
+                - ENV=development
+        environment:
+            - STORE_DB_HOST=mongo
+            - STORE_DB_USER=root
+            - STORE_DB_PASSWORD=example
+        volumes:
+            - ./config:/var/app/config
+            - ./src:/var/app/src
+            - ./test:/var/app/test
+            - ./vendor:/var/app/vendor
+            - ./www:/var/app/www
+            - ./composer.json:/var/app/composer.json
+            - ./composer.lock:/var/app/composer.lock
+        depends_on:
+            - mongo-test
+        command: bash -c "./vendor/bin/phpunit ./test/"
+
     mongo:
+        container_name: local-althingi-store-db
         image: mongo:5.0.6-focal
         restart: always
         environment:
@@ -35,13 +59,12 @@ services:
         ports:
             - 27017:27017
 
-    test:
-        container_name: althingi-store-test
-        build:
-            context: .
-            dockerfile: Dockerfile
-            args:
-                - ENV=development
-        volumes:
-            - ./test:/var/app/test
-        command: bash -c "./vendor/bin/phpunit ./test/"
+    mongo-test:
+        container_name: local-althingi-store-db-test
+        image: mongo:5.0.6-focal
+        restart: always
+        environment:
+            MONGO_INITDB_ROOT_USERNAME: root
+            MONGO_INITDB_ROOT_PASSWORD: example
+
+

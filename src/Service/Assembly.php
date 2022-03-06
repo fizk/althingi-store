@@ -5,20 +5,22 @@ namespace App\Service;
 use App\Decorator\SourceDatabaseAware;
 use MongoDB\Database;
 use MongoDB\BSON\UTCDateTime;
+use MongoDB\Model\BSONDocument;
 use DateTime;
 
 class Assembly implements SourceDatabaseAware
 {
+    const COLLECTION = 'assembly';
     private Database $database;
 
     public function get(int $id): ?array
     {
         $result = $this->getSourceDatabase()
-            ->selectCollection('assembly')
+            ->selectCollection(self::COLLECTION)
             ->findOne(['_id' => $id]);
 
         return $result ? [
-            'assembly_id' => $result['_id'],
+            ...$result,
             'from' => $result['from']
                 ? $result['from']->toDateTime()->format('c')
                 : null,
@@ -30,18 +32,18 @@ class Assembly implements SourceDatabaseAware
 
     public function fetch(): array
     {
-        return array_map(function ($item)  {
+        return array_map(function (BSONDocument $item)  {
             return [
-                'assembly_id' => $item['_id'],
+                ...$item->getArrayCopy(),
                 'from' => $item['from']
                     ? $item['from']->toDateTime()->format('c')
                     : null,
                 'to' => $item['to']
-                    ? $item['to']->toDateTime()->format('c')
+                ? $item['to']->toDateTime()->format('c')
                     : null,
             ];
         }, iterator_to_array(
-            $this->getSourceDatabase()->selectCollection('assembly')->find()
+            $this->getSourceDatabase()->selectCollection(self::COLLECTION)->find()
         ));
     }
 
@@ -52,16 +54,17 @@ class Assembly implements SourceDatabaseAware
     {
         $data = [
             '_id' => $object['assembly_id'],
-            'from' => $object['from']
+            ...$object,
+            ...['from' => $object['from']
                 ? new UTCDateTime((new DateTime($object['from']))->getTimestamp() * 1000)
-                : null,
-            'to' => $object['to']
+                : null,],
+            ...['to' => $object['to']
                 ? new UTCDateTime((new DateTime($object['to']))->getTimestamp() * 1000)
-                : null
+                : null]
         ];
 
         $result = $this->getSourceDatabase()
-            ->selectCollection('assembly')
+            ->selectCollection(self::COLLECTION)
             ->updateOne(
                 ['_id' => $object['assembly_id']],
                 ['$set' => $data],
