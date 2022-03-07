@@ -41,7 +41,7 @@ services:
             - ./config:/var/app/config
             - ./src:/var/app/src
             - ./test:/var/app/test
-            - ./vendor:/var/app/vendor
+            # - ./vendor:/var/app/vendor
             - ./www:/var/app/www
             - ./composer.json:/var/app/composer.json
             - ./composer.lock:/var/app/composer.lock
