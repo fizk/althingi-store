@@ -314,4 +314,86 @@ class MinistryTest extends TestCase
 
         $this->assertEquals($expected, $actual);
     }
+
+    public function testUpdateAssemblies()
+    {
+        //GIVE
+        $this->getDatabase()->selectCollection(Ministry::COLLECTION)->insertMany([[
+                '_id' => 1,
+                'ministry_id' => 1,
+                'name' => 'name-1',
+                'abbr_short' => 'abbr_short-1',
+                'abbr_long' => 'abbr_long-1',
+                'first' => [
+                    'assembly_id' => 1,
+                    'from' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
+                    'to' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
+                ],
+                'last' => null,
+            ], [
+                '_id' => 2,
+                'ministry_id' => 2,
+                'name' => 'name-2',
+                'abbr_short' => 'abbr_short-2',
+                'abbr_long' => 'abbr_long-2',
+                'first' => [
+                    'assembly_id' => 1,
+                    'from' => new UTCDateTime((new DateTime('2003-01-01'))->getTimestamp() * 1000),
+                    'to' => new UTCDateTime((new DateTime('2003-01-01'))->getTimestamp() * 1000),
+                ],
+                'last' => [
+                    'assembly_id' => 2,
+                    'from' => new UTCDateTime((new DateTime('2004-01-01'))->getTimestamp() * 1000),
+                    'to' => new UTCDateTime((new DateTime('2004-01-01'))->getTimestamp() * 1000),
+                ],
+            ]
+        ]);
+
+        //WHEN
+        (new Ministry())
+            ->setSourceDatabase($this->getDatabase())
+            ->updateAssembly([
+                'assembly_id' => 1,
+                'from' => '2022-01-01',
+                'to' => '2022-01-01',
+            ]);
+
+        //THEN
+        $actual = iterator_to_array($this->getDatabase()->selectCollection(Ministry::COLLECTION)->find());
+
+        $expected = [
+            new BSONDocument([
+                '_id' => 1,
+                'ministry_id' => 1,
+                'name' => 'name-1',
+                'abbr_short' => 'abbr_short-1',
+                'abbr_long' => 'abbr_long-1',
+                'first' => new BSONDocument([
+                    'assembly_id' => 1,
+                    'from' => new UTCDateTime((new DateTime('2022-01-01'))->getTimestamp() * 1000),
+                    'to' => new UTCDateTime((new DateTime('2022-01-01'))->getTimestamp() * 1000),
+                ]),
+                'last' => null,
+            ]),
+            new BSONDocument([
+                '_id' => 2,
+                'ministry_id' => 2,
+                'name' => 'name-2',
+                'abbr_short' => 'abbr_short-2',
+                'abbr_long' => 'abbr_long-2',
+                'first' => new BSONDocument([
+                    'assembly_id' => 1,
+                    'from' => new UTCDateTime((new DateTime('2022-01-01'))->getTimestamp() * 1000),
+                    'to' => new UTCDateTime((new DateTime('2022-01-01'))->getTimestamp() * 1000),
+                ]),
+                'last' => new BSONDocument([
+                    'assembly_id' => 2,
+                    'from' => new UTCDateTime((new DateTime('2004-01-01'))->getTimestamp() * 1000),
+                    'to' => new UTCDateTime((new DateTime('2004-01-01'))->getTimestamp() * 1000),
+                ]),
+            ])
+        ];
+
+        $this->assertEquals($expected, $actual);
+    }
 }

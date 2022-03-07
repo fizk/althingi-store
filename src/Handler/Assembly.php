@@ -7,15 +7,17 @@ use Psr\Http\Message\{ResponseInterface, ServerRequestInterface};
 use Laminas\Diactoros\Response\{EmptyResponse, JsonResponse};
 use App\Service;
 use App\Handler\HandlerTrait;
-use App\Decorator\ServiceAssemblyAware;
+use App\Decorator\{ServiceAssemblyAware, ServiceMinistryAware};
 
 class Assembly implements
     RequestHandlerInterface,
-    ServiceAssemblyAware
+    ServiceAssemblyAware,
+    ServiceMinistryAware
 {
     use HandlerTrait;
 
     private Service\Assembly $assemblyService;
+    private Service\Ministry $ministryService;
 
     public function get(ServerRequestInterface $request): ResponseInterface
     {
@@ -28,10 +30,14 @@ class Assembly implements
 
     public function put(ServerRequestInterface $request): ResponseInterface
     {
-        $result = $this->assemblyService->store([
+        $assembly = [
             ...json_decode($request->getBody()->getContents(), true),
             ...['assembly_id' => (int) $request->getAttribute('assembly_id')]
-        ]);
+        ];
+        $result = $this->assemblyService->store($assembly);
+
+        // Update embedded objects
+        $this->ministryService->updateAssembly($assembly);
 
         return match($result) {
             1 => new EmptyResponse(201),
@@ -43,6 +49,12 @@ class Assembly implements
     public function setAssemblyService(Service\Assembly $assembly): self
     {
         $this->assemblyService = $assembly;
+        return $this;
+    }
+
+    public function setMinistryService(Service\Ministry $ministry): self
+    {
+        $this->ministryService = $ministry;
         return $this;
     }
 }

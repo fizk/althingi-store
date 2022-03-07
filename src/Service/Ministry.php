@@ -93,7 +93,7 @@ class Ministry implements SourceDatabaseAware
 
         $firstResult = $this->getSourceDatabase()
             ->selectCollection(self::COLLECTION)
-            ->updateOne(
+            ->updateMany(
                 ['first.assembly_id' => $assembly['assembly_id']],
                 ['$set' => ['first' => [
                     ...$assembly,
@@ -109,7 +109,7 @@ class Ministry implements SourceDatabaseAware
 
         $lastResult = $this->getSourceDatabase()
             ->selectCollection(self::COLLECTION)
-            ->updateOne(
+            ->updateMany(
                 ['last.assembly_id' => $assembly['assembly_id']],
                 ['$set' => ['last' => [
                     ...$assembly,
