@@ -16,4 +16,10 @@ return (new Route('root', '', []))
                 (new Route('raduneyti.item', '/(?<ministry_id>\d+)', ['handler' => Handler\Ministry::class]))
             )
     )
+    ->addRoute(
+        (new Route('thingflokkar', '/thingflokkar', ['handler' => handler\Parties::class]))
+            ->addRoute(
+                (new Route('thingflokkar.item', '/(?<party_id>\d+)', ['handler' => Handler\Party::class]))
+            )
+    )
 ;

@@ -29,6 +29,19 @@ return [
                 ->setMinistryService($container->get(Service\Ministry::class))
             ;
         },
+        Handler\Parties::class => function (ContainerInterface $container) {
+            return (new Handler\Parties())
+                ->setPartyService($container->get(Service\Party::class))
+            ;
+        },
+        Handler\Party::class => function (ContainerInterface $container) {
+            return (new Handler\Party())
+                ->setPartyService($container->get(Service\Party::class))
+            ;
+        },
+
+
+
 
         Service\Assembly::class => function (ContainerInterface $container) {
             return (new Service\Assembly)
@@ -36,6 +49,10 @@ return [
         },
         Service\Ministry::class => function (ContainerInterface $container) {
             return (new Service\Ministry)
+                ->setSourceDatabase($container->get(Database::class));
+        },
+        Service\Party::class => function (ContainerInterface $container) {
+            return (new Service\Party)
                 ->setSourceDatabase($container->get(Database::class));
         },
 
