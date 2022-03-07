@@ -45,9 +45,10 @@ services:
             - ./www:/var/app/www
             - ./composer.json:/var/app/composer.json
             - ./composer.lock:/var/app/composer.lock
+            - ./wait-for.sh:/var/app/wait-for.sh
         depends_on:
             - mongo-test
-        command: bash -c "./vendor/bin/phpunit ./test/"
+        command: bash -c "./wait-for.sh mongo-test:27017 -t 80 -- echo \"MongoDB up\" &&  ./vendor/bin/phpunit ./test/"
 
     mongo:
         container_name: local-althingi-store-db
