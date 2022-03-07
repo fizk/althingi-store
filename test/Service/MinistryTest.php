@@ -16,17 +16,7 @@ class MinistryTest extends TestCase
     public function testStoreSimpleStructureCreate()
     {
         //GIVEN
-        $expected = [ [
-            '_id' => 1,
-            'ministry_id' => 1,
-            'name' => 'name-1',
-            'abbr_short' => 'abbr_short-1',
-            'abbr_long' => 'abbr_long-1',
-            'first' => null,
-            'last' => null,
-
-        ]];
-        $createdResultCode = 1;
+        // ...
 
         //WHEN
         $result = (new Ministry())
@@ -45,6 +35,19 @@ class MinistryTest extends TestCase
             return $item->getArrayCopy();
         }, iterator_to_array($this->getDatabase()->selectCollection(Ministry::COLLECTION)->find([]), false));
 
+        $expected = [[
+            '_id' => 1,
+            'ministry_id' => 1,
+            'name' => 'name-1',
+            'abbr_short' => 'abbr_short-1',
+            'abbr_long' => 'abbr_long-1',
+            'first' => null,
+            'last' => null,
+
+        ]];
+
+        $createdResultCode = 1;
+
         $this->assertEquals($expected, $actual);
         $this->assertEquals($createdResultCode, $result);
     }
@@ -52,24 +55,7 @@ class MinistryTest extends TestCase
     public function testStoreCompleteStructureCreate()
     {
         //GIVEN
-        $expected = [ [
-            '_id' => 1,
-            'ministry_id' => 1,
-            'name' => 'name-1',
-            'abbr_short' => 'abbr_short-1',
-            'abbr_long' => 'abbr_long-1',
-            'first' => new BSONDocument([
-                'assembly_id' => 1,
-                'from' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
-                'to' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
-            ]),
-            'last' => new BSONDocument([
-                'assembly_id' => 2,
-                'from' => new UTCDateTime((new DateTime('2002-01-01'))->getTimestamp() * 1000),
-                'to' => new UTCDateTime((new DateTime('2002-01-01'))->getTimestamp() * 1000),
-            ]),
-        ] ];
-        $createdResultCode = 1;
+        // ...
 
         //WHEN
         $result = (new Ministry())
@@ -96,6 +82,26 @@ class MinistryTest extends TestCase
             return $item->getArrayCopy();
         }, iterator_to_array($this->getDatabase()->selectCollection(Ministry::COLLECTION)->find([]), false));
 
+        $expected = [[
+            '_id' => 1,
+            'ministry_id' => 1,
+            'name' => 'name-1',
+            'abbr_short' => 'abbr_short-1',
+            'abbr_long' => 'abbr_long-1',
+            'first' => new BSONDocument([
+                'assembly_id' => 1,
+                'from' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
+                'to' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
+            ]),
+            'last' => new BSONDocument([
+                'assembly_id' => 2,
+                'from' => new UTCDateTime((new DateTime('2002-01-01'))->getTimestamp() * 1000),
+                'to' => new UTCDateTime((new DateTime('2002-01-01'))->getTimestamp() * 1000),
+            ]),
+        ]];
+
+        $createdResultCode = 1;
+
         $this->assertEquals($expected, $actual);
         $this->assertEquals($createdResultCode, $result);
     }
@@ -103,24 +109,6 @@ class MinistryTest extends TestCase
     public function testGet()
     {
         //GIVE
-        $expected = [
-            '_id' => 1,
-            'ministry_id' => 1,
-            'name' => 'name-1',
-            'abbr_short' => 'abbr_short-1',
-            'abbr_long' => 'abbr_long-1',
-            'first' => [
-                'assembly_id' => 1,
-                'from' => '2001-01-01T00:00:00+00:00',
-                'to' => '2001-01-01T00:00:00+00:00',
-            ],
-            'last' => [
-                'assembly_id' => 2,
-                'from' => '2002-01-01T00:00:00+00:00',
-                'to' => '2002-01-01T00:00:00+00:00',
-            ],
-        ];
-
         $this->getDatabase()->selectCollection(Ministry::COLLECTION)->insertOne([
             '_id' => 1,
             'ministry_id' => 1,
@@ -140,17 +128,76 @@ class MinistryTest extends TestCase
         ]);
 
         //WHEN
+        // ...
+
+        //THEN
         $actual = (new Ministry())
             ->setSourceDatabase($this->getDatabase())
             ->get(1);
 
-        //THEN
+        $expected = [
+            '_id' => 1,
+            'ministry_id' => 1,
+            'name' => 'name-1',
+            'abbr_short' => 'abbr_short-1',
+            'abbr_long' => 'abbr_long-1',
+            'first' => [
+                'assembly_id' => 1,
+                'from' => '2001-01-01T00:00:00+00:00',
+                'to' => '2001-01-01T00:00:00+00:00',
+            ],
+            'last' => [
+                'assembly_id' => 2,
+                'from' => '2002-01-01T00:00:00+00:00',
+                'to' => '2002-01-01T00:00:00+00:00',
+            ],
+        ];
+
         $this->assertEquals($expected, $actual);
     }
 
     public function testFetch()
     {
         //GIVE
+        $this->getDatabase()->selectCollection(Ministry::COLLECTION)->insertMany([[
+                '_id' => 1,
+                'ministry_id' => 1,
+                'name' => 'name-1',
+                'abbr_short' => 'abbr_short-1',
+                'abbr_long' => 'abbr_long-1',
+                'first' => [
+                    'assembly_id' => 1,
+                    'from' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
+                    'to' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
+                ],
+                'last' => null,
+            ], [
+                '_id' => 2,
+                'ministry_id' => 2,
+                'name' => 'name-1',
+                'abbr_short' => 'abbr_short-1',
+                'abbr_long' => 'abbr_long-1',
+                'first' => [
+                    'assembly_id' => 1,
+                    'from' => new UTCDateTime((new DateTime('2003-01-01'))->getTimestamp() * 1000),
+                    'to' => new UTCDateTime((new DateTime('2003-01-01'))->getTimestamp() * 1000),
+                ],
+                'last' => [
+                    'assembly_id' => 2,
+                    'from' => new UTCDateTime((new DateTime('2004-01-01'))->getTimestamp() * 1000),
+                    'to' => new UTCDateTime((new DateTime('2004-01-01'))->getTimestamp() * 1000),
+                ],
+            ]
+        ]);
+
+        //WHEN
+        // ...
+
+        //THEN
+        $actual = (new Ministry())
+            ->setSourceDatabase($this->getDatabase())
+            ->fetch();
+
         $expected = [
             [
                 '_id' => 1,
@@ -183,6 +230,12 @@ class MinistryTest extends TestCase
             ]
         ];
 
+        $this->assertEquals($expected, $actual);
+    }
+
+    public function testUpdateAssembly()
+    {
+        //GIVE
         $this->getDatabase()->selectCollection(Ministry::COLLECTION)->insertMany([[
                 '_id' => 1,
                 'ministry_id' => 1,
@@ -198,9 +251,9 @@ class MinistryTest extends TestCase
             ], [
                 '_id' => 2,
                 'ministry_id' => 2,
-                'name' => 'name-1',
-                'abbr_short' => 'abbr_short-1',
-                'abbr_long' => 'abbr_long-1',
+                'name' => 'name-2',
+                'abbr_short' => 'abbr_short-2',
+                'abbr_long' => 'abbr_long-2',
                 'first' => [
                     'assembly_id' => 1,
                     'from' => new UTCDateTime((new DateTime('2003-01-01'))->getTimestamp() * 1000),
@@ -214,13 +267,51 @@ class MinistryTest extends TestCase
             ]
         ]);
 
-
         //WHEN
-        $actual = (new Ministry())
+        (new Ministry())
             ->setSourceDatabase($this->getDatabase())
-            ->fetch();
+            ->updateAssembly([
+                'assembly_id' => 2,
+                'from' => '1978-04-11',
+                'to' => '1978-04-11',
+            ]);
 
         //THEN
+        $actual = iterator_to_array($this->getDatabase()->selectCollection(Ministry::COLLECTION)->find());
+
+        $expected = [
+            new BSONDocument([
+                '_id' => 1,
+                'ministry_id' => 1,
+                'name' => 'name-1',
+                'abbr_short' => 'abbr_short-1',
+                'abbr_long' => 'abbr_long-1',
+                'first' => new BSONDocument([
+                    'assembly_id' => 1,
+                    'from' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
+                    'to' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
+                ]),
+                'last' => null,
+            ]),
+            new BSONDocument([
+                '_id' => 2,
+                'ministry_id' => 2,
+                'name' => 'name-2',
+                'abbr_short' => 'abbr_short-2',
+                'abbr_long' => 'abbr_long-2',
+                'first' => new BSONDocument([
+                    'assembly_id' => 1,
+                    'from' => new UTCDateTime((new DateTime('2003-01-01'))->getTimestamp() * 1000),
+                    'to' => new UTCDateTime((new DateTime('2003-01-01'))->getTimestamp() * 1000),
+                ]),
+                'last' => new BSONDocument([
+                    'assembly_id' => 2,
+                    'from' => new UTCDateTime((new DateTime('1978-04-11'))->getTimestamp() * 1000),
+                    'to' => new UTCDateTime((new DateTime('1978-04-11'))->getTimestamp() * 1000),
+                ]),
+            ])
+        ];
+
         $this->assertEquals($expected, $actual);
     }
 }
