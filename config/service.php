@@ -60,6 +60,16 @@ return [
                 ->setConstituencyService($container->get(Service\Constituency::class))
             ;
         },
+        Handler\Inflations::class => function (ContainerInterface $container) {
+            return (new Handler\Inflations())
+                ->setInflationService($container->get(Service\Inflation::class))
+            ;
+        },
+        Handler\Inflation::class => function (ContainerInterface $container) {
+            return (new Handler\Inflation())
+                ->setInflationService($container->get(Service\Inflation::class))
+            ;
+        },
 
 
 
@@ -82,6 +92,10 @@ return [
         },
         Service\Constituency::class => function (ContainerInterface $container) {
             return (new Service\Constituency)
+                ->setSourceDatabase($container->get(Database::class));
+        },
+        Service\Inflation::class => function (ContainerInterface $container) {
+            return (new Service\Inflation)
                 ->setSourceDatabase($container->get(Database::class));
         },
 

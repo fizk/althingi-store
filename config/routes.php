@@ -34,4 +34,10 @@ return (new Route('root', '', []))
                 (new Route('kjordaemi.item', '/(?<constituency_id>\d+)', ['handler' => Handler\Constituency::class]))
             )
     )
+    ->addRoute(
+        (new Route('verdbolga', '/verdbolga', ['handler' => handler\Inflations::class]))
+            ->addRoute(
+                (new Route('verdbolga.item', '/(?<id>\d+)', ['handler' => Handler\Inflation::class]))
+            )
+    )
 ;
