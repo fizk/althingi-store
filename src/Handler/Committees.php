@@ -7,27 +7,27 @@ use Psr\Http\Server\RequestHandlerInterface;
 use Laminas\Diactoros\Response\JsonResponse;
 use App\Service;
 use App\Handler\HandlerTrait;
-use App\Decorator\ServicePartyAware;
+use App\Decorator\ServiceCommitteeAware;
 
-class Parties implements
+class Committees implements
     RequestHandlerInterface,
-    ServicePartyAware
+    ServiceCommitteeAware
 {
     use HandlerTrait;
 
-    private Service\Party $partyService;
+    private Service\Committee $committeeService;
 
     public function get(ServerRequestInterface $request): ResponseInterface
     {
         return new JsonResponse(
-            $this->partyService->fetch(),
+            $this->committeeService->fetch(),
             200
         );
     }
 
-    public function setPartyService(Service\Party $party): self
+    public function setCommitteeService(Service\Committee $committee): self
     {
-        $this->partyService = $party;
+        $this->committeeService = $committee;
         return $this;
     }
 }

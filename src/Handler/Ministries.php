@@ -19,11 +19,10 @@ class Ministries implements
 
     public function get(ServerRequestInterface $request): ResponseInterface
     {
-        $ministry = $this->ministryService->fetch();
-
-        return $ministry
-            ? new JsonResponse($ministry, 200)
-            : new EmptyResponse(404);
+        return new JsonResponse(
+            $this->ministryService->fetch(),
+            200
+        );
     }
 
     public function setMinistryService(Service\Ministry $ministry): self

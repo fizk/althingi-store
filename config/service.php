@@ -39,6 +39,16 @@ return [
                 ->setPartyService($container->get(Service\Party::class))
             ;
         },
+        Handler\Committees::class => function (ContainerInterface $container) {
+            return (new Handler\Committees())
+                ->setCommitteeService($container->get(Service\Committee::class))
+            ;
+        },
+        Handler\Committee::class => function (ContainerInterface $container) {
+            return (new Handler\Committee())
+                ->setCommitteeService($container->get(Service\Committee::class))
+            ;
+        },
 
 
 
@@ -53,6 +63,10 @@ return [
         },
         Service\Party::class => function (ContainerInterface $container) {
             return (new Service\Party)
+                ->setSourceDatabase($container->get(Database::class));
+        },
+        Service\Committee::class => function (ContainerInterface $container) {
+            return (new Service\Committee)
                 ->setSourceDatabase($container->get(Database::class));
         },
 

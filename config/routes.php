@@ -22,4 +22,10 @@ return (new Route('root', '', []))
                 (new Route('thingflokkar.item', '/(?<party_id>\d+)', ['handler' => Handler\Party::class]))
             )
     )
+    ->addRoute(
+        (new Route('nefndir', '/nefndir', ['handler' => handler\Committees::class]))
+            ->addRoute(
+                (new Route('nefndir.item', '/(?<committee_id>\d+)', ['handler' => Handler\Committee::class]))
+            )
+    )
 ;

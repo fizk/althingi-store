@@ -20,7 +20,8 @@ class Assemblies implements
     public function get(ServerRequestInterface $request): ResponseInterface
     {
         return new JsonResponse(
-            $this->assemblyService->fetch()
+            $this->assemblyService->fetch(),
+            200
         );
     }
 
