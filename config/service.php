@@ -49,6 +49,16 @@ return [
                 ->setCommitteeService($container->get(Service\Committee::class))
             ;
         },
+        Handler\Constituencies::class => function (ContainerInterface $container) {
+            return (new Handler\Constituencies())
+                ->setConstituencyService($container->get(Service\Constituency::class))
+            ;
+        },
+        Handler\Constituency::class => function (ContainerInterface $container) {
+            return (new Handler\Constituency())
+                ->setConstituencyService($container->get(Service\Constituency::class))
+            ;
+        },
 
 
 
@@ -67,6 +77,10 @@ return [
         },
         Service\Committee::class => function (ContainerInterface $container) {
             return (new Service\Committee)
+                ->setSourceDatabase($container->get(Database::class));
+        },
+        Service\Constituency::class => function (ContainerInterface $container) {
+            return (new Service\Constituency)
                 ->setSourceDatabase($container->get(Database::class));
         },
 

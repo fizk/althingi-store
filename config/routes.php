@@ -28,4 +28,10 @@ return (new Route('root', '', []))
                 (new Route('nefndir.item', '/(?<committee_id>\d+)', ['handler' => Handler\Committee::class]))
             )
     )
+    ->addRoute(
+        (new Route('kjordaemi', '/kjordaemi', ['handler' => handler\Constituencies::class]))
+            ->addRoute(
+                (new Route('kjordaemi.item', '/(?<constituency_id>\d+)', ['handler' => Handler\Constituency::class]))
+            )
+    )
 ;
