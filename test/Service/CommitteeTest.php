@@ -203,4 +203,117 @@ class CommitteeTest extends TestCase
 
         $this->assertEquals($expected, $actual);
     }
+
+    public function testUpdateAssembly()
+    {
+        //GIVE
+        $this->getDatabase()->selectCollection(Committee::COLLECTION)->insertMany([
+            [
+                '_id' => 1,
+                'committee_id' => 1,
+                'name' => 'name',
+                'abbr_long' => 'abbr_long',
+                'abbr_short' => 'abbr_short',
+                'first' => [
+                    'assembly_id' => 1,
+                    'from' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
+                    'to' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
+                ],
+                'last' => [
+                    'assembly_id' => 2,
+                    'from' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
+                    'to' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
+                ],
+            ],
+            [
+                '_id' => 2,
+                'committee_id' => 2,
+                'name' => 'name',
+                'abbr_long' => 'abbr_long',
+                'abbr_short' => 'abbr_short',
+                'first' => [
+                    'assembly_id' => 2,
+                    'from' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
+                    'to' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
+                ],
+                'last' => null,
+            ],
+            [
+                '_id' => 3,
+                'committee_id' => 3,
+                'name' => 'name',
+                'abbr_long' => 'abbr_long',
+                'abbr_short' => 'abbr_short',
+                'last' => [
+                    'assembly_id' => 1,
+                    'from' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
+                    'to' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
+                ],
+                'first' => null,
+            ],
+        ]);
+
+        //WHEN
+        (new Committee())
+            ->setSourceDatabase($this->getDatabase())
+            ->updateAssembly([
+                'assembly_id' => 2,
+                'from' => '1978-01-01',
+                'to' => '1978-01-01',
+            ]);
+
+        //THEN
+        $actual = iterator_to_array(
+            $this->getDatabase()->selectCollection(Committee::COLLECTION)->find([]),
+            false
+        );
+
+        $expected = [
+            new BSONDocument([
+                '_id' => 1,
+                'committee_id' => 1,
+                'name' => 'name',
+                'abbr_long' => 'abbr_long',
+                'abbr_short' => 'abbr_short',
+                'first' => new BSONDocument([
+                    'assembly_id' => 1,
+                    'from' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
+                    'to' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
+                ]),
+                'last' => new BSONDocument([
+                    'assembly_id' => 2,
+                    'from' => new UTCDateTime((new DateTime('1978-01-01'))->getTimestamp() * 1000),
+                    'to' => new UTCDateTime((new DateTime('1978-01-01'))->getTimestamp() * 1000),
+                ]),
+            ]),
+            new BSONDocument([
+                '_id' => 2,
+                'committee_id' => 2,
+                'name' => 'name',
+                'abbr_long' => 'abbr_long',
+                'abbr_short' => 'abbr_short',
+                'first' => new BSONDocument([
+                    'assembly_id' => 2,
+                    'from' => new UTCDateTime((new DateTime('1978-01-01'))->getTimestamp() * 1000),
+                    'to' => new UTCDateTime((new DateTime('1978-01-01'))->getTimestamp() * 1000),
+                ]),
+                'last' => null,
+            ]),
+            new BSONDocument([
+                '_id' => 3,
+                'committee_id' => 3,
+                'name' => 'name',
+                'abbr_long' => 'abbr_long',
+                'abbr_short' => 'abbr_short',
+                'last' => new BSONDocument([
+                    'assembly_id' => 1,
+                    'from' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
+                    'to' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
+                ]),
+                'first' => null,
+            ]),
+        ];
+
+        $this->assertEquals($expected, $actual);
+    }
 }

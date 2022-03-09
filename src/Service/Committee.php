@@ -112,6 +112,45 @@ class Committee implements SourceDatabaseAware
         return ($result->getModifiedCount() << 1) + $result->getUpsertedCount();
     }
 
+    public function updateAssembly(?array $assembly)
+    {
+        if (!$assembly) {
+            return null;
+        }
+
+        $firstResult = $this->getSourceDatabase()
+            ->selectCollection(self::COLLECTION)
+            ->updateMany(
+                ['first.assembly_id' => $assembly['assembly_id']],
+                ['$set' => ['first' => [
+                    ...$assembly,
+                    'from' => $assembly['from']
+                    ? new UTCDateTime((new DateTime($assembly['from']))->getTimestamp() * 1000)
+                        : null,
+                    'to' => $assembly['to']
+                        ? new UTCDateTime((new DateTime($assembly['to']))->getTimestamp() * 1000)
+                        : null,
+                ]]],
+                ['upsert' => false]
+            );
+
+        $lastResult = $this->getSourceDatabase()
+            ->selectCollection(self::COLLECTION)
+            ->updateMany(
+                ['last.assembly_id' => $assembly['assembly_id']],
+                ['$set' => ['last' => [
+                    ...$assembly,
+                    'from' => $assembly['from']
+                    ? new UTCDateTime((new DateTime($assembly['from']))->getTimestamp() * 1000)
+                        : null,
+                    'to' => $assembly['to']
+                        ? new UTCDateTime((new DateTime($assembly['to']))->getTimestamp() * 1000)
+                        : null,
+                ]]],
+                ['upsert' => false]
+            );
+    }
+
     public function getSourceDatabase(): Database
     {
         return $this->database;

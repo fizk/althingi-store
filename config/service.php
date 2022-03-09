@@ -17,6 +17,7 @@ return [
             return (new Handler\Assembly())
                 ->setAssemblyService($container->get(Service\Assembly::class))
                 ->setMinistryService($container->get(Service\Ministry::class))
+                ->setCommitteeService($container->get(Service\Committee::class))
             ;
         },
         Handler\Ministries::class => function (ContainerInterface $container) {
