@@ -7,19 +7,21 @@ use Psr\Http\Message\{ResponseInterface, ServerRequestInterface};
 use Laminas\Diactoros\Response\{EmptyResponse, JsonResponse};
 use App\Service;
 use App\Handler\HandlerTrait;
-use App\Decorator\{ServiceAssemblyAware, ServiceCommitteeAware, ServiceMinistryAware};
+use App\Decorator\{ServiceAssemblyAware, ServiceCommitteeAware, ServiceCongressmanSittingAware, ServiceMinistryAware};
 
 class Assembly implements
     RequestHandlerInterface,
     ServiceAssemblyAware,
     ServiceMinistryAware,
-    ServiceCommitteeAware
+    ServiceCommitteeAware,
+    ServiceCongressmanSittingAware
 {
     use HandlerTrait;
 
     private Service\Assembly $assemblyService;
     private Service\Ministry $ministryService;
     private Service\Committee $committeeService;
+    private Service\CongressmanSitting $congressmanSittingService;
 
     public function get(ServerRequestInterface $request): ResponseInterface
     {
@@ -42,6 +44,7 @@ class Assembly implements
         // Update embedded objects
         $this->ministryService->updateAssembly($assembly);
         $this->committeeService->updateAssembly($assembly);
+        $this->congressmanSittingService->updateAssembly($assembly);
 
         return match($result) {
             1 => new EmptyResponse(201),
@@ -65,6 +68,12 @@ class Assembly implements
     public function setCommitteeService(Service\Committee $committee): self
     {
         $this->committeeService = $committee;
+        return $this;
+    }
+
+    public function setCongressmanSittingService(Service\CongressmanSitting $congressmanSitting): self
+    {
+        $this->congressmanSittingService = $congressmanSitting;
         return $this;
     }
 }

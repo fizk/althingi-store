@@ -8,7 +8,7 @@ return (new Route('root', '', []))
     ->addRoute(
         (new Route('loggjafarthing', '/loggjafarthing', ['handler' => Handler\Assemblies::class]))
             ->addRoute(
-                new Route('loggjafarthing.item', '/(?<assembly_id>\d+)', ['handler' => Handler\Assembly::class]))
+                (new Route('loggjafarthing.item', '/(?<assembly_id>\d+)', ['handler' => Handler\Assembly::class])))
             )
     ->addRoute(
         (new Route('raduneyti', '/raduneyti', ['handler' => handler\Ministries::class]))
@@ -38,6 +38,12 @@ return (new Route('root', '', []))
         (new Route('verdbolga', '/verdbolga', ['handler' => handler\Inflations::class]))
             ->addRoute(
                 (new Route('verdbolga.item', '/(?<id>\d+)', ['handler' => Handler\Inflation::class]))
+            )
+    )
+    ->addRoute(
+        (new Route('thingseta', '/thingseta', ['handler' => handler\CongressmanSittings::class]))
+            ->addRoute(
+                (new Route('thingseta.item', '/(?<session_id>\d+)', ['handler' => Handler\CongressmanSitting::class]))
             )
     )
 ;

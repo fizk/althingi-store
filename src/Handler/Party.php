@@ -2,6 +2,7 @@
 
 namespace App\Handler;
 
+use App\Decorator\ServiceCongressmanSittingAware;
 use Psr\Http\Message\{ResponseInterface, ServerRequestInterface};
 use Psr\Http\Server\RequestHandlerInterface;
 use Laminas\Diactoros\Response\{EmptyResponse, JsonResponse};
@@ -11,11 +12,13 @@ use App\Decorator\ServicePartyAware;
 
 class Party implements
     RequestHandlerInterface,
-    ServicePartyAware
+    ServicePartyAware,
+    ServiceCongressmanSittingAware
 {
     use HandlerTrait;
 
     private Service\Party $partyService;
+    private Service\CongressmanSitting $congressmanSittingService;
 
     public function get(ServerRequestInterface $request): ResponseInterface
     {
@@ -34,6 +37,10 @@ class Party implements
         ];
         $result = $this->partyService->store($party);
 
+        // @todo if $result = 2, then...
+        // Update embedded objects
+        $this->congressmanSittingService->updateParty($party);
+
         return match ($result) {
             1 => new EmptyResponse(201),
             2 => new EmptyResponse(205),
@@ -44,6 +51,12 @@ class Party implements
     public function setPartyService(Service\Party $party): self
     {
         $this->partyService = $party;
+        return $this;
+    }
+
+    public function setCongressmanSittingService(Service\CongressmanSitting $congressmanSitting): self
+    {
+        $this->congressmanSittingService = $congressmanSitting;
         return $this;
     }
 }
