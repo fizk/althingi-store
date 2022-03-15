@@ -13,19 +13,19 @@ class Party implements SourceDatabaseAware
 
     public function get(int $id): ?array
     {
-        $result = $this->getSourceDatabase()
+        $document = $this->getSourceDatabase()
             ->selectCollection(self::COLLECTION)
             ->findOne(['_id' => $id]);
 
-        return $result
-            ? $result->getArrayCopy()
+        return $document
+            ? $document->getArrayCopy()
             : null;
     }
 
     public function fetch(): array
     {
-        return array_map(function (BSONDocument $item)  {
-            return $item->getArrayCopy();
+        return array_map(function (BSONDocument $document)  {
+            return $document->getArrayCopy();
         }, iterator_to_array(
             $this->getSourceDatabase()->selectCollection(self::COLLECTION)->find()
         ));
@@ -36,7 +36,7 @@ class Party implements SourceDatabaseAware
      */
     public function store(mixed $object): int
     {
-        $data = [
+        $document = [
             '_id' => $object['party_id'],
             ...$object,
         ];
@@ -45,7 +45,7 @@ class Party implements SourceDatabaseAware
             ->selectCollection(self::COLLECTION)
             ->updateOne(
                 ['_id' => $object['party_id']],
-                ['$set' => $data],
+                ['$set' => $document],
                 ['upsert' => true]
             );
 

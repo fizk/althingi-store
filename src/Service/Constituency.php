@@ -4,9 +4,7 @@ namespace App\Service;
 
 use App\Decorator\SourceDatabaseAware;
 use MongoDB\Database;
-use MongoDB\BSON\UTCDateTime;
 use MongoDB\Model\BSONDocument;
-use DateTime;
 
 class Constituency implements SourceDatabaseAware
 {
@@ -38,7 +36,7 @@ class Constituency implements SourceDatabaseAware
      */
     public function store(mixed $object): int
     {
-        $data = [
+        $document = [
             '_id' => $object['constituency_id'],
             ...$object,
         ];
@@ -47,7 +45,7 @@ class Constituency implements SourceDatabaseAware
             ->selectCollection(self::COLLECTION)
             ->updateOne(
                 ['_id' => $object['constituency_id']],
-                ['$set' => $data],
+                ['$set' => $document],
                 ['upsert' => true]
             );
 

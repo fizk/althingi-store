@@ -4,9 +4,11 @@ namespace App\Service;
 
 use App\Decorator\SourceDatabaseAware;
 use MongoDB\Database;
-use MongoDB\BSON\UTCDateTime;
 use MongoDB\Model\BSONDocument;
-use DateTime;
+use function App\serializeDatesRange;
+use function App\deserializeDatesRange;
+use function App\serializeBirth;
+use function App\deserializeBirth;
 
 class CongressmanSitting implements SourceDatabaseAware
 {
@@ -21,33 +23,21 @@ class CongressmanSitting implements SourceDatabaseAware
 
         return $document ? [
             ...$document,
-            'from' => $document['from']
-                ? $document['from']->toDateTime()->format('c')
-                : null,
-            'to' => $document['to']
-                ? $document['to']->toDateTime()->format('c')
-                : null,
             'assembly' => $document['assembly'] ? [
                 ...$document['assembly'],
-                'from' => $document['assembly']['from']
-                    ? $document['assembly']['from']->toDateTime()->format('c')
-                    : null,
-                'to' => $document['assembly']['to']
-                    ? $document['assembly']['to']->toDateTime()->format('c')
-                    : null,
+                ...deserializeDatesRange($document['assembly']),
             ] : null,
             'congressman' => $document['congressman'] ? [
                 ...$document['congressman'],
-                'birth' => $document['congressman']['birth']
-                    ? $document['congressman']['birth']->toDateTime()->format('c')
-                    : null,
+                ...deserializeBirth($document['congressman']),
             ] : null,
             'constituency' => $document['constituency'] ? [
                 ...$document['constituency']
             ] : null,
             'party' => $document['party'] ? [
                 ...$document['party'],
-            ] : null
+            ] : null,
+            ...deserializeDatesRange($document),
         ] : null;
     }
 
@@ -56,33 +46,21 @@ class CongressmanSitting implements SourceDatabaseAware
         return array_map(function (BSONDocument $document)  {
             return [
                 ...$document,
-                'from' => $document['from']
-                    ? $document['from']->toDateTime()->format('c')
-                    : null,
-                'to' => $document['to']
-                    ? $document['to']->toDateTime()->format('c')
-                    : null,
                 'assembly' => $document['assembly'] ? [
                     ...$document['assembly'],
-                    'from' => $document['assembly']['from']
-                        ? $document['assembly']['from']->toDateTime()->format('c')
-                        : null,
-                    'to' => $document['assembly']['to']
-                        ? $document['assembly']['to']->toDateTime()->format('c')
-                        : null,
+                    ...deserializeDatesRange($document['assembly']),
                 ] : null,
                 'congressman' => $document['congressman'] ? [
                     ...$document['congressman'],
-                    'birth' => $document['congressman']['birth']
-                        ? $document['congressman']['birth']->toDateTime()->format('c')
-                        : null,
+                    ...deserializeBirth($document['congressman']),
                 ] : null,
                 'constituency' => $document['constituency'] ? [
                     ...$document['constituency']
                 ] : null,
                 'party' => $document['party'] ? [
                     ...$document['party'],
-                ] : null
+                ] : null,
+                ...deserializeDatesRange($document),
             ];
         }, iterator_to_array(
             $this->getSourceDatabase()->selectCollection(self::COLLECTION)->find()
@@ -94,53 +72,41 @@ class CongressmanSitting implements SourceDatabaseAware
      */
     public function store(mixed $object): int
     {
-        $data = [
+        $document = [
             ...$object,
             '_id' => $object['session_id'],
-            'from' => $object['from']
-                ? new UTCDateTime((new DateTime($object['from']))->getTimestamp() * 1000)
-                : null,
-            'to' => $object['to']
-                ? new UTCDateTime((new DateTime($object['to']))->getTimestamp() * 1000)
-                : null,
             'assembly' => $object['assembly'] ? [
                 ...$object['assembly'],
-                'from' => $object['assembly']['from']
-                    ? new UTCDateTime((new DateTime($object['assembly']['from']))->getTimestamp() * 1000)
-                    : null,
-                'to' => $object['assembly']['to']
-                    ? new UTCDateTime((new DateTime($object['assembly']['to']))->getTimestamp() * 1000)
-                    : null,
+                ...serializeDatesRange($object['assembly']),
             ] : null,
             'congressman' => $object['congressman'] ? [
                 ...$object['congressman'],
-                'birth' => $object['congressman']['birth']
-                    ? new UTCDateTime((new DateTime($object['congressman']['birth']))->getTimestamp() * 1000)
-                    : null,
+                ...serializeBirth($object['congressman']),
             ] : null,
             'constituency' => $object['constituency'] ? [
                 ...$object['constituency']
             ] : null,
             'party' => $object['party'] ? [
                 ...$object['party'],
-            ] : null
+            ] : null,
+            ...serializeDatesRange($object),
         ];
 
         $result = $this->getSourceDatabase()
             ->selectCollection(self::COLLECTION)
             ->updateOne(
                 ['_id' => $object['session_id']],
-                ['$set' => $data],
+                ['$set' => $document],
                 ['upsert' => true]
             );
 
         return ($result->getModifiedCount() << 1) + $result->getUpsertedCount();
     }
 
-    public function updateAssembly(?array $assembly)
+    public function updateAssembly(?array $assembly): void
     {
         if (!$assembly) {
-            return null;
+            return;
         }
 
         $this->getSourceDatabase()
@@ -149,21 +115,16 @@ class CongressmanSitting implements SourceDatabaseAware
                 ['assembly.assembly_id' => $assembly['assembly_id']],
                 ['$set' => ['assembly' => [
                     ...$assembly,
-                    'from' => $assembly['from']
-                    ? new UTCDateTime((new DateTime($assembly['from']))->getTimestamp() * 1000)
-                        : null,
-                    'to' => $assembly['to']
-                        ? new UTCDateTime((new DateTime($assembly['to']))->getTimestamp() * 1000)
-                        : null,
+                    ...serializeDatesRange($assembly),
                 ]]],
                 ['upsert' => false]
             );
     }
 
-    public function updateParty(?array $party)
+    public function updateParty(?array $party): void
     {
         if (!$party) {
-            return null;
+            return;
         }
 
         $this->getSourceDatabase()
@@ -175,10 +136,10 @@ class CongressmanSitting implements SourceDatabaseAware
             );
     }
 
-    public function updateConstituency(?array $constituency)
+    public function updateConstituency(?array $constituency): void
     {
         if (!$constituency) {
-            return null;
+            return;
         }
 
         $this->getSourceDatabase()

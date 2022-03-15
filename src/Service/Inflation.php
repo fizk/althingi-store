@@ -4,9 +4,9 @@ namespace App\Service;
 
 use App\Decorator\SourceDatabaseAware;
 use MongoDB\Database;
-use MongoDB\BSON\UTCDateTime;
 use MongoDB\Model\BSONDocument;
-use DateTime;
+use function App\serializeDate;
+use function App\deserializeDate;
 
 class Inflation implements SourceDatabaseAware
 {
@@ -15,26 +15,22 @@ class Inflation implements SourceDatabaseAware
 
     public function get(int $id): ?array
     {
-        $result = $this->getSourceDatabase()
+        $document = $this->getSourceDatabase()
             ->selectCollection(self::COLLECTION)
             ->findOne(['_id' => $id]);
 
-        return $result ? [
-            ...$result,
-            'date' => $result['date']
-                ? $result['date']->toDateTime()->format('c')
-                : null,
+        return $document ? [
+            ...$document,
+            ...deserializeDate($document),
         ] : null;
     }
 
     public function fetch(): array
     {
-        return array_map(function (BSONDocument $item)  {
+        return array_map(function (BSONDocument $document)  {
             return [
-                ...$item->getArrayCopy(),
-                'date' => $item['date']
-                    ? $item['date']->toDateTime()->format('c')
-                    : null,
+                ...$document,
+                ...deserializeDate($document),
             ];
         }, iterator_to_array(
             $this->getSourceDatabase()->selectCollection(self::COLLECTION)->find()
@@ -46,19 +42,17 @@ class Inflation implements SourceDatabaseAware
      */
     public function store(mixed $object): int
     {
-        $data = [
+        $document = [
             '_id' => $object['id'],
             ...$object,
-            ...['date' => $object['date']
-                ? new UTCDateTime((new DateTime($object['date']))->getTimestamp() * 1000)
-                : null,],
+            ...serializeDate($object),
         ];
 
         $result = $this->getSourceDatabase()
             ->selectCollection(self::COLLECTION)
             ->updateOne(
                 ['_id' => $object['id']],
-                ['$set' => $data],
+                ['$set' => $document],
                 ['upsert' => true]
             );
 

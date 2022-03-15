@@ -4,9 +4,9 @@ namespace App\Service;
 
 use App\Decorator\SourceDatabaseAware;
 use MongoDB\Database;
-use MongoDB\BSON\UTCDateTime;
 use MongoDB\Model\BSONDocument;
-use DateTime;
+use function App\serializeDatesRange;
+use function App\deserializeDatesRange;
 
 class Assembly implements SourceDatabaseAware
 {
@@ -15,32 +15,22 @@ class Assembly implements SourceDatabaseAware
 
     public function get(int $id): ?array
     {
-        $result = $this->getSourceDatabase()
+        $document = $this->getSourceDatabase()
             ->selectCollection(self::COLLECTION)
             ->findOne(['_id' => $id]);
 
-        return $result ? [
-            ...$result,
-            'from' => $result['from']
-                ? $result['from']->toDateTime()->format('c')
-                : null,
-            'to' => $result['to']
-                ? $result['to']->toDateTime()->format('c')
-                : null,
+        return $document ? [
+            ...$document,
+            ...deserializeDatesRange($document)
         ] : null;
     }
 
     public function fetch(): array
     {
-        return array_map(function (BSONDocument $item)  {
+        return array_map(function (BSONDocument $document)  {
             return [
-                ...$item->getArrayCopy(),
-                'from' => $item['from']
-                    ? $item['from']->toDateTime()->format('c')
-                    : null,
-                'to' => $item['to']
-                ? $item['to']->toDateTime()->format('c')
-                    : null,
+                ...$document,
+                ...deserializeDatesRange($document)
             ];
         }, iterator_to_array(
             $this->getSourceDatabase()->selectCollection(self::COLLECTION)->find()
@@ -52,22 +42,17 @@ class Assembly implements SourceDatabaseAware
      */
     public function store(mixed $object): int
     {
-        $data = [
+        $document = [
             '_id' => $object['assembly_id'],
             ...$object,
-            ...['from' => $object['from']
-                ? new UTCDateTime((new DateTime($object['from']))->getTimestamp() * 1000)
-                : null,],
-            ...['to' => $object['to']
-                ? new UTCDateTime((new DateTime($object['to']))->getTimestamp() * 1000)
-                : null]
+            ...serializeDatesRange($object)
         ];
 
         $result = $this->getSourceDatabase()
             ->selectCollection(self::COLLECTION)
             ->updateOne(
                 ['_id' => $object['assembly_id']],
-                ['$set' => $data],
+                ['$set' => $document],
                 ['upsert' => true]
             );
 
