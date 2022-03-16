@@ -1,10 +1,18 @@
 <?php
 
+use App\Event\{ErrorEvent, SystemSuccessEvent};
 use App\Handler;
 use App\Service;
 use Psr\Container\ContainerInterface;
+use Psr\EventDispatcher\EventDispatcherInterface;
+use Psr\Log\LoggerInterface;
 use MongoDB\Database;
 use MongoDB\Client;
+use League\Event\PrioritizedListenerRegistry;
+use League\Event\EventDispatcher;
+use Monolog\Logger;
+use Monolog\Handler\StreamHandler;
+use Monolog\Formatter\LineFormatter;
 
 return [
     'factories' => [
@@ -161,6 +169,25 @@ return [
             ], []);
 
             return $client->selectDatabase('althingi');
-        }
+        },
+        Psr\Log\LoggerInterface::class => function (ContainerInterface $container, $requestedName) {
+            return (new Logger('aggregator'))
+            ->pushHandler((new StreamHandler('php://stdout', Logger::DEBUG))
+                    ->setFormatter(new LineFormatter("[%datetime%] %level_name% %message%\n"))
+            );
+        },
+        EventDispatcherInterface::class => function (ContainerInterface $container, $requestedName) {
+            $logger = $container->get(Psr\Log\LoggerInterface::class);
+            $provider = new PrioritizedListenerRegistry();
+
+            $provider->subscribeTo(ErrorEvent::class, function (ErrorEvent $event) use ($logger) {
+                $logger->error((string) $event);
+            });
+            $provider->subscribeTo(SystemSuccessEvent::class, function (SystemSuccessEvent $event) use ($logger) {
+                $logger->debug((string) $event);
+            });
+
+            return new EventDispatcher($provider);
+        },
     ],
 ];

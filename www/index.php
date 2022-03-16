@@ -2,12 +2,14 @@
 chdir(dirname(__DIR__));
 include __DIR__ . '/../vendor/autoload.php';
 
+use App\Event\ErrorEvent;
+use App\Event\SystemSuccessEvent;
 use App\Response\ErrorResponse;
 use Laminas\Diactoros\ServerRequestFactory;
 use Laminas\ServiceManager\ServiceManager;
 use Laminas\HttpHandlerRunner\Emitter\SapiEmitter;
 use Laminas\Diactoros\Response\EmptyResponse;
-
+use Psr\EventDispatcher\EventDispatcherInterface;
 use function App\read_resource;
 use function App\exception_error_handler;
 
@@ -36,11 +38,18 @@ try {
         $handler = $manager->get($match->getParam('handler'));
         $response = $handler->handle($request);
         $emitter->emit($response);
+        $manager->get(EventDispatcherInterface::class)
+            ->dispatch(new SystemSuccessEvent($request, $response));
     } else {
-        $emitter->emit(new EmptyResponse(404));
+        $response = new EmptyResponse(404);
+        $emitter->emit($response);
+        $manager->get(EventDispatcherInterface::class)
+            ->dispatch(new SystemSuccessEvent($request, $response));
     }
 } catch (\Throwable $e) {
     $emitter->emit(new ErrorResponse($e, $request));
+    $manager->get(EventDispatcherInterface::class)
+        ->dispatch(new ErrorEvent($request, $e));
 }
 
 
