@@ -83,6 +83,16 @@ return [
                 ->setCongressmanSittingService($container->get(Service\CongressmanSitting::class))
             ;
         },
+        Handler\CommitteeSitting::class => function (ContainerInterface $container) {
+            return (new Handler\CommitteeSitting())
+            ->setCommitteeSittingService($container->get(Service\CommitteeSitting::class))
+            ;
+        },
+        Handler\CommitteeSittings::class => function (ContainerInterface $container) {
+            return (new Handler\CommitteeSittings())
+            ->setCommitteeSittingService($container->get(Service\CommitteeSitting::class))
+            ;
+        },
 
 
 
@@ -113,6 +123,10 @@ return [
         },
         Service\CongressmanSitting::class => function (ContainerInterface $container) {
             return (new Service\CongressmanSitting)
+                ->setSourceDatabase($container->get(Database::class));
+        },
+        Service\CommitteeSitting::class => function (ContainerInterface $container) {
+            return (new Service\CommitteeSitting)
                 ->setSourceDatabase($container->get(Database::class));
         },
 

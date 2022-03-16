@@ -46,4 +46,10 @@ return (new Route('root', '', []))
                 (new Route('thingseta.item', '/(?<session_id>\d+)', ['handler' => Handler\CongressmanSitting::class]))
             )
     )
+    ->addRoute(
+        (new Route('nefndarseta', '/nefndarseta', ['handler' => handler\CommitteeSittings::class]))
+            ->addRoute(
+                (new Route('nefndarseta.item', '/(?<committee_sitting_id>\d+)', ['handler' => Handler\CommitteeSitting::class]))
+            )
+    )
 ;
