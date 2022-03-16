@@ -8,6 +8,7 @@ use Laminas\Diactoros\Response\JsonResponse;
 use App\Service;
 use App\Handler\HandlerTrait;
 use App\Decorator\ServiceCommitteeSittingAware;
+use Exception;
 
 class CommitteeSittings implements
     RequestHandlerInterface,
@@ -19,6 +20,7 @@ class CommitteeSittings implements
 
     public function get(ServerRequestInterface $request): ResponseInterface
     {
+        throw new Exception();
         return new JsonResponse(
             $this->committeeSittingService->fetch(),
             200
