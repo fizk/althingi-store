@@ -780,4 +780,140 @@ class CongressmanSittingTest extends TestCase
 
         $this->assertEquals($expected, $actual);
     }
+
+    public function testUpdateCongressman()
+    {
+        //GIVEN
+        $this->getDatabase()->selectCollection(CongressmanSitting::COLLECTION)->insertMany([
+            [
+                '_id' => 1,
+                'session_id' => 1,
+                'from' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
+                'to' => new UTCDateTime((new DateTime('2002-01-01'))->getTimestamp() * 1000),
+                'type' => 'type',
+                'abbr' => 'appr',
+                'assembly' =>  null,
+                'constituency' =>  null,
+                'congressman' =>  [
+                    'congressman_id' => 3,
+                    'name' => 'name',
+                    'birth' => new UTCDateTime((new DateTime('2005-01-01'))->getTimestamp() * 1000),
+                    'death' => null,
+                    'abbreviation' => 'abbreviation',
+                ],
+                'party' => null,
+            ],
+            [
+                '_id' => 2,
+                'session_id' => 2,
+                'from' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
+                'to' => new UTCDateTime((new DateTime('2002-01-01'))->getTimestamp() * 1000),
+                'type' => 'type',
+                'abbr' => 'appr',
+                'assembly' =>  null,
+                'constituency' =>  null,
+                'congressman' =>  [
+                    'congressman_id' => 3,
+                    'name' => 'name',
+                    'birth' => new UTCDateTime((new DateTime('2005-01-01'))->getTimestamp() * 1000),
+                    'death' => null,
+                    'abbreviation' => 'abbreviation',
+                ],
+                'party' => null,
+            ],
+            [
+                '_id' => 3,
+                'session_id' => 3,
+                'from' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
+                'to' => new UTCDateTime((new DateTime('2002-01-01'))->getTimestamp() * 1000),
+                'type' => 'type',
+                'abbr' => 'appr',
+                'assembly' =>  null,
+                'constituency' =>  null,
+                'congressman' =>  [
+                    'congressman_id' => 2,
+                    'name' => 'name',
+                    'birth' => new UTCDateTime((new DateTime('2005-01-01'))->getTimestamp() * 1000),
+                    'death' => null,
+                    'abbreviation' => 'abbreviation',
+                ],
+                'party' => null,
+            ],
+        ]);
+
+        //WHEN
+        (new CongressmanSitting())
+            ->setSourceDatabase($this->getDatabase())
+            ->updateCongressman([
+                'congressman_id' => 2,
+                'name' => 'name-edit',
+                'birth' => '1978-04-11',
+                'death' => null,
+                'abbreviation' => 'abbreviation',
+            ]);
+
+        //THEN
+        $expected = [
+            new BSONDocument([
+                '_id' => 1,
+                'session_id' => 1,
+                'from' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
+                'to' => new UTCDateTime((new DateTime('2002-01-01'))->getTimestamp() * 1000),
+                'type' => 'type',
+                'abbr' => 'appr',
+                'assembly' =>  null,
+                'constituency' =>  null,
+                'congressman' =>  new BSONDocument([
+                    'congressman_id' => 3,
+                    'name' => 'name',
+                    'birth' => new UTCDateTime((new DateTime('2005-01-01'))->getTimestamp() * 1000),
+                    'death' => null,
+                    'abbreviation' => 'abbreviation',
+                ]),
+                'party' => null,
+            ]),
+            new BSONDocument([
+                '_id' => 2,
+                'session_id' => 2,
+                'from' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
+                'to' => new UTCDateTime((new DateTime('2002-01-01'))->getTimestamp() * 1000),
+                'type' => 'type',
+                'abbr' => 'appr',
+                'assembly' =>  null,
+                'constituency' =>  null,
+                'congressman' =>  new BSONDocument([
+                    'congressman_id' => 3,
+                    'name' => 'name',
+                    'birth' => new UTCDateTime((new DateTime('2005-01-01'))->getTimestamp() * 1000),
+                    'death' => null,
+                    'abbreviation' => 'abbreviation',
+                ]),
+                'party' => null,
+            ]),
+            new BSONDocument([
+                '_id' => 3,
+                'session_id' => 3,
+                'from' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
+                'to' => new UTCDateTime((new DateTime('2002-01-01'))->getTimestamp() * 1000),
+                'type' => 'type',
+                'abbr' => 'appr',
+                'assembly' =>  null,
+                'constituency' =>  null,
+                'congressman' =>  new BSONDocument([
+                    'congressman_id' => 2,
+                    'name' => 'name-edit',
+                    'birth' => new UTCDateTime((new DateTime('1978-04-11'))->getTimestamp() * 1000),
+                    'death' => null,
+                    'abbreviation' => 'abbreviation',
+                ]),
+                'party' => null,
+            ]),
+        ];
+        $actual = iterator_to_array(
+            $this->getDatabase()->selectCollection(CongressmanSitting::COLLECTION)->find([]),
+            false
+        );
+
+        $this->assertEquals($expected, $actual);
+    }
 }

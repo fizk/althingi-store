@@ -88,12 +88,24 @@ return [
         },
         Handler\CommitteeSitting::class => function (ContainerInterface $container) {
             return (new Handler\CommitteeSitting())
-            ->setCommitteeSittingService($container->get(Service\CommitteeSitting::class))
+                ->setCommitteeSittingService($container->get(Service\CommitteeSitting::class))
             ;
         },
         Handler\CommitteeSittings::class => function (ContainerInterface $container) {
             return (new Handler\CommitteeSittings())
-            ->setCommitteeSittingService($container->get(Service\CommitteeSitting::class))
+                ->setCommitteeSittingService($container->get(Service\CommitteeSitting::class))
+            ;
+        },
+        Handler\Congressman::class => function (ContainerInterface $container) {
+            return (new Handler\Congressman())
+                ->setCongressmanService($container->get(Service\Congressman::class))
+                ->setCommitteeSittingService($container->get(Service\CommitteeSitting::class))
+                ->setCongressmanSittingService($container->get(Service\CongressmanSitting::class))
+            ;
+        },
+        Handler\Congressmen::class => function (ContainerInterface $container) {
+            return (new Handler\Congressmen())
+                ->setCongressmanService($container->get(Service\Congressman::class))
             ;
         },
 
@@ -130,6 +142,10 @@ return [
         },
         Service\CommitteeSitting::class => function (ContainerInterface $container) {
             return (new Service\CommitteeSitting)
+                ->setSourceDatabase($container->get(Database::class));
+        },
+        Service\Congressman::class => function (ContainerInterface $container) {
+            return (new Service\Congressman)
                 ->setSourceDatabase($container->get(Database::class));
         },
 

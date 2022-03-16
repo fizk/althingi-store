@@ -136,6 +136,24 @@ class CongressmanSitting implements SourceDatabaseAware
             );
     }
 
+    public function updateCongressman(?array $congressman): void
+    {
+        if (!$congressman) {
+            return;
+        }
+
+        $this->getSourceDatabase()
+            ->selectCollection(self::COLLECTION)
+            ->updateMany(
+                ['congressman.congressman_id' => $congressman['congressman_id']],
+                ['$set' => ['congressman' => [
+                    ...$congressman,
+                    ...serializeBirth($congressman)
+                ],]],
+                ['upsert' => false]
+            );
+    }
+
     public function updateConstituency(?array $constituency): void
     {
         if (!$constituency) {
