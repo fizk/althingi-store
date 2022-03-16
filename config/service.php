@@ -19,6 +19,7 @@ return [
                 ->setMinistryService($container->get(Service\Ministry::class))
                 ->setCommitteeService($container->get(Service\Committee::class))
                 ->setCongressmanSittingService($container->get(Service\CongressmanSitting::class))
+                ->setCommitteeSittingService($container->get(Service\CommitteeSitting::class))
             ;
         },
         Handler\Ministries::class => function (ContainerInterface $container) {
@@ -40,6 +41,7 @@ return [
             return (new Handler\Party())
                 ->setPartyService($container->get(Service\Party::class))
                 ->setCongressmanSittingService($container->get(Service\CongressmanSitting::class))
+                ->setPartyService($container->get(Service\Party::class))
             ;
         },
         Handler\Committees::class => function (ContainerInterface $container) {
@@ -61,6 +63,7 @@ return [
             return (new Handler\Constituency())
                 ->setConstituencyService($container->get(Service\Constituency::class))
                 ->setCongressmanSittingService($container->get(Service\CongressmanSitting::class))
+                ->setCommitteeSittingService($container->get(Service\CommitteeSitting::class))
             ;
         },
         Handler\Inflations::class => function (ContainerInterface $container) {

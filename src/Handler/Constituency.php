@@ -2,6 +2,7 @@
 
 namespace App\Handler;
 
+use App\Decorator\ServiceCommitteeSittingAware;
 use App\Decorator\ServiceCongressmanSittingAware;
 use App\Decorator\ServiceConstituencyAware;
 use Psr\Http\Message\{ResponseInterface, ServerRequestInterface};
@@ -13,12 +14,14 @@ use App\Handler\HandlerTrait;
 class Constituency implements
     RequestHandlerInterface,
     ServiceConstituencyAware,
-    ServiceCongressmanSittingAware
+    ServiceCongressmanSittingAware,
+    ServiceCommitteeSittingAware
 {
     use HandlerTrait;
 
     private Service\Constituency $committeeService;
     private Service\CongressmanSitting $congressmanSittingService;
+    private Service\CommitteeSitting $committeeSittingService;
 
     public function get(ServerRequestInterface $request): ResponseInterface
     {
@@ -40,6 +43,7 @@ class Constituency implements
         // if $result = 2, then...
         // Update embedded objects
         $this->congressmanSittingService->updateConstituency($constituency);
+        $this->committeeSittingService->updateConstituency($constituency);
 
         return match ($result) {
             1 => new EmptyResponse(201),
@@ -57,6 +61,12 @@ class Constituency implements
     public function setCongressmanSittingService(Service\CongressmanSitting $congressmanSitting): self
     {
         $this->congressmanSittingService = $congressmanSitting;
+        return $this;
+    }
+
+    public function setCommitteeSittingService(Service\CommitteeSitting $committeeSitting): self
+    {
+        $this->committeeSittingService = $committeeSitting;
         return $this;
     }
 }

@@ -10,6 +10,10 @@ use function App\deserializeBirth;
 use MongoDB\Model\BSONDocument;
 use MongoDB\Database;
 
+/**
+ * @todo there is no call to updateCongressman method
+ *  because there is no CongressmanController (currently).
+ */
 class CommitteeSitting implements SourceDatabaseAware
 {
     const COLLECTION = 'committee-sitting';

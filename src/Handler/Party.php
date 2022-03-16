@@ -2,6 +2,7 @@
 
 namespace App\Handler;
 
+use App\Decorator\ServiceCommitteeSittingAware;
 use App\Decorator\ServiceCongressmanSittingAware;
 use Psr\Http\Message\{ResponseInterface, ServerRequestInterface};
 use Psr\Http\Server\RequestHandlerInterface;
@@ -13,12 +14,14 @@ use App\Decorator\ServicePartyAware;
 class Party implements
     RequestHandlerInterface,
     ServicePartyAware,
-    ServiceCongressmanSittingAware
+    ServiceCongressmanSittingAware,
+    ServiceCommitteeSittingAware
 {
     use HandlerTrait;
 
     private Service\Party $partyService;
     private Service\CongressmanSitting $congressmanSittingService;
+    private Service\CommitteeSitting $committeeSittingService;
 
     public function get(ServerRequestInterface $request): ResponseInterface
     {
@@ -40,6 +43,7 @@ class Party implements
         // @todo if $result = 2, then...
         // Update embedded objects
         $this->congressmanSittingService->updateParty($party);
+        $this->committeeSittingService->updateParty($party);
 
         return match ($result) {
             1 => new EmptyResponse(201),
@@ -57,6 +61,12 @@ class Party implements
     public function setCongressmanSittingService(Service\CongressmanSitting $congressmanSitting): self
     {
         $this->congressmanSittingService = $congressmanSitting;
+        return $this;
+    }
+
+    public function setCommitteeSittingService(Service\CommitteeSitting $committeeSitting): self
+    {
+        $this->committeeSittingService = $committeeSitting;
         return $this;
     }
 }
