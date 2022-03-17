@@ -38,14 +38,14 @@ class CongressmanSittingTest extends TestCase
                     'death' => null,
                     'abbreviation' => 'abbreviation',
                 ]),
-                'constituency' => new BSONDocument([
+                'congressman_constituency' => new BSONDocument([
                     'constituency_id' => 4,
                     'name' => 'name',
                     'abbr_short' => 'abbr_short',
                     'abbr_long' => 'abbr_long',
                     'description' => 'description',
                 ]),
-                'party' => new BSONDocument([
+                'congressman_party' => new BSONDocument([
                     'party_id' => 5,
                     'name' => 'name',
                     'abbr_short' => 'abbr_short',
@@ -77,14 +77,14 @@ class CongressmanSittingTest extends TestCase
                     'death' => null,
                     'abbreviation' => 'abbreviation',
                 ],
-                'constituency' => [
+                'congressman_constituency' => [
                     'constituency_id' => 4,
                     'name' => 'name',
                     'abbr_short' => 'abbr_short',
                     'abbr_long' => 'abbr_long',
                     'description' => 'description',
                 ],
-                'party' => [
+                'congressman_party' => [
                     'party_id' => 5,
                     'name' => 'name',
                     'abbr_short' => 'abbr_short',
@@ -125,14 +125,14 @@ class CongressmanSittingTest extends TestCase
                 'death' => null,
                 'abbreviation' => 'abbreviation',
             ],
-            'constituency' =>  [
+            'congressman_constituency' =>  [
                 'constituency_id' => 4,
                 'name' => 'name',
                 'abbr_short' => 'abbr_short',
                 'abbr_long' => 'abbr_long',
                 'description' => 'description',
             ],
-            'party' =>  [
+            'congressman_party' =>  [
                 'party_id' => 5,
                 'name' => 'name',
                 'abbr_short' => 'abbr_short',
@@ -166,14 +166,14 @@ class CongressmanSittingTest extends TestCase
                 'death' => null,
                 'abbreviation' => 'abbreviation',
             ],
-            'constituency' =>  [
+            'congressman_constituency' =>  [
                 'constituency_id' => 4,
                 'name' => 'name',
                 'abbr_short' => 'abbr_short',
                 'abbr_long' => 'abbr_long',
                 'description' => 'description',
             ],
-            'party' =>  [
+            'congressman_party' =>  [
                 'party_id' => 5,
                 'name' => 'name',
                 'abbr_short' => 'abbr_short',
@@ -207,14 +207,14 @@ class CongressmanSittingTest extends TestCase
                 'death' => null,
                 'abbreviation' => 'abbreviation',
             ],
-            'constituency' =>  [
+            'congressman_constituency' =>  [
                 'constituency_id' => 4,
                 'name' => 'name',
                 'abbr_short' => 'abbr_short',
                 'abbr_long' => 'abbr_long',
                 'description' => 'description',
             ],
-            'party' =>  [
+            'congressman_party' =>  [
                 'party_id' => 5,
                 'name' => 'name',
                 'abbr_short' => 'abbr_short',
@@ -257,14 +257,14 @@ class CongressmanSittingTest extends TestCase
                     'death' => null,
                     'abbreviation' => 'abbreviation',
                 ],
-                'constituency' =>  [
+                'congressman_constituency' =>  [
                     'constituency_id' => 4,
                     'name' => 'name',
                     'abbr_short' => 'abbr_short',
                     'abbr_long' => 'abbr_long',
                     'description' => 'description',
                 ],
-                'party' =>  [
+                'congressman_party' =>  [
                     'party_id' => 5,
                     'name' => 'name',
                     'abbr_short' => 'abbr_short',
@@ -290,14 +290,14 @@ class CongressmanSittingTest extends TestCase
                     'death' => null,
                     'abbreviation' => 'abbreviation',
                 ],
-                'constituency' =>  [
+                'congressman_constituency' =>  [
                     'constituency_id' => 4,
                     'name' => 'name',
                     'abbr_short' => 'abbr_short',
                     'abbr_long' => 'abbr_long',
                     'description' => 'description',
                 ],
-                'party' =>  [
+                'congressman_party' =>  [
                     'party_id' => 5,
                     'name' => 'name',
                     'abbr_short' => 'abbr_short',
@@ -333,14 +333,14 @@ class CongressmanSittingTest extends TestCase
                     'death' => null,
                     'abbreviation' => 'abbreviation',
                 ],
-                'constituency' =>  [
+                'congressman_constituency' =>  [
                     'constituency_id' => 4,
                     'name' => 'name',
                     'abbr_short' => 'abbr_short',
                     'abbr_long' => 'abbr_long',
                     'description' => 'description',
                 ],
-                'party' =>  [
+                'congressman_party' =>  [
                     'party_id' => 5,
                     'name' => 'name',
                     'abbr_short' => 'abbr_short',
@@ -367,14 +367,14 @@ class CongressmanSittingTest extends TestCase
                     'death' => null,
                     'abbreviation' => 'abbreviation',
                 ],
-                'constituency' =>  [
+                'congressman_constituency' =>  [
                     'constituency_id' => 4,
                     'name' => 'name',
                     'abbr_short' => 'abbr_short',
                     'abbr_long' => 'abbr_long',
                     'description' => 'description',
                 ],
-                'party' =>  [
+                'congressman_party' =>  [
                     'party_id' => 5,
                     'name' => 'name',
                     'abbr_short' => 'abbr_short',
@@ -404,8 +404,8 @@ class CongressmanSittingTest extends TestCase
                     'to' => null,
                 ],
                 'congressman' =>  null,
-                'constituency' =>  null,
-                'party' =>  null
+                'congressman_constituency' =>  null,
+                'congressman_party' =>  null
             ],
             [
                 '_id' => 2,
@@ -420,8 +420,8 @@ class CongressmanSittingTest extends TestCase
                     'to' => null,
                 ],
                 'congressman' =>  null,
-                'constituency' =>  null,
-                'party' =>  null
+                'congressman_constituency' =>  null,
+                'congressman_party' =>  null
             ],
             [
                 '_id' => 3,
@@ -436,8 +436,8 @@ class CongressmanSittingTest extends TestCase
                     'to' => null,
                 ],
                 'congressman' =>  null,
-                'constituency' =>  null,
-                'party' =>  null
+                'congressman_constituency' =>  null,
+                'congressman_party' =>  null
             ],
         ]);
 
@@ -465,8 +465,8 @@ class CongressmanSittingTest extends TestCase
                     'to' => new UTCDateTime((new DateTime('1980-04-11'))->getTimestamp() * 1000),
                 ]),
                 'congressman' =>  null,
-                'constituency' =>  null,
-                'party' =>  null
+                'congressman_constituency' =>  null,
+                'congressman_party' =>  null
             ]),
             new BSONDocument([
                 '_id' => 2,
@@ -481,8 +481,8 @@ class CongressmanSittingTest extends TestCase
                     'to' => null,
                 ]),
                 'congressman' =>  null,
-                'constituency' =>  null,
-                'party' =>  null
+                'congressman_constituency' =>  null,
+                'congressman_party' =>  null
             ]),
             new BSONDocument([
                 '_id' => 3,
@@ -497,8 +497,8 @@ class CongressmanSittingTest extends TestCase
                     'to' => new UTCDateTime((new DateTime('1980-04-11'))->getTimestamp() * 1000),
                 ]),
                 'congressman' =>  null,
-                'constituency' =>  null,
-                'party' =>  null
+                'congressman_constituency' =>  null,
+                'congressman_party' =>  null
             ]),
         ];
         $actual = iterator_to_array(
@@ -522,8 +522,8 @@ class CongressmanSittingTest extends TestCase
                 'abbr' => 'appr',
                 'assembly' =>  null,
                 'congressman' =>  null,
-                'constituency' =>  null,
-                'party' => [
+                'congressman_constituency' =>  null,
+                'congressman_party' => [
                     'party_id' => 1,
                     'name' => 'name',
                     'abbr_short' => 'abbr_short',
@@ -540,8 +540,8 @@ class CongressmanSittingTest extends TestCase
                 'abbr' => 'appr',
                 'assembly' => null,
                 'congressman' =>  null,
-                'constituency' =>  null,
-                'party' => [
+                'congressman_constituency' =>  null,
+                'congressman_party' => [
                     'party_id' => 2,
                     'name' => 'name',
                     'abbr_short' => 'abbr_short',
@@ -558,8 +558,8 @@ class CongressmanSittingTest extends TestCase
                 'abbr' => 'appr',
                 'assembly' => null,
                 'congressman' =>  null,
-                'constituency' =>  null,
-                'party' => [
+                'congressman_constituency' =>  null,
+                'congressman_party' => [
                     'party_id' => 1,
                     'name' => 'name',
                     'abbr_short' => 'abbr_short',
@@ -591,8 +591,8 @@ class CongressmanSittingTest extends TestCase
                 'abbr' => 'appr',
                 'assembly' =>  null,
                 'congressman' =>  null,
-                'constituency' =>  null,
-                'party' => new BSONDocument([
+                'congressman_constituency' =>  null,
+                'congressman_party' => new BSONDocument([
                     'party_id' => 1,
                     'name' => 'name',
                     'abbr_short' => 'abbr_short',
@@ -609,8 +609,8 @@ class CongressmanSittingTest extends TestCase
                 'abbr' => 'appr',
                 'assembly' =>  null,
                 'congressman' =>  null,
-                'constituency' =>  null,
-                'party' => new BSONDocument([
+                'congressman_constituency' =>  null,
+                'congressman_party' => new BSONDocument([
                     'party_id' => 2,
                     'name' => 'name',
                     'abbr_short' => 'abbr_short',
@@ -627,8 +627,8 @@ class CongressmanSittingTest extends TestCase
                 'abbr' => 'appr',
                 'assembly' => null,
                 'congressman' =>  null,
-                'constituency' =>  null,
-                'party' => new BSONDocument([
+                'congressman_constituency' =>  null,
+                'congressman_party' => new BSONDocument([
                     'party_id' => 1,
                     'name' => 'name',
                     'abbr_short' => 'abbr_short',
@@ -658,14 +658,14 @@ class CongressmanSittingTest extends TestCase
                 'abbr' => 'appr',
                 'assembly' =>  null,
                 'congressman' =>  null,
-                'constituency' =>  [
+                'congressman_constituency' =>  [
                     'constituency_id' => 1,
                     'name' => 'name',
                     'abbr_short' => 'abbr_short',
                     'abbr_long' => 'abbr_long',
                     'description' => null,
                 ],
-                'party' => null,
+                'congressman_party' => null,
             ],
             [
                 '_id' => 2,
@@ -676,14 +676,14 @@ class CongressmanSittingTest extends TestCase
                 'abbr' => 'appr',
                 'assembly' => null,
                 'congressman' =>  null,
-                'constituency' =>  [
+                'congressman_constituency' =>  [
                     'constituency_id' => 2,
                     'name' => 'name',
                     'abbr_short' => 'abbr_short',
                     'abbr_long' => 'abbr_long',
                     'description' => null,
                 ],
-                'party' => null,
+                'congressman_party' => null,
             ],
             [
                 '_id' => 3,
@@ -694,14 +694,14 @@ class CongressmanSittingTest extends TestCase
                 'abbr' => 'appr',
                 'assembly' => null,
                 'congressman' =>  null,
-                'constituency' =>  [
+                'congressman_constituency' =>  [
                     'constituency_id' => 1,
                     'name' => 'name',
                     'abbr_short' => 'abbr_short',
                     'abbr_long' => 'abbr_long',
                     'description' => null,
                 ],
-                'party' => null,
+                'congressman_party' => null,
             ],
         ]);
 
@@ -727,14 +727,14 @@ class CongressmanSittingTest extends TestCase
                 'abbr' => 'appr',
                 'assembly' =>  null,
                 'congressman' =>  null,
-                'constituency' => new BSONDocument([
+                'congressman_constituency' => new BSONDocument([
                     'constituency_id' => 1,
                     'name' => 'name',
                     'abbr_short' => 'abbr_short',
                     'abbr_long' => 'abbr_long',
                     'description' => 'description',
                 ]),
-                'party' => null,
+                'congressman_party' => null,
             ]),
             new BSONDocument([
                 '_id' => 2,
@@ -745,14 +745,14 @@ class CongressmanSittingTest extends TestCase
                 'abbr' => 'appr',
                 'assembly' =>  null,
                 'congressman' =>  null,
-                'constituency' =>  new BSONDocument([
+                'congressman_constituency' =>  new BSONDocument([
                     'constituency_id' => 2,
                     'name' => 'name',
                     'abbr_short' => 'abbr_short',
                     'abbr_long' => 'abbr_long',
                     'description' => null,
                 ]),
-                'party' => null,
+                'congressman_party' => null,
             ]),
             new BSONDocument([
                 '_id' => 3,
@@ -763,14 +763,14 @@ class CongressmanSittingTest extends TestCase
                 'abbr' => 'appr',
                 'assembly' => null,
                 'congressman' =>  null,
-                'constituency' =>  new BSONDocument([
+                'congressman_constituency' =>  new BSONDocument([
                     'constituency_id' => 1,
                     'name' => 'name',
                     'abbr_short' => 'abbr_short',
                     'abbr_long' => 'abbr_long',
                     'description' => 'description',
                 ]),
-                'party' => null,
+                'congressman_party' => null,
             ]),
         ];
         $actual = iterator_to_array(
@@ -793,7 +793,7 @@ class CongressmanSittingTest extends TestCase
                 'type' => 'type',
                 'abbr' => 'appr',
                 'assembly' =>  null,
-                'constituency' =>  null,
+                'congressman_constituency' =>  null,
                 'congressman' =>  [
                     'congressman_id' => 3,
                     'name' => 'name',
@@ -801,7 +801,7 @@ class CongressmanSittingTest extends TestCase
                     'death' => null,
                     'abbreviation' => 'abbreviation',
                 ],
-                'party' => null,
+                'congressman_party' => null,
             ],
             [
                 '_id' => 2,
@@ -811,7 +811,7 @@ class CongressmanSittingTest extends TestCase
                 'type' => 'type',
                 'abbr' => 'appr',
                 'assembly' =>  null,
-                'constituency' =>  null,
+                'congressman_constituency' =>  null,
                 'congressman' =>  [
                     'congressman_id' => 3,
                     'name' => 'name',
@@ -819,7 +819,7 @@ class CongressmanSittingTest extends TestCase
                     'death' => null,
                     'abbreviation' => 'abbreviation',
                 ],
-                'party' => null,
+                'congressman_party' => null,
             ],
             [
                 '_id' => 3,
@@ -829,7 +829,7 @@ class CongressmanSittingTest extends TestCase
                 'type' => 'type',
                 'abbr' => 'appr',
                 'assembly' =>  null,
-                'constituency' =>  null,
+                'congressman_constituency' =>  null,
                 'congressman' =>  [
                     'congressman_id' => 2,
                     'name' => 'name',
@@ -837,7 +837,7 @@ class CongressmanSittingTest extends TestCase
                     'death' => null,
                     'abbreviation' => 'abbreviation',
                 ],
-                'party' => null,
+                'congressman_party' => null,
             ],
         ]);
 
@@ -862,7 +862,7 @@ class CongressmanSittingTest extends TestCase
                 'type' => 'type',
                 'abbr' => 'appr',
                 'assembly' =>  null,
-                'constituency' =>  null,
+                'congressman_constituency' =>  null,
                 'congressman' =>  new BSONDocument([
                     'congressman_id' => 3,
                     'name' => 'name',
@@ -870,7 +870,7 @@ class CongressmanSittingTest extends TestCase
                     'death' => null,
                     'abbreviation' => 'abbreviation',
                 ]),
-                'party' => null,
+                'congressman_party' => null,
             ]),
             new BSONDocument([
                 '_id' => 2,
@@ -880,7 +880,7 @@ class CongressmanSittingTest extends TestCase
                 'type' => 'type',
                 'abbr' => 'appr',
                 'assembly' =>  null,
-                'constituency' =>  null,
+                'congressman_constituency' =>  null,
                 'congressman' =>  new BSONDocument([
                     'congressman_id' => 3,
                     'name' => 'name',
@@ -888,7 +888,7 @@ class CongressmanSittingTest extends TestCase
                     'death' => null,
                     'abbreviation' => 'abbreviation',
                 ]),
-                'party' => null,
+                'congressman_party' => null,
             ]),
             new BSONDocument([
                 '_id' => 3,
@@ -898,7 +898,7 @@ class CongressmanSittingTest extends TestCase
                 'type' => 'type',
                 'abbr' => 'appr',
                 'assembly' =>  null,
-                'constituency' =>  null,
+                'congressman_constituency' =>  null,
                 'congressman' =>  new BSONDocument([
                     'congressman_id' => 2,
                     'name' => 'name-edit',
@@ -906,7 +906,7 @@ class CongressmanSittingTest extends TestCase
                     'death' => null,
                     'abbreviation' => 'abbreviation',
                 ]),
-                'party' => null,
+                'congressman_party' => null,
             ]),
         ];
         $actual = iterator_to_array(

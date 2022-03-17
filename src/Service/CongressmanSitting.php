@@ -31,11 +31,11 @@ class CongressmanSitting implements SourceDatabaseAware
                 ...$document['congressman'],
                 ...deserializeBirth($document['congressman']),
             ] : null,
-            'constituency' => $document['constituency'] ? [
-                ...$document['constituency']
+            'congressman_constituency' => $document['congressman_constituency'] ? [
+                ...$document['congressman_constituency']
             ] : null,
-            'party' => $document['party'] ? [
-                ...$document['party'],
+            'congressman_party' => $document['congressman_party'] ? [
+                ...$document['congressman_party'],
             ] : null,
             ...deserializeDatesRange($document),
         ] : null;
@@ -54,11 +54,11 @@ class CongressmanSitting implements SourceDatabaseAware
                     ...$document['congressman'],
                     ...deserializeBirth($document['congressman']),
                 ] : null,
-                'constituency' => $document['constituency'] ? [
-                    ...$document['constituency']
+                'congressman_constituency' => $document['congressman_constituency'] ? [
+                    ...$document['congressman_constituency']
                 ] : null,
-                'party' => $document['party'] ? [
-                    ...$document['party'],
+                'congressman_party' => $document['congressman_party'] ? [
+                    ...$document['congressman_party'],
                 ] : null,
                 ...deserializeDatesRange($document),
             ];
@@ -83,11 +83,11 @@ class CongressmanSitting implements SourceDatabaseAware
                 ...$object['congressman'],
                 ...serializeBirth($object['congressman']),
             ] : null,
-            'constituency' => $object['constituency'] ? [
-                ...$object['constituency']
+            'congressman_constituency' => $object['congressman_constituency'] ? [
+                ...$object['congressman_constituency']
             ] : null,
-            'party' => $object['party'] ? [
-                ...$object['party'],
+            'congressman_party' => $object['congressman_party'] ? [
+                ...$object['congressman_party'],
             ] : null,
             ...serializeDatesRange($object),
         ];
@@ -130,8 +130,8 @@ class CongressmanSitting implements SourceDatabaseAware
         $this->getSourceDatabase()
             ->selectCollection(self::COLLECTION)
             ->updateMany(
-                ['party.party_id' => $party['party_id']],
-                ['$set' => ['party' => $party,]],
+                ['congressman_party.party_id' => $party['party_id']],
+                ['$set' => ['congressman_party' => $party,]],
                 ['upsert' => false]
             );
     }
@@ -163,8 +163,8 @@ class CongressmanSitting implements SourceDatabaseAware
         $this->getSourceDatabase()
             ->selectCollection(self::COLLECTION)
             ->updateMany(
-                ['constituency.constituency_id' => $constituency['constituency_id']],
-                ['$set' => ['constituency' => $constituency,]],
+                ['congressman_constituency.constituency_id' => $constituency['constituency_id']],
+                ['$set' => ['congressman_constituency' => $constituency,]],
                 ['upsert' => false]
             );
     }
