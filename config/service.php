@@ -30,6 +30,11 @@ return [
                 ->setCommitteeSittingService($container->get(Service\CommitteeSitting::class))
             ;
         },
+        Handler\AssemblyParties::class => function (ContainerInterface $container) {
+            return (new Handler\AssemblyParties())
+                ->setCongressmanSittingService($container->get(Service\CongressmanSitting::class))
+            ;
+        },
         Handler\Ministries::class => function (ContainerInterface $container) {
             return (new Handler\Ministries())
                 ->setMinistryService($container->get(Service\Ministry::class))

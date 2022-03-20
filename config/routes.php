@@ -8,7 +8,9 @@ return (new Route('root', '', []))
     ->addRoute(
         (new Route('loggjafarthing', '/loggjafarthing', ['handler' => Handler\Assemblies::class]))
             ->addRoute(
-                (new Route('loggjafarthing.item', '/(?<assembly_id>\d+)', ['handler' => Handler\Assembly::class])))
+                (new Route('loggjafarthing.item', '/(?<assembly_id>\d+)', ['handler' => Handler\Assembly::class]))
+                    ->addRoute(new Route('loggjafarthing.item.parties', '/thingflokkar', ['handler' => Handler\AssemblyParties::class]))
+                )
             )
     ->addRoute(
         (new Route('raduneyti', '/raduneyti', ['handler' => handler\Ministries::class]))

@@ -67,6 +67,32 @@ class CongressmanSitting implements SourceDatabaseAware
         ));
     }
 
+    public function fetchPartiesByAssembly(int $assemblyId)
+    {
+        $documents = $this->getSourceDatabase()
+            ->selectCollection(self::COLLECTION)
+            ->aggregate([
+                [
+                    '$match' => [
+                        'assembly.assembly_id' => $assemblyId
+                    ]
+                ],
+                [
+                    '$group' => [
+                        '_id' => '$congressman_party.party_id',
+                        'party' => ['$first' => '$congressman_party']
+                    ]
+                ],
+                [
+                    '$replaceRoot' => ['newRoot' => '$party']
+                ]
+        ]);
+
+        return array_map(function (BSONDocument $item) {
+            return $item->getArrayCopy();
+        },iterator_to_array($documents));
+    }
+
     /**
      * @return int | not modified = 0, create = 1, update = 2
      */
