@@ -479,6 +479,194 @@ class CongressmanSittingTest extends TestCase
         $this->assertEquals($expected, $actual);
     }
 
+    public function testFetchCongressmenSessions()
+    {
+        //GIVE
+        $this->getDatabase()->selectCollection(CongressmanSitting::COLLECTION)->insertMany([
+            [
+                '_id' => 1,
+                'session_id' => 1,
+                'from' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
+                'to' => new UTCDateTime((new DateTime('2002-01-01'))->getTimestamp() * 1000),
+                'type' => 'type',
+                'abbr' => 'appr',
+                'assembly' =>  [
+                    'assembly_id' => 1,
+                    'from' => new UTCDateTime((new DateTime('2003-01-01'))->getTimestamp() * 1000),
+                    'to' => new UTCDateTime((new DateTime('2004-01-01'))->getTimestamp() * 1000),
+                ],
+                'congressman' =>  [
+                    'congressman_id' => 3,
+                    'name' => 'name',
+                    'birth' => new UTCDateTime((new DateTime('2005-01-01'))->getTimestamp() * 1000),
+                    'death' => null,
+                    'abbreviation' => 'abbreviation',
+                ],
+                'congressman_constituency' =>  [
+                    'constituency_id' => 4,
+                    'name' => 'name',
+                    'abbr_short' => 'abbr_short',
+                    'abbr_long' => 'abbr_long',
+                    'description' => 'description',
+                ],
+                'congressman_party' =>  [
+                    'party_id' => 5,
+                    'name' => 'name',
+                    'abbr_short' => 'abbr_short',
+                    'abbr_long' => 'abbr_long',
+                    'color' => 'color',
+                ]
+            ],
+            [
+                '_id' => 2,
+                'session_id' => 2,
+                'from' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
+                'to' => new UTCDateTime((new DateTime('2002-01-01'))->getTimestamp() * 1000),
+                'type' => 'type',
+                'abbr' => 'appr',
+                'assembly' =>  [
+                    'assembly_id' => 1,
+                    'from' => new UTCDateTime((new DateTime('2003-01-01'))->getTimestamp() * 1000),
+                    'to' => new UTCDateTime((new DateTime('2004-01-01'))->getTimestamp() * 1000),
+                ],
+                'congressman' =>  [
+                    'congressman_id' => 4,
+                    'name' => 'name',
+                    'birth' => new UTCDateTime((new DateTime('2005-01-01'))->getTimestamp() * 1000),
+                    'death' => null,
+                    'abbreviation' => 'abbreviation',
+                ],
+                'congressman_constituency' =>  [
+                    'constituency_id' => 4,
+                    'name' => 'name',
+                    'abbr_short' => 'abbr_short',
+                    'abbr_long' => 'abbr_long',
+                    'description' => 'description',
+                ],
+                'congressman_party' =>  [
+                    'party_id' => 5,
+                    'name' => 'name',
+                    'abbr_short' => 'abbr_short',
+                    'abbr_long' => 'abbr_long',
+                    'color' => 'color',
+                ]
+            ]
+        ]);
+
+        //WHEN
+        $actual = (new CongressmanSitting())
+            ->setSourceDatabase($this->getDatabase())
+            ->fetchCongressmenSessions(1);
+
+        //THEN
+        $expected = [
+            [
+                '_id' => 3,
+                'assembly' => [
+                    'assembly_id' => 1,
+                    'from' => '2003-01-01T00:00:00+00:00',
+                    'to' => '2004-01-01T00:00:00+00:00',
+                ],
+                'sessions' => [
+                    [
+                        '_id' => 1,
+                        'session_id' => 1,
+                        'from' => '2001-01-01T00:00:00+00:00',
+                        'to' => '2002-01-01T00:00:00+00:00',
+                        'type' => 'type',
+                        'abbr' => 'appr',
+                        'assembly' =>  [
+                            'assembly_id' => 1,
+                            'from' => '2003-01-01T00:00:00+00:00',
+                            'to' => '2004-01-01T00:00:00+00:00',
+                        ],
+                        'congressman' =>  [
+                            'congressman_id' => 3,
+                            'name' => 'name',
+                            'birth' => '2005-01-01T00:00:00+00:00',
+                            'death' => null,
+                            'abbreviation' => 'abbreviation',
+                        ],
+                        'congressman_constituency' =>  [
+                            'constituency_id' => 4,
+                            'name' => 'name',
+                            'abbr_short' => 'abbr_short',
+                            'abbr_long' => 'abbr_long',
+                            'description' => 'description',
+                        ],
+                        'congressman_party' =>  [
+                            'party_id' => 5,
+                            'name' => 'name',
+                            'abbr_short' => 'abbr_short',
+                            'abbr_long' => 'abbr_long',
+                            'color' => 'color',
+                        ]
+                    ]
+                ],
+                'congressman' => [
+                    'congressman_id' => 3,
+                    'name' => 'name',
+                    'birth' => '2005-01-01T00:00:00+00:00',
+                    'death' => null,
+                    'abbreviation' => 'abbreviation',
+                ],
+            ],
+            [
+                '_id' => 4,
+                'assembly' => [
+                    'assembly_id' => 1,
+                    'from' => '2003-01-01T00:00:00+00:00',
+                    'to' => '2004-01-01T00:00:00+00:00',
+                ],
+                'sessions' => [
+                    [
+                        '_id' => 2,
+                        'session_id' => 2,
+                        'from' => '2001-01-01T00:00:00+00:00',
+                        'to' => '2002-01-01T00:00:00+00:00',
+                        'type' => 'type',
+                        'abbr' => 'appr',
+                        'assembly' =>  [
+                            'assembly_id' => 1,
+                            'from' => '2003-01-01T00:00:00+00:00',
+                            'to' => '2004-01-01T00:00:00+00:00',
+                        ],
+                        'congressman' =>  [
+                            'congressman_id' => 4,
+                            'name' => 'name',
+                            'birth' => '2005-01-01T00:00:00+00:00',
+                            'death' => null,
+                            'abbreviation' => 'abbreviation',
+                        ],
+                        'congressman_constituency' =>  [
+                            'constituency_id' => 4,
+                            'name' => 'name',
+                            'abbr_short' => 'abbr_short',
+                            'abbr_long' => 'abbr_long',
+                            'description' => 'description',
+                        ],
+                        'congressman_party' =>  [
+                            'party_id' => 5,
+                            'name' => 'name',
+                            'abbr_short' => 'abbr_short',
+                            'abbr_long' => 'abbr_long',
+                            'color' => 'color',
+                        ]
+                    ]
+                ],
+                'congressman' =>  [
+                    'congressman_id' => 4,
+                    'name' => 'name',
+                    'birth' => '2005-01-01T00:00:00+00:00',
+                    'death' => null,
+                    'abbreviation' => 'abbreviation',
+                ],
+            ]
+        ];
+
+        $this->assertEquals($expected, $actual);
+    }
+
     public function testUpdateAssembly()
     {
         //GIVEN

@@ -182,25 +182,6 @@ db.getCollection('congressman-sitting').aggregate([
 ])
 ```
 
-## Get all parties in Assembly
-```
-db.getCollection('congressman-sitting').aggregate([
-    {
-        $match: {
-                'assembly.assembly_id': 140
-        }
-    },
-    {
-            $group: {
-                    _id: '$congressman_party.party_id',
-                    party: { $first: "$congressman_party"}
-            }
-    },
-    {
-        $replaceRoot: { newRoot: "$party" }
-    }
-])
-```
 
 ## Get all constituencies including congressmen sessions
 ```

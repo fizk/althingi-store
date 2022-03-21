@@ -93,6 +93,70 @@ class CongressmanSitting implements SourceDatabaseAware
         },iterator_to_array($documents));
     }
 
+    public function fetchCongressmenSessions(int $assemblyId, bool $primary = true)
+    {
+        $documents = $this->getSourceDatabase()
+            ->selectCollection(self::COLLECTION)
+            ->aggregate([
+            [
+                '$match' => [
+                    'assembly.assembly_id' => $assemblyId,
+                    'type' => $primary ? ['$ne' => 'varamaður'] : ['$eq' => 'varamaður']
+                ]
+            ],
+            [
+                '$group' => [
+                    '_id' => '$congressman.congressman_id',
+                    'sessions' => ['$push' => '$$ROOT']
+                ]
+            ],
+            [
+                '$addFields' => [
+                    'congressman' => [
+                        '$first' => '$sessions.congressman'
+                    ],
+                    'assembly' => [
+                        '$first' => '$sessions.assembly'
+                    ]
+                ]
+            ]
+        ]);
+
+        return array_map(function (BSONDocument $item) {
+            return [
+                '_id' => $item['_id'],
+                'congressman' => $item['congressman'] ? [
+                    ...$item['congressman'],
+                    ...deserializeBirth($item['congressman']),
+                ] : null,
+                'assembly' => $item['assembly'] ? [
+                    ...$item['assembly'],
+                    ...deserializeDatesRange($item['assembly']),
+                ] : null,
+                'sessions' => array_map(function (BSONDocument $session) {
+                    return [
+                        ...$session,
+                        ...deserializeDatesRange($session),
+                        'assembly' => $session['assembly'] ? [
+                            ...$session['assembly'],
+                            ...deserializeDatesRange($session['assembly']),
+                        ] : null,
+                        'congressman' => $session['congressman'] ? [
+                            ...$session['congressman'],
+                            ...deserializeBirth($session['congressman']),
+                        ] : null,
+                        'congressman_party' => $session['congressman_party'] ? [
+                            ...$session['congressman_party'],
+                        ] : null,
+                        'congressman_constituency' => $session['congressman_constituency'] ? [
+                            ...$session['congressman_constituency']
+                        ] : null,
+                    ];
+                }, $item['sessions']->getArrayCopy()),
+            ];
+        }, iterator_to_array($documents));
+    }
+
     /**
      * @return int | not modified = 0, create = 1, update = 2
      */
