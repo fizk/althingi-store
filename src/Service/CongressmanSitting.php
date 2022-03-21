@@ -119,7 +119,11 @@ class CongressmanSitting implements SourceDatabaseAware
                         '$first' => '$sessions.assembly'
                     ]
                 ]
+            ],
+            [
+                '$sort' => ['congressman.name' => 1]
             ]
+
         ]);
 
         return array_map(function (BSONDocument $item) {
