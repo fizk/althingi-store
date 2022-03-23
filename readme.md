@@ -182,6 +182,25 @@ db.getCollection('congressman-sitting').aggregate([
 ])
 ```
 
+## Get all parties in Assembly
+```
+db.getCollection('congressman-sitting').aggregate([
+    {
+        $match: {
+                'assembly.assembly_id': 140
+        }
+    },
+    {
+            $group: {
+                    _id: '$congressman_party.party_id',
+                    party: { $first: "$congressman_party"}
+            }
+    },
+    {
+        $replaceRoot: { newRoot: "$party" }
+    }
+])
+```
 
 ## Get all constituencies including congressmen sessions
 ```
@@ -230,6 +249,9 @@ db.getCollection('congressman-sitting').aggregate([
                  abbr_long: {$first: '$congressmen.congressman_constituency.abbr_long'},
                  description: {$first: '$congressmen.congressman_constituency.description'},
             }
+    },
+    {
+            $sort: {name: 1}
     }
 ])
 
@@ -246,9 +268,16 @@ db.getCollection('congressman-sitting').aggregate([
 db.getCollection('congressman-sitting').aggregate([
     {
         $match: {
-                'assembly.assembly_id': 140
+                'assembly.assembly_id': 140,
+                'type': {$ne: 'varamaður'}
         }
     },
+    {
+            $sort: {
+                    'congressman.name': 1
+            }
+    }
+    ,
     {
             $group: {
                     _id: {
@@ -289,12 +318,24 @@ db.getCollection('congressman-sitting').aggregate([
                  abbr_long: {$first: '$congressmen.congressman_party.abbr_long'},
                  color: {$first: '$congressmen.congressman_party.color'},
             }
+    },
+    {
+            $set: {
+                'congressmen': {
+                        $function: {
+                            body: function(all) {
+                                all.sort((a, b) => a.congressman.name.localeCompare(b.congressman.name))
+                                return all;
+                            },
+                            args: ['$congressmen'],
+                            lang: "js"
+                        }
+                 }
+            }
+    }
+    ,
+    {
+            $sort: {name: 1}
     }
 ])
-
-
-
-
-
-
 ```

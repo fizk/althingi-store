@@ -9,7 +9,6 @@ use App\Service\CongressmanSitting;
 use App\DatabaseConnectionTrait;
 use DateTime;
 
-use function PHPUnit\Framework\assertEquals;
 
 class CongressmanSittingTest extends TestCase
 {
@@ -497,7 +496,7 @@ class CongressmanSittingTest extends TestCase
                 ],
                 'congressman' =>  [
                     'congressman_id' => 3,
-                    'name' => 'name',
+                    'name' => 'A',
                     'birth' => new UTCDateTime((new DateTime('2005-01-01'))->getTimestamp() * 1000),
                     'death' => null,
                     'abbreviation' => 'abbreviation',
@@ -520,7 +519,7 @@ class CongressmanSittingTest extends TestCase
             [
                 '_id' => 2,
                 'session_id' => 2,
-                'from' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
+                'from' => new UTCDateTime((new DateTime('2001-01-02'))->getTimestamp() * 1000),
                 'to' => new UTCDateTime((new DateTime('2002-01-01'))->getTimestamp() * 1000),
                 'type' => 'type',
                 'abbr' => 'appr',
@@ -531,7 +530,7 @@ class CongressmanSittingTest extends TestCase
                 ],
                 'congressman' =>  [
                     'congressman_id' => 4,
-                    'name' => 'name',
+                    'name' => 'B',
                     'birth' => new UTCDateTime((new DateTime('2005-01-01'))->getTimestamp() * 1000),
                     'death' => null,
                     'abbreviation' => 'abbreviation',
@@ -582,7 +581,7 @@ class CongressmanSittingTest extends TestCase
                         ],
                         'congressman' =>  [
                             'congressman_id' => 3,
-                            'name' => 'name',
+                            'name' => 'A',
                             'birth' => '2005-01-01T00:00:00+00:00',
                             'death' => null,
                             'abbreviation' => 'abbreviation',
@@ -605,7 +604,7 @@ class CongressmanSittingTest extends TestCase
                 ],
                 'congressman' => [
                     'congressman_id' => 3,
-                    'name' => 'name',
+                    'name' => 'A',
                     'birth' => '2005-01-01T00:00:00+00:00',
                     'death' => null,
                     'abbreviation' => 'abbreviation',
@@ -622,7 +621,7 @@ class CongressmanSittingTest extends TestCase
                     [
                         '_id' => 2,
                         'session_id' => 2,
-                        'from' => '2001-01-01T00:00:00+00:00',
+                        'from' => '2001-01-02T00:00:00+00:00',
                         'to' => '2002-01-01T00:00:00+00:00',
                         'type' => 'type',
                         'abbr' => 'appr',
@@ -633,7 +632,7 @@ class CongressmanSittingTest extends TestCase
                         ],
                         'congressman' =>  [
                             'congressman_id' => 4,
-                            'name' => 'name',
+                            'name' => 'B',
                             'birth' => '2005-01-01T00:00:00+00:00',
                             'death' => null,
                             'abbreviation' => 'abbreviation',
@@ -656,7 +655,7 @@ class CongressmanSittingTest extends TestCase
                 ],
                 'congressman' =>  [
                     'congressman_id' => 4,
-                    'name' => 'name',
+                    'name' => 'B',
                     'birth' => '2005-01-01T00:00:00+00:00',
                     'death' => null,
                     'abbreviation' => 'abbreviation',
@@ -664,6 +663,217 @@ class CongressmanSittingTest extends TestCase
             ]
         ];
 
+        $this->assertEquals($expected, $actual);
+    }
+
+    public function testFetchPartiesSessions()
+    {
+        //GIVEN
+        $this->getDatabase()->selectCollection(CongressmanSitting::COLLECTION)->insertMany([
+            [
+                "_id" => 1,
+                "abbr" => null,
+                "assembly" => [
+                    "assembly_id" => 1,
+                    "from" => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
+                    "to" => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
+                ],
+                "congressman" => [
+                    "congressman_id" => 45,
+                    "name" => "A",
+                    "birth" => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
+                    "death" => null,
+                    "abbreviation" => "ÁsgE"
+                ],
+                "congressman_constituency" => [
+                    "constituency_id" => 12,
+                    "name" => "Húnavatnssýsla",
+                    "abbr_short" => "Hú",
+                    "abbr_long" => "Húnv.",
+                    "description" => null
+                ],
+                "congressman_party" => [
+                    "party_id" => 26,
+                    "name" => "-",
+                    "abbr_short" => "-",
+                    "abbr_long" => null,
+                    "color" => null
+                ],
+                "from" => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
+                "session_id" => 1,
+                "to" => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
+                "type" => "þingmaður"
+            ],
+            [
+                "_id" => 2,
+                "abbr" => null,
+                "assembly" => [
+                    "assembly_id" => 1,
+                    "from" => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
+                    "to" => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
+                ],
+                "congressman" => [
+                    "congressman_id" => 44,
+                    "name" => "B",
+                    "birth" => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
+                    "death" => null,
+                    "abbreviation" => "ÁsgE"
+                ],
+                "congressman_constituency" => [
+                    "constituency_id" => 12,
+                    "name" => "Húnavatnssýsla",
+                    "abbr_short" => "Hú",
+                    "abbr_long" => "Húnv.",
+                    "description" => null
+                ],
+                "congressman_party" => [
+                    "party_id" => 26,
+                    "name" => "-",
+                    "abbr_short" => "-",
+                    "abbr_long" => null,
+                    "color" => null
+                ],
+                "from" => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
+                "session_id" => 1,
+                "to" => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
+                "type" => "þingmaður"
+            ],
+            [
+                "_id" => 3,
+                "abbr" => null,
+                "assembly" => [
+                    "assembly_id" => 2,
+                    "from" => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
+                    "to" => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
+                ],
+                "congressman" => [
+                    "congressman_id" => 45,
+                    "name" => "Ásgeir Einarsson",
+                    "birth" => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
+                    "death" => null,
+                    "abbreviation" => "ÁsgE"
+                ],
+                "congressman_constituency" => [
+                    "constituency_id" => 12,
+                    "name" => "Húnavatnssýsla",
+                    "abbr_short" => "Hú",
+                    "abbr_long" => "Húnv.",
+                    "description" => null
+                ],
+                "congressman_party" => [
+                    "party_id" => 26,
+                    "name" => "-",
+                    "abbr_short" => "-",
+                    "abbr_long" => null,
+                    "color" => null
+                ],
+                "from" => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
+                "session_id" => 1,
+                "to" => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
+                "type" => "þingmaður"
+            ]
+        ]);
+
+        //WHEN
+        $actual = (new CongressmanSitting())
+            ->setSourceDatabase($this->getDatabase())
+            ->fetchPartiesSessions(1);
+
+        //THEN
+        $expected = [
+            [
+                '_id' => 26,
+                'party_id' => 26,
+                'name' => '-',
+                'abbr_short' => '-',
+                'abbr_long' => null,
+                'color' => null,
+                'congressmen' => [
+                    [
+                        '_id' => 4526,
+                        'congressman' => [
+                            "congressman_id" => 45,
+                            "name" => "A",
+                            "birth" => '2001-01-01T00:00:00+00:00',
+                            "death" => null,
+                            "abbreviation" => "ÁsgE"
+                        ],
+                        'assembly' => [
+                            "assembly_id" => 1,
+                            "from" => '2001-01-01T00:00:00+00:00',
+                            "to" => '2001-01-01T00:00:00+00:00',
+                        ],
+                        'sessions' => [
+                            [
+                                '_id' => 1,
+                                'congressman_party' => [
+                                    // '_id' => 26,
+                                    'party_id' => 26,
+                                    'name' => '-',
+                                    'abbr_short' => '-',
+                                    'abbr_long' => null,
+                                    'color' => null,
+                                ],
+                                'congressman_constituency' => [
+                                    "constituency_id" => 12,
+                                    "name" => "Húnavatnssýsla",
+                                    "abbr_short" => "Hú",
+                                    "abbr_long" => "Húnv.",
+                                    "description" => null
+                                ],
+                                'type' => 'þingmaður',
+                                "from" => '2001-01-01T00:00:00+00:00',
+                                "to" => '2001-01-01T00:00:00+00:00',
+                            ]
+                        ],
+                    ],
+                    [
+                        '_id' => 4426,
+                        'congressman' => [
+                            "congressman_id" => 44,
+                            "name" => "B",
+                            "birth" => '2001-01-01T00:00:00+00:00',
+                            "death" => null,
+                            "abbreviation" => "ÁsgE"
+                        ],
+                        'assembly' => [
+                            "assembly_id" => 1,
+                            "from" => '2001-01-01T00:00:00+00:00',
+                            "to" => '2001-01-01T00:00:00+00:00',
+                        ],
+                        'sessions' => [
+                            [
+                                '_id' => 2,
+                                'congressman_party' => [
+                                    // '_id' => 26,
+                                    'party_id' => 26,
+                                    'name' => '-',
+                                    'abbr_short' => '-',
+                                    'abbr_long' => null,
+                                    'color' => null,
+                                ],
+                                'congressman_constituency' => [
+                                    "constituency_id" => 12,
+                                    "name" => "Húnavatnssýsla",
+                                    "abbr_short" => "Hú",
+                                    "abbr_long" => "Húnv.",
+                                    "description" => null
+                                ],
+                                'type' => 'þingmaður',
+                                "from" => '2001-01-01T00:00:00+00:00',
+                                "to" => '2001-01-01T00:00:00+00:00',
+                            ]
+                        ],
+                    ],
+
+                ],
+                'assembly' => [
+                    "assembly_id" => 1,
+                    "from" => '2001-01-01T00:00:00+00:00',
+                    "to" => '2001-01-01T00:00:00+00:00',
+                ]
+            ]
+        ];
         $this->assertEquals($expected, $actual);
     }
 

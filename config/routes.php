@@ -9,8 +9,11 @@ return (new Route('root', '', []))
         (new Route('loggjafarthing', '/loggjafarthing', ['handler' => Handler\Assemblies::class]))
             ->addRoute(
                 (new Route('loggjafarthing.item', '/(?<assembly_id>\d+)', ['handler' => Handler\Assembly::class]))
-                    ->addRoute(new Route('loggjafarthing.item.parties', '/thingflokkar', ['handler' => Handler\AssemblyParties::class]))
-                    ->addRoute(new Route('loggjafarthing.item.sessions', '/thingsetur', ['handler' => Handler\AssemblySittings::class]))
+                    ->addRoute((new Route('loggjafarthing.item.parties', '/thingflokkar', ['handler' => Handler\AssemblyParties::class])))
+                    ->addRoute(
+                        (new Route('loggjafarthing.item.sessions', '/thingsetur', ['handler' => Handler\AssemblySittings::class]))
+                            ->addRoute(new Route('loggjafarthing.item.sessions.parties', '/flokkar', ['handler' => Handler\AssemblyPartiesSittings::class]))
+                    )
                 )
             )
     ->addRoute(

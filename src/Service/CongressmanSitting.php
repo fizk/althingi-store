@@ -98,33 +98,44 @@ class CongressmanSitting implements SourceDatabaseAware
         $documents = $this->getSourceDatabase()
             ->selectCollection(self::COLLECTION)
             ->aggregate([
-            [
-                '$match' => [
-                    'assembly.assembly_id' => $assemblyId,
-                    'type' => $primary ? ['$ne' => 'varamaður'] : ['$eq' => 'varamaður']
-                ]
-            ],
-            [
-                '$group' => [
-                    '_id' => '$congressman.congressman_id',
-                    'sessions' => ['$push' => '$$ROOT']
-                ]
-            ],
-            [
-                '$addFields' => [
-                    'congressman' => [
-                        '$first' => '$sessions.congressman'
-                    ],
-                    'assembly' => [
-                        '$first' => '$sessions.assembly'
+                [
+                    '$match' => [
+                        'assembly.assembly_id' => $assemblyId,
+                        'type' => $primary ? ['$ne' => 'varamaður'] : ['$eq' => 'varamaður']
                     ]
+                ],
+                [
+                    '$group' => [
+                        '_id' => '$congressman.congressman_id',
+                        'sessions' => ['$push' => '$$ROOT']
+                    ]
+                ],
+                [
+                    '$set' => [
+                        'sessions' => [
+                            '$function' => [
+                                'body' => 'function(s) {s.sort((a, b) => a.from - b.from);return s;}',
+                                'args' => ['$sessions'],
+                                'lang' => 'js'
+                            ]
+                        ]
+                    ]
+                ],
+                [
+                    '$addFields' => [
+                        'congressman' => [
+                            '$first' => '$sessions.congressman'
+                        ],
+                        'assembly' => [
+                            '$first' => '$sessions.assembly'
+                        ]
+                    ]
+                ],
+                [
+                    '$sort' => ['congressman.name' => 1]
                 ]
-            ],
-            [
-                '$sort' => ['congressman.name' => 1]
             ]
-
-        ]);
+        );
 
         return array_map(function (BSONDocument $item) {
             return [
@@ -159,6 +170,126 @@ class CongressmanSitting implements SourceDatabaseAware
                 }, $item['sessions']->getArrayCopy()),
             ];
         }, iterator_to_array($documents));
+    }
+
+    public function fetchPartiesSessions(int $assemblyId, bool $primary = true)
+    {
+        $documents = $this->getSourceDatabase()
+            ->selectCollection(self::COLLECTION)
+            ->aggregate([
+                [
+                    '$match' => [
+                        'assembly.assembly_id' => $assemblyId,
+                        'type' => $primary ? ['$ne' => 'varamaður'] : ['$eq' => 'varamaður']
+                    ]
+                ],
+                [
+                    '$sort' => [
+                        'congressman.name' => 1
+                    ]
+                ],
+                [
+                    '$group' => [
+                        '_id' => [
+                            'congressman' => '$congressman.congressman_id',
+                            'party' => '$congressman_party.party_id'
+                        ],
+                        'congressman' => ['$first' => '$congressman'],
+                        'assembly' => ['$first' => '$assembly'],
+                        'sessions' => [
+                            '$push' => [
+                                '_id' => '$_id',
+                                'congressman_party' => '$congressman_party',
+                                'congressman_constituency' => '$congressman_constituency',
+                                'from' => '$from',
+                                'to' => '$to',
+                                'type' => '$type'
+                            ]
+                        ],
+                        'congressman_party' => ['$first' => '$congressman_party']
+                    ]
+                ],
+                [
+
+                    '$group' => [
+                        '_id' => '$_id.party',
+
+                        'congressmen' => ['$push' => '$$ROOT']
+                    ]
+                ],
+                [
+                    '$addFields' => [
+                        'assembly' => ['$first' => '$congressmen.assembly'],
+                        'congressman_constituency' => ['$first' => '$congressmen.congressman_constituency'],
+                        'party_id' => ['$first' => '$congressmen.congressman_party.party_id'],
+                        'name' => ['$first' => '$congressmen.congressman_party.name'],
+                        'abbr_short' => ['$first' => '$congressmen.congressman_party.abbr_short'],
+                        'abbr_long' => ['$first' => '$congressmen.congressman_party.abbr_long'],
+                        'color' => ['$first' => '$congressmen.congressman_party.color'],
+                    ]
+                ],
+                [
+                    '$set' => [
+                        'congressmen' => [
+                            '$function' => [
+                                'body' => 'function(all) {'.
+                                    'all.sort((a, b) => a.congressman.name.localeCompare(b.congressman.name));'.
+                                    'return all;'.
+                                '}',
+                                'args' => ['$congressmen'],
+                                'lang' => 'js'
+                            ]
+                        ]
+                    ]
+                ],
+                [
+                    '$sort' => ['name' => 1]
+                ]
+            ]
+        );
+
+        return array_map(function (BSONDocument $item) {
+            return [
+                '_id' => $item['_id'],
+                'party_id' => $item['party_id'],
+                'name' => $item['name'],
+                'abbr_short' => $item['abbr_short'],
+                'abbr_long' => $item['abbr_long'],
+                'color' => $item['color'],
+                'congressmen' => array_map(function(BSONDocument $session) {
+                    return [
+                        '_id' => (int)"{$session['_id']['congressman']}{$session['_id']['party']}",
+                        'congressman' => $session['congressman'] ? [
+                            ...$session['congressman'],
+                            ...deserializeBirth($session['congressman']),
+                        ] : null,
+                        'assembly' => $session['assembly'] ? [
+                            ...$session['assembly'],
+                            ...deserializeDatesRange($session['assembly']),
+                        ] : null,
+                        'sessions' => array_map(function(BSONDocument $record) {
+                            return [
+                                '_id' => $record['_id'],
+                                'congressman_party' => $record['congressman_party'] ? [
+                                    ...$record['congressman_party']
+                                ] : null,
+                                'congressman_constituency' => $record['congressman_constituency'] ? [
+                                    ...$record['congressman_constituency']
+                                ] : null,
+                                'type' => $record['type'],
+                                ...deserializeDatesRange($record),
+                            ];
+                        }, $session['sessions']->getArrayCopy()),
+                    ];
+                }, $item['congressmen']->getArrayCopy()),
+                'assembly' => $item['assembly'] ? [
+                    ...$item['assembly'],
+                    ...deserializeDatesRange($item['assembly']),
+                ] : null,
+
+            ];
+        }, iterator_to_array($documents));
+
     }
 
     /**
