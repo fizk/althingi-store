@@ -269,20 +269,14 @@ db.getCollection('congressman-sitting').aggregate([
     {
         $match: {
                 'assembly.assembly_id': 140,
-                'type': {$ne: 'varamaður'}
+            'type': {$ne: 'varamaður'}
         }
     },
-    {
-            $sort: {
-                    'congressman.name': 1
-            }
-    }
-    ,
     {
             $group: {
                     _id: {
                         congressman: '$congressman.congressman_id',
-                        party: '$congressman_party.party_id'
+                        constituency: '$congressman_constituency.constituency_id'
                      },
                      congressman: { $first: "$congressman"},
                      assembly: { $first: "$assembly"},
@@ -295,14 +289,14 @@ db.getCollection('congressman-sitting').aggregate([
                          type: "$type"
                         }
                      },
-                     congressman_party: { $first: "$congressman_party"}
+                     congressman_constituency: { $first: "$congressman_constituency"}
             }
     }
    ,
     {
 
              $group: {
-                _id: '$_id.party',
+                _id: '$_id.constituency',
 
                 congressmen: { $push: "$$ROOT"}
             }
@@ -311,12 +305,11 @@ db.getCollection('congressman-sitting').aggregate([
     {
             $addFields: {
                  assembly: {$first: '$congressmen.assembly'},
-                 congressman_constituency: {$first: '$congressmen.congressman_constituency'},
-                 party_id: {$first: '$congressmen.congressman_party.party_id'},
-                 name: {$first: '$congressmen.congressman_party.name'},
-                 abbr_short: {$first: '$congressmen.congressman_party.abbr_short'},
-                 abbr_long: {$first: '$congressmen.congressman_party.abbr_long'},
-                 color: {$first: '$congressmen.congressman_party.color'},
+                 constituency_id: {$first: '$congressmen.congressman_constituency.constituency_id'},
+                 name: {$first: '$congressmen.congressman_constituency.name'},
+                 abbr_short: {$first: '$congressmen.congressman_constituency.abbr_short'},
+                 abbr_long: {$first: '$congressmen.congressman_constituency.abbr_long'},
+                 description: {$first: '$congressmen.congressman_constituency.description'},
             }
     },
     {
@@ -332,8 +325,7 @@ db.getCollection('congressman-sitting').aggregate([
                         }
                  }
             }
-    }
-    ,
+    },
     {
             $sort: {name: 1}
     }

@@ -13,6 +13,7 @@ return (new Route('root', '', []))
                     ->addRoute(
                         (new Route('loggjafarthing.item.sessions', '/thingsetur', ['handler' => Handler\AssemblySittings::class]))
                             ->addRoute(new Route('loggjafarthing.item.sessions.parties', '/flokkar', ['handler' => Handler\AssemblyPartiesSittings::class]))
+                            ->addRoute(new Route('loggjafarthing.item.sessions.constituencies', '/kjordaemi', ['handler' => Handler\AssemblyConstituenciesSittings::class]))
                     )
                 )
             )
