@@ -7,7 +7,14 @@ use Psr\Http\Message\{ResponseInterface, ServerRequestInterface};
 use Laminas\Diactoros\Response\{EmptyResponse, JsonResponse};
 use App\Service;
 use App\Handler\HandlerTrait;
-use App\Decorator\{ServiceAssemblyAware, ServiceCommitteeAware, ServiceCommitteeSittingAware, ServiceCongressmanSittingAware, ServiceMinistryAware};
+use App\Decorator\{
+    ServiceAssemblyAware,
+    ServiceCommitteeAware,
+    ServiceCommitteeSittingAware,
+    ServiceCongressmanSittingAware,
+    ServiceMinisterSittingAware,
+    ServiceMinistryAware
+};
 
 class Assembly implements
     RequestHandlerInterface,
@@ -15,7 +22,8 @@ class Assembly implements
     ServiceMinistryAware,
     ServiceCommitteeAware,
     ServiceCongressmanSittingAware,
-    ServiceCommitteeSittingAware
+    ServiceCommitteeSittingAware,
+    ServiceMinisterSittingAware
 {
     use HandlerTrait;
 
@@ -24,6 +32,7 @@ class Assembly implements
     private Service\Committee $committeeService;
     private Service\CongressmanSitting $congressmanSittingService;
     private Service\CommitteeSitting $committeeSittingService;
+    private Service\MinisterSitting $ministerSittingService;
 
     public function get(ServerRequestInterface $request): ResponseInterface
     {
@@ -48,6 +57,7 @@ class Assembly implements
         $this->committeeService->updateAssembly($assembly);
         $this->congressmanSittingService->updateAssembly($assembly);
         $this->committeeSittingService->updateAssembly($assembly);
+        $this->ministerSittingService->updateAssembly($assembly);
 
         return match($result) {
             1 => new EmptyResponse(201),
@@ -83,6 +93,12 @@ class Assembly implements
     public function setCommitteeSittingService(Service\CommitteeSitting $committeeSitting): self
     {
         $this->committeeSittingService = $committeeSitting;
+        return $this;
+    }
+
+     public function setMinisterSittingService(Service\MinisterSitting $ministerSitting): self
+    {
+        $this->ministerSittingService = $ministerSitting;
         return $this;
     }
 }

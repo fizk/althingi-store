@@ -2,58 +2,44 @@
 
 namespace App\Handler;
 
-use Psr\Http\Server\RequestHandlerInterface;
 use Psr\Http\Message\{ResponseInterface, ServerRequestInterface};
+use Psr\Http\Server\RequestHandlerInterface;
 use Laminas\Diactoros\Response\{EmptyResponse, JsonResponse};
 use App\Service;
 use App\Handler\HandlerTrait;
-use App\Decorator\{
-    ServiceMinisterSittingAware,
-    ServiceMinistryAware
-};
+use App\Decorator\ServiceMinisterSittingAware;
 
-class Ministry implements
+class MinisterSitting implements
     RequestHandlerInterface,
-    ServiceMinistryAware,
     ServiceMinisterSittingAware
 {
     use HandlerTrait;
 
-    private Service\Ministry $ministryService;
     private Service\MinisterSitting $ministerSittingService;
 
     public function get(ServerRequestInterface $request): ResponseInterface
     {
-        $ministry = $this->ministryService->get($request->getAttribute('ministry_id'));
+        $ministerSitting = $this->ministerSittingService
+            ->get($request->getAttribute('minister_sitting_id'));
 
-        return $ministry
-            ? new JsonResponse($ministry, 200)
+        return $ministerSitting
+            ? new JsonResponse($ministerSitting, 200)
             : new EmptyResponse(404);
     }
 
     public function put(ServerRequestInterface $request): ResponseInterface
     {
-        $ministry = [
+        $ministerSitting = [
             ...json_decode($request->getBody()->getContents(), true),
-            ...['ministry_id' => (int) $request->getAttribute('ministry_id')]
+            ...['minister_sitting_id' => (int) $request->getAttribute('minister_sitting_id')]
         ];
-        $result = $this->ministryService->store($ministry);
+        $result = $this->ministerSittingService->store($ministerSitting);
 
-        //TODO  if $result = 2, then...
-        // Update embedded objects
-        $this->ministerSittingService->updateMinistry($ministry);
-
-        return match($result) {
+        return match ($result) {
             1 => new EmptyResponse(201),
             2 => new EmptyResponse(205),
             default => new EmptyResponse(304),
         };
-    }
-
-    public function setMinistryService(Service\Ministry $ministry): self
-    {
-        $this->ministryService = $ministry;
-        return $this;
     }
 
     public function setMinisterSittingService(Service\MinisterSitting $ministerSitting): self

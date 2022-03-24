@@ -58,3 +58,11 @@ function deserializeDate($date): array {
             : null,
     ];
 }
+
+function serializeAssembly($assembly): array
+{
+    return [
+        ...$assembly,
+        ...serializeDatesRange($assembly),
+    ];
+}

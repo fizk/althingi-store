@@ -2,26 +2,31 @@
 
 namespace App\Handler;
 
-use App\Decorator\ServiceCommitteeSittingAware;
-use App\Decorator\ServiceCongressmanSittingAware;
-use App\Decorator\ServiceConstituencyAware;
 use Psr\Http\Message\{ResponseInterface, ServerRequestInterface};
 use Psr\Http\Server\RequestHandlerInterface;
 use Laminas\Diactoros\Response\{EmptyResponse, JsonResponse};
 use App\Service;
 use App\Handler\HandlerTrait;
+use App\Decorator\{
+    ServiceCongressmanSittingAware,
+    ServiceCommitteeSittingAware,
+    ServiceConstituencyAware,
+    ServiceMinisterSittingAware
+};
 
 class Constituency implements
     RequestHandlerInterface,
     ServiceConstituencyAware,
     ServiceCongressmanSittingAware,
-    ServiceCommitteeSittingAware
+    ServiceCommitteeSittingAware,
+    ServiceMinisterSittingAware
 {
     use HandlerTrait;
 
     private Service\Constituency $committeeService;
     private Service\CongressmanSitting $congressmanSittingService;
     private Service\CommitteeSitting $committeeSittingService;
+    private Service\MinisterSitting $ministerSittingService;
 
     public function get(ServerRequestInterface $request): ResponseInterface
     {
@@ -44,6 +49,7 @@ class Constituency implements
         // Update embedded objects
         $this->congressmanSittingService->updateConstituency($constituency);
         $this->committeeSittingService->updateConstituency($constituency);
+        $this->ministerSittingService->updateConstituency($constituency);
 
         return match ($result) {
             1 => new EmptyResponse(201),
@@ -67,6 +73,12 @@ class Constituency implements
     public function setCommitteeSittingService(Service\CommitteeSitting $committeeSitting): self
     {
         $this->committeeSittingService = $committeeSitting;
+        return $this;
+    }
+
+    public function setMinisterSittingService(Service\MinisterSitting $ministerSitting): self
+    {
+        $this->ministerSittingService = $ministerSitting;
         return $this;
     }
 }
