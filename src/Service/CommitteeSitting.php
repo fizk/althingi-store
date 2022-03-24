@@ -5,8 +5,12 @@ namespace App\Service;
 use App\Decorator\SourceDatabaseAware;
 use function App\serializeDatesRange;
 use function App\deserializeDatesRange;
-use function App\serializeBirth;
 use function App\deserializeBirth;
+use function App\serializeAssembly;
+use function App\serializeCongressman;
+use function App\serializeCommittee;
+use function App\serializeParty;
+use function App\serializeConstituency;
 use MongoDB\Model\BSONDocument;
 use MongoDB\Database;
 
@@ -102,31 +106,27 @@ class CommitteeSitting implements SourceDatabaseAware
             '_id' => $object['committee_sitting_id'],
             ...$object,
             ...serializeDatesRange($object),
-            'assembly' => $object['assembly'] ? [
-                ...$object['assembly'],
-                ...serializeDatesRange($object['assembly']),
-            ] : null,
-            'congressman' => $object['congressman'] ? [
-                ...$object['congressman'],
-                ...serializeBirth($object['congressman']),
-            ] : null,
-            'committee' => $object['committee'] ? [
-                ...$object['committee'],
-            ] : null,
-            'congressman_party' => $object['congressman_party'] ? [
-                ...$object['congressman_party']
-            ]: null,
-            'congressman_constituency' => $object['congressman_constituency'] ? [
-                ...$object['congressman_constituency']
-            ]: null,
-            'first_committee_assembly' => $object['first_committee_assembly'] ? [
-                ...$object['first_committee_assembly'],
-                ...serializeDatesRange($object['first_committee_assembly']),
-            ]: null,
-            'last_committee_assembly' => $object['last_committee_assembly'] ? [
-                ...$object['last_committee_assembly'],
-                ...serializeDatesRange($object['last_committee_assembly']),
-            ]: null,
+            'assembly' => $object['assembly']
+                ? serializeAssembly($object['assembly'])
+                : null,
+            'congressman' => $object['congressman']
+                ? serializeCongressman($object['congressman'])
+                : null,
+            'committee' => $object['committee']
+                ? serializeCommittee($object['committee'])
+                : null,
+            'congressman_party' => $object['congressman_party']
+                ? serializeParty($object['congressman_party'])
+                : null,
+            'congressman_constituency' => $object['congressman_constituency']
+                ? serializeConstituency($object['congressman_constituency'])
+                : null,
+            'first_committee_assembly' => $object['first_committee_assembly']
+                ? serializeAssembly($object['first_committee_assembly'])
+                : null,
+            'last_committee_assembly' => $object['last_committee_assembly']
+                ? serializeAssembly($object['last_committee_assembly'])
+                : null,
         ];
 
         $result = $this->getSourceDatabase()
@@ -150,10 +150,7 @@ class CommitteeSitting implements SourceDatabaseAware
             ->selectCollection(self::COLLECTION)
             ->updateMany(
                 ['assembly.assembly_id' => $assembly['assembly_id']],
-                ['$set' => ['assembly' => [
-                    ...$assembly,
-                    ...serializeDatesRange($assembly),
-                ]]],
+                ['$set' => ['assembly' => serializeAssembly($assembly)]],
                 ['upsert' => false]
             );
 
@@ -161,10 +158,7 @@ class CommitteeSitting implements SourceDatabaseAware
             ->selectCollection(self::COLLECTION)
             ->updateMany(
                 ['first_committee_assembly.assembly_id' => $assembly['assembly_id']],
-                ['$set' => ['first_committee_assembly' => [
-                    ...$assembly,
-                    ...serializeDatesRange($assembly),
-                ]]],
+                ['$set' => ['first_committee_assembly' => serializeAssembly($assembly)]],
                 ['upsert' => false]
             );
 
@@ -172,10 +166,7 @@ class CommitteeSitting implements SourceDatabaseAware
             ->selectCollection(self::COLLECTION)
             ->updateMany(
                 ['last_committee_assembly.assembly_id' => $assembly['assembly_id']],
-                ['$set' => ['last_committee_assembly' => [
-                    ...$assembly,
-                    ...serializeDatesRange($assembly),
-                ]]],
+                ['$set' => ['last_committee_assembly' => serializeAssembly($assembly)]],
                 ['upsert' => false]
             );
     }
@@ -190,9 +181,7 @@ class CommitteeSitting implements SourceDatabaseAware
             ->selectCollection(self::COLLECTION)
             ->updateMany(
                 ['committee.committee_id' => $committee['committee_id']],
-                ['$set' => ['committee' => [
-                    ...$committee,
-                ]]],
+                ['$set' => ['committee' => serializeCommittee($committee)]],
                 ['upsert' => false]
             );
     }
@@ -207,10 +196,7 @@ class CommitteeSitting implements SourceDatabaseAware
             ->selectCollection(self::COLLECTION)
             ->updateMany(
                 ['congressman.congressman_id' => $congressman['congressman_id']],
-                ['$set' => ['congressman' => [
-                    ...$congressman,
-                    ...serializeBirth($congressman)
-                ]]],
+                ['$set' => ['congressman' => serializeCongressman($congressman)]],
                 ['upsert' => false]
             );
     }
@@ -225,9 +211,7 @@ class CommitteeSitting implements SourceDatabaseAware
             ->selectCollection(self::COLLECTION)
             ->updateMany(
                 ['congressman_party.party_id' => $party['party_id']],
-                ['$set' => ['congressman_party' => [
-                    ...$party,
-                ]]],
+                ['$set' => ['congressman_party' => serializeParty($party)]],
                 ['upsert' => false]
             );
     }
@@ -242,9 +226,7 @@ class CommitteeSitting implements SourceDatabaseAware
             ->selectCollection(self::COLLECTION)
             ->updateMany(
                 ['congressman_constituency.constituency_id' => $constituency['constituency_id']],
-                ['$set' => ['congressman_constituency' => [
-                    ...$constituency,
-                ]]],
+                ['$set' => ['congressman_constituency' => serializeConstituency($constituency)]],
                 ['upsert' => false]
             );
     }

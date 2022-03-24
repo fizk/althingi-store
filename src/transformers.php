@@ -66,3 +66,39 @@ function serializeAssembly($assembly): array
         ...serializeDatesRange($assembly),
     ];
 }
+
+function serializeCongressman($congressman): array
+{
+    return [
+        ...$congressman,
+        ...serializeBirth($congressman),
+    ];
+}
+
+function serializeCommittee($committee): array
+{
+    return [
+        ...$committee,
+    ];
+}
+
+function serializeParty($party): array
+{
+    return [
+        ...$party,
+    ];
+}
+
+function serializeConstituency($constituency): array
+{
+    return [
+        ...$constituency,
+    ];
+}
+
+function serializeMinistry($ministry): array
+{
+    return [
+        ...$ministry,
+    ];
+}

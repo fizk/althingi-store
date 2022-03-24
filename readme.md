@@ -1,18 +1,4 @@
 ```
-[ ] /radherraseta/${data.body.minister_sitting_id}: MinisterSittingPayload
-export interface MinisterSittingPayload {
-    minister_sitting_id: number
-    from: string
-    to: Maybe<string>
-    assembly: Maybe<Assembly>
-    ministry: Maybe<Ministry>
-    congressman: Maybe<Congressman>
-    congressman_constituency: Maybe<Constituency>
-    congressman_party: Maybe<Party>
-    first_ministry_assembly: Maybe<Assembly>
-    last_ministry_assembly: Maybe<Assembly>
-}
-
 [ ] /forsetaseta/${data.body.president_id}: PresidentSittingPayload
 export interface PresidentSittingPayload {
     president_id: number

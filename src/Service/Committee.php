@@ -5,8 +5,8 @@ namespace App\Service;
 use App\Decorator\SourceDatabaseAware;
 use MongoDB\Database;
 use MongoDB\Model\BSONDocument;
-use function App\serializeDatesRange;
 use function App\deserializeDatesRange;
+use function App\serializeAssembly;
 
 class Committee implements SourceDatabaseAware
 {
@@ -59,14 +59,12 @@ class Committee implements SourceDatabaseAware
         $document = [
             '_id' => $object['committee_id'],
             ...$object,
-            'first' => $object['first'] ? [
-                ...$object['first'],
-                ...serializeDatesRange($object['first']),
-            ] : null,
-            'last' => $object['last'] ? [
-                ...$object['last'],
-                ...serializeDatesRange($object['last']),
-            ] : null,
+            'first' => $object['first']
+                ? serializeAssembly($object['first'])
+                : null,
+            'last' => $object['last']
+                ? serializeAssembly($object['last'])
+                : null,
         ];
 
         $result = $this->getSourceDatabase()
@@ -90,10 +88,7 @@ class Committee implements SourceDatabaseAware
             ->selectCollection(self::COLLECTION)
             ->updateMany(
                 ['first.assembly_id' => $assembly['assembly_id']],
-                ['$set' => ['first' => [
-                    ...$assembly,
-                    ...serializeDatesRange($assembly),
-                ]]],
+                ['$set' => ['first' => serializeAssembly($assembly)]],
                 ['upsert' => false]
             );
 
@@ -101,10 +96,7 @@ class Committee implements SourceDatabaseAware
             ->selectCollection(self::COLLECTION)
             ->updateMany(
                 ['last.assembly_id' => $assembly['assembly_id']],
-                ['$set' => ['last' => [
-                    ...$assembly,
-                    ...serializeDatesRange($assembly),
-                ]]],
+                ['$set' => ['last' => serializeAssembly($assembly)]],
                 ['upsert' => false]
             );
     }

@@ -7,8 +7,11 @@ use MongoDB\Database;
 use MongoDB\Model\BSONDocument;
 use function App\serializeDatesRange;
 use function App\deserializeDatesRange;
-use function App\serializeBirth;
 use function App\deserializeBirth;
+use function App\serializeAssembly;
+use function App\serializeCongressman;
+use function App\serializeParty;
+use function App\serializeConstituency;
 
 class CongressmanSitting implements SourceDatabaseAware
 {
@@ -413,20 +416,18 @@ class CongressmanSitting implements SourceDatabaseAware
         $document = [
             ...$object,
             '_id' => $object['session_id'],
-            'assembly' => $object['assembly'] ? [
-                ...$object['assembly'],
-                ...serializeDatesRange($object['assembly']),
-            ] : null,
-            'congressman' => $object['congressman'] ? [
-                ...$object['congressman'],
-                ...serializeBirth($object['congressman']),
-            ] : null,
-            'congressman_constituency' => $object['congressman_constituency'] ? [
-                ...$object['congressman_constituency']
-            ] : null,
-            'congressman_party' => $object['congressman_party'] ? [
-                ...$object['congressman_party'],
-            ] : null,
+            'assembly' => $object['assembly']
+                ? serializeAssembly($object['assembly'])
+                : null,
+            'congressman' => $object['congressman']
+                ? serializeCongressman($object['congressman'])
+                : null,
+            'congressman_constituency' => $object['congressman_constituency']
+                ? serializeConstituency($object['congressman_constituency'])
+                : null,
+            'congressman_party' => $object['congressman_party']
+                ? serializeParty($object['congressman_party'])
+                : null,
             ...serializeDatesRange($object),
         ];
 
@@ -451,10 +452,7 @@ class CongressmanSitting implements SourceDatabaseAware
             ->selectCollection(self::COLLECTION)
             ->updateMany(
                 ['assembly.assembly_id' => $assembly['assembly_id']],
-                ['$set' => ['assembly' => [
-                    ...$assembly,
-                    ...serializeDatesRange($assembly),
-                ]]],
+                ['$set' => ['assembly' => serializeAssembly($assembly)]],
                 ['upsert' => false]
             );
     }
@@ -469,7 +467,7 @@ class CongressmanSitting implements SourceDatabaseAware
             ->selectCollection(self::COLLECTION)
             ->updateMany(
                 ['congressman_party.party_id' => $party['party_id']],
-                ['$set' => ['congressman_party' => $party,]],
+                ['$set' => ['congressman_party' => serializeParty($party)]],
                 ['upsert' => false]
             );
     }
@@ -484,10 +482,7 @@ class CongressmanSitting implements SourceDatabaseAware
             ->selectCollection(self::COLLECTION)
             ->updateMany(
                 ['congressman.congressman_id' => $congressman['congressman_id']],
-                ['$set' => ['congressman' => [
-                    ...$congressman,
-                    ...serializeBirth($congressman)
-                ],]],
+                ['$set' => ['congressman' => serializeCongressman($congressman),]],
                 ['upsert' => false]
             );
     }
@@ -502,7 +497,7 @@ class CongressmanSitting implements SourceDatabaseAware
             ->selectCollection(self::COLLECTION)
             ->updateMany(
                 ['congressman_constituency.constituency_id' => $constituency['constituency_id']],
-                ['$set' => ['congressman_constituency' => $constituency,]],
+                ['$set' => ['congressman_constituency' => serializeConstituency($constituency),]],
                 ['upsert' => false]
             );
     }
