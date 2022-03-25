@@ -5,8 +5,10 @@ namespace App\Service;
 use App\Decorator\SourceDatabaseAware;
 use MongoDB\Database;
 use MongoDB\Model\BSONDocument;
-use function App\serializeBirth;
-use function App\deserializeBirth;
+use function App\{
+    serializeCongressman,
+    deserializeCongressman
+};
 
 class Congressman implements SourceDatabaseAware
 {
@@ -19,19 +21,15 @@ class Congressman implements SourceDatabaseAware
             ->selectCollection(self::COLLECTION)
             ->findOne(['_id' => $id]);
 
-        return $document ? [
-            ...$document,
-            ...deserializeBirth($document),
-        ] : null;
+        return $document
+            ? deserializeCongressman($document)
+            : null;
     }
 
     public function fetch(): array
     {
         return array_map(function (BSONDocument $document)  {
-            return [
-                ...$document,
-                ...deserializeBirth($document),
-            ];
+            return deserializeCongressman($document);
         }, iterator_to_array(
             $this->getSourceDatabase()->selectCollection(self::COLLECTION)->find()
         ));
@@ -44,8 +42,7 @@ class Congressman implements SourceDatabaseAware
     {
         $document = [
             '_id' => $object['congressman_id'],
-            ...$object,
-            ...serializeBirth($object),
+            ...serializeCongressman($object),
         ];
 
         $result = $this->getSourceDatabase()

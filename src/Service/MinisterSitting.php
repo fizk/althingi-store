@@ -5,14 +5,12 @@ namespace App\Service;
 use App\Decorator\SourceDatabaseAware;
 use MongoDB\Database;
 use MongoDB\Model\BSONDocument;
-use function App\serializeDatesRange;
-use function App\deserializeDatesRange;
-use function App\deserializeBirth;
-use function App\serializeAssembly;
-use function App\serializeCongressman;
-use function App\serializeParty;
-use function App\serializeConstituency;
-use function App\serializeMinistry;
+use function App\{serializeDatesRange, deserializeDatesRange};
+use function App\{serializeAssembly, deserializeAssembly};
+use function App\{serializeCongressman, deserializeCongressman};
+use function App\{serializeParty, deserializeParty};
+use function App\{deserializeConstituency, serializeConstituency};
+use function App\{deserializeMinistry, serializeMinistry};
 
 class MinisterSitting implements SourceDatabaseAware
 {
@@ -28,31 +26,27 @@ class MinisterSitting implements SourceDatabaseAware
         return $document ? [
             ...$document,
             ...deserializeDatesRange($document),
-            'assembly' => $document['assembly'] ? [
-                ...$document['assembly'],
-                ...deserializeDatesRange($document['assembly']),
-            ] : null,
-            'ministry' => $document['ministry'] ? [
-                ...$document['ministry'],
-            ] : null,
-            'congressman' => $document['congressman'] ? [
-                ...$document['congressman'],
-                ...deserializeBirth($document['congressman']),
-            ] : null,
-            'congressman_party' => $document['congressman_party'] ? [
-                ...$document['congressman_party']
-            ] : null,
-            'congressman_constituency' => $document['congressman_constituency'] ? [
-                ...$document['congressman_constituency']
-            ] : null,
-            'first_ministry_assembly' => $document['first_ministry_assembly'] ? [
-                ...$document['first_ministry_assembly'],
-                ...deserializeDatesRange($document['first_ministry_assembly']),
-            ] : null,
-            'last_ministry_assembly' => $document['last_ministry_assembly'] ? [
-                ...$document['last_ministry_assembly'],
-                ...deserializeDatesRange($document['last_ministry_assembly']),
-            ] : null,
+            'assembly' => $document['assembly']
+                ? deserializeAssembly($document['assembly'])
+                : null,
+            'ministry' => $document['ministry']
+                ? deserializeMinistry($document['ministry'])
+                : null,
+            'congressman' => $document['congressman']
+                ? deserializeCongressman($document['congressman'])
+                : null,
+            'congressman_party' => $document['congressman_party']
+                ? deserializeParty($document['congressman_party'])
+                : null,
+            'congressman_constituency' => $document['congressman_constituency']
+                ? deserializeConstituency($document['congressman_constituency'])
+                : null,
+            'first_ministry_assembly' => $document['first_ministry_assembly']
+                ? deserializeAssembly($document['first_ministry_assembly'])
+                : null,
+            'last_ministry_assembly' => $document['last_ministry_assembly']
+                ? deserializeAssembly($document['last_ministry_assembly'])
+                : null,
         ] : null;
     }
 
@@ -62,31 +56,27 @@ class MinisterSitting implements SourceDatabaseAware
             return [
                 ...$document,
                 ...deserializeDatesRange($document),
-                'assembly' => $document['assembly'] ? [
-                    ...$document['assembly'],
-                    ...deserializeDatesRange($document['assembly']),
-                ] : null,
-                'ministry' => $document['ministry'] ? [
-                    ...$document['ministry'],
-                ] : null,
-                'congressman' => $document['congressman'] ? [
-                    ...$document['congressman'],
-                    ...deserializeBirth($document['congressman']),
-                ] : null,
-                'congressman_party' => $document['congressman_party'] ? [
-                    ...$document['congressman_party']
-                ] : null,
-                'congressman_constituency' => $document['congressman_constituency'] ? [
-                    ...$document['congressman_constituency']
-                ] : null,
-                'first_ministry_assembly' => $document['first_ministry_assembly'] ? [
-                    ...$document['first_ministry_assembly'],
-                    ...deserializeDatesRange($document['first_ministry_assembly']),
-                ] : null,
-                'last_ministry_assembly' => $document['last_ministry_assembly'] ? [
-                    ...$document['last_ministry_assembly'],
-                    ...deserializeDatesRange($document['last_ministry_assembly']),
-                ] : null,
+                'assembly' => $document['assembly']
+                    ? deserializeAssembly($document['assembly'])
+                    : null,
+                'ministry' => $document['ministry']
+                    ? deserializeMinistry($document['ministry'])
+                    : null,
+                'congressman' => $document['congressman']
+                    ? deserializeCongressman($document['congressman'])
+                    : null,
+                'congressman_party' => $document['congressman_party']
+                    ? deserializeParty($document['congressman_party'])
+                    : null,
+                'congressman_constituency' => $document['congressman_constituency']
+                    ? deserializeConstituency($document['congressman_constituency'])
+                    : null,
+                'first_ministry_assembly' => $document['first_ministry_assembly']
+                    ? deserializeAssembly($document['first_ministry_assembly'])
+                    : null,
+                'last_ministry_assembly' => $document['last_ministry_assembly']
+                    ? deserializeAssembly($document['last_ministry_assembly'])
+                    : null,
             ];
         }, iterator_to_array(
             $this->getSourceDatabase()->selectCollection(self::COLLECTION)->find()

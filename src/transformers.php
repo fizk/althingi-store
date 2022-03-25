@@ -3,9 +3,11 @@
 namespace App;
 
 use MongoDB\BSON\UTCDateTime;
+use MongoDB\Model\BSONDocument;
 use DateTime;
 
-function serializeDatesRange($range): array {
+function serializeDatesRange($range): array
+{
     return [
         'from' => $range['from']
             ? new UTCDateTime((new DateTime($range['from']))->getTimestamp() * 1000)
@@ -16,7 +18,8 @@ function serializeDatesRange($range): array {
     ];
 }
 
-function deserializeDatesRange($range): array {
+function deserializeDatesRange(BSONDocument $range): array
+{
     return [
         'from' => $range['from']
             ? $range['from']->toDateTime()->format('c')
@@ -27,7 +30,8 @@ function deserializeDatesRange($range): array {
     ];
 }
 
-function serializeBirth($date): array {
+function serializeBirth($date): array
+{
     return [
         'birth' => $date['birth']
             ? new UTCDateTime((new DateTime($date['birth']))->getTimestamp() * 1000)
@@ -35,7 +39,8 @@ function serializeBirth($date): array {
     ];
 }
 
-function deserializeBirth($date): array {
+function deserializeBirth(BSONDocument $date): array
+{
     return [
         'birth' => $date['birth']
             ? $date['birth']->toDateTime()->format('c')
@@ -43,7 +48,8 @@ function deserializeBirth($date): array {
     ];
 }
 
-function serializeDate($date): array {
+function serializeDate($date): array
+{
     return [
         'date' => $date['date']
             ? new UTCDateTime((new DateTime($date['date']))->getTimestamp() * 1000)
@@ -51,7 +57,8 @@ function serializeDate($date): array {
     ];
 }
 
-function deserializeDate($date): array {
+function deserializeDate(BSONDocument $date): array
+{
     return [
         'date' => $date['date']
             ? $date['date']->toDateTime()->format('c')
@@ -67,11 +74,27 @@ function serializeAssembly($assembly): array
     ];
 }
 
+function deserializeAssembly(BSONDocument $assembly): array
+{
+    return [
+        ...$assembly,
+        ...deserializeDatesRange($assembly)
+    ];
+}
+
 function serializeCongressman($congressman): array
 {
     return [
         ...$congressman,
         ...serializeBirth($congressman),
+    ];
+}
+
+function deserializeCongressman(BSONDocument $congressman): array
+{
+    return [
+        ...$congressman,
+        ...deserializeBirth($congressman),
     ];
 }
 
@@ -82,11 +105,21 @@ function serializeCommittee($committee): array
     ];
 }
 
+function deserializeCommittee(BSONDocument $committee): array
+{
+    return [...$committee];
+}
+
 function serializeParty($party): array
 {
     return [
         ...$party,
     ];
+}
+
+function deserializeParty(BSONDocument $party): array
+{
+    return [...$party];
 }
 
 function serializeConstituency($constituency): array
@@ -96,9 +129,37 @@ function serializeConstituency($constituency): array
     ];
 }
 
+function deserializeConstituency(BSONDocument $constituency): array
+{
+    return [...$constituency];
+}
+
 function serializeMinistry($ministry): array
 {
     return [
         ...$ministry,
+    ];
+}
+
+function deserializeMinistry(BSONDocument $ministry): array
+{
+    return [
+        ...$ministry,
+    ];
+}
+
+function serializeInflation($inflation): array
+{
+    return [
+        ...$inflation,
+        ...serializeDate($inflation),
+    ];
+}
+
+function deserializeInflation(BSONDocument $inflation): array
+{
+    return [
+        ...$inflation,
+        ...deserializeDate($inflation),
     ];
 }

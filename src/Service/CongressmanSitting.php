@@ -5,13 +5,18 @@ namespace App\Service;
 use App\Decorator\SourceDatabaseAware;
 use MongoDB\Database;
 use MongoDB\Model\BSONDocument;
-use function App\serializeDatesRange;
-use function App\deserializeDatesRange;
-use function App\deserializeBirth;
-use function App\serializeAssembly;
-use function App\serializeCongressman;
-use function App\serializeParty;
-use function App\serializeConstituency;
+use function App\{
+    serializeDatesRange,
+    deserializeDatesRange,
+    serializeAssembly,
+    deserializeAssembly,
+    serializeCongressman,
+    deserializeCongressman,
+    serializeParty,
+    deserializeParty,
+    serializeConstituency,
+    deserializeConstituency
+};
 
 class CongressmanSitting implements SourceDatabaseAware
 {
@@ -26,21 +31,19 @@ class CongressmanSitting implements SourceDatabaseAware
 
         return $document ? [
             ...$document,
-            'assembly' => $document['assembly'] ? [
-                ...$document['assembly'],
-                ...deserializeDatesRange($document['assembly']),
-            ] : null,
-            'congressman' => $document['congressman'] ? [
-                ...$document['congressman'],
-                ...deserializeBirth($document['congressman']),
-            ] : null,
-            'congressman_constituency' => $document['congressman_constituency'] ? [
-                ...$document['congressman_constituency']
-            ] : null,
-            'congressman_party' => $document['congressman_party'] ? [
-                ...$document['congressman_party'],
-            ] : null,
             ...deserializeDatesRange($document),
+            'assembly' => $document['assembly']
+                ? deserializeAssembly($document['assembly'])
+                : null,
+            'congressman' => $document['congressman']
+                ? deserializeCongressman($document['congressman'])
+                : null,
+            'congressman_constituency' => $document['congressman_constituency']
+                ? deserializeConstituency($document['congressman_constituency'])
+                : null,
+            'congressman_party' => $document['congressman_party']
+                ? deserializeParty($document['congressman_party'])
+                : null,
         ] : null;
     }
 
@@ -49,21 +52,19 @@ class CongressmanSitting implements SourceDatabaseAware
         return array_map(function (BSONDocument $document)  {
             return [
                 ...$document,
-                'assembly' => $document['assembly'] ? [
-                    ...$document['assembly'],
-                    ...deserializeDatesRange($document['assembly']),
-                ] : null,
-                'congressman' => $document['congressman'] ? [
-                    ...$document['congressman'],
-                    ...deserializeBirth($document['congressman']),
-                ] : null,
-                'congressman_constituency' => $document['congressman_constituency'] ? [
-                    ...$document['congressman_constituency']
-                ] : null,
-                'congressman_party' => $document['congressman_party'] ? [
-                    ...$document['congressman_party'],
-                ] : null,
                 ...deserializeDatesRange($document),
+                'assembly' => $document['assembly']
+                    ? deserializeAssembly($document['assembly'])
+                    : null,
+                'congressman' => $document['congressman']
+                    ? deserializeCongressman($document['congressman'])
+                    : null,
+                'congressman_constituency' => $document['congressman_constituency']
+                    ? deserializeConstituency($document['congressman_constituency'])
+                    : null,
+                'congressman_party' => $document['congressman_party']
+                    ? deserializeParty($document['congressman_party'])
+                    : null,
             ];
         }, iterator_to_array(
             $this->getSourceDatabase()->selectCollection(self::COLLECTION)->find()
@@ -143,32 +144,28 @@ class CongressmanSitting implements SourceDatabaseAware
         return array_map(function (BSONDocument $item) {
             return [
                 '_id' => $item['_id'],
-                'congressman' => $item['congressman'] ? [
-                    ...$item['congressman'],
-                    ...deserializeBirth($item['congressman']),
-                ] : null,
-                'assembly' => $item['assembly'] ? [
-                    ...$item['assembly'],
-                    ...deserializeDatesRange($item['assembly']),
-                ] : null,
+                'congressman' => $item['congressman']
+                    ? deserializeCongressman($item['congressman'])
+                    : null,
+                'assembly' => $item['assembly']
+                    ? deserializeAssembly($item['assembly'])
+                    : null,
                 'sessions' => array_map(function (BSONDocument $session) {
                     return [
                         ...$session,
                         ...deserializeDatesRange($session),
-                        'assembly' => $session['assembly'] ? [
-                            ...$session['assembly'],
-                            ...deserializeDatesRange($session['assembly']),
-                        ] : null,
-                        'congressman' => $session['congressman'] ? [
-                            ...$session['congressman'],
-                            ...deserializeBirth($session['congressman']),
-                        ] : null,
-                        'congressman_party' => $session['congressman_party'] ? [
-                            ...$session['congressman_party'],
-                        ] : null,
-                        'congressman_constituency' => $session['congressman_constituency'] ? [
-                            ...$session['congressman_constituency']
-                        ] : null,
+                        'assembly' => $session['assembly']
+                            ? deserializeAssembly($session['assembly'])
+                            : null,
+                        'congressman' => $session['congressman']
+                            ? deserializeCongressman($session['congressman'])
+                            : null,
+                        'congressman_party' => $session['congressman_party']
+                            ? deserializeParty($session['congressman_party'])
+                            : null,
+                        'congressman_constituency' => $session['congressman_constituency']
+                            ? deserializeConstituency($session['congressman_constituency'])
+                            : null,
                     ];
                 }, $item['sessions']->getArrayCopy()),
             ];
@@ -254,45 +251,36 @@ class CongressmanSitting implements SourceDatabaseAware
         return array_map(function (BSONDocument $item) {
             return [
                 '_id' => $item['_id'],
-                'party_id' => $item['party_id'],
-                'name' => $item['name'],
-                'abbr_short' => $item['abbr_short'],
-                'abbr_long' => $item['abbr_long'],
-                'color' => $item['color'],
+                ...deserializeParty($item),
+                'assembly' => $item['assembly']
+                    ? deserializeAssembly($item['assembly'])
+                    : null,
                 'congressmen' => array_map(function(BSONDocument $session) {
                     return [
                         '_id' => (int)"{$session['_id']['congressman']}{$session['_id']['party']}",
-                        'congressman' => $session['congressman'] ? [
-                            ...$session['congressman'],
-                            ...deserializeBirth($session['congressman']),
-                        ] : null,
-                        'assembly' => $session['assembly'] ? [
-                            ...$session['assembly'],
-                            ...deserializeDatesRange($session['assembly']),
-                        ] : null,
+                        'congressman' => $session['congressman']
+                            ? deserializeCongressman($session['congressman'])
+                            : null,
+                        'assembly' => $session['assembly']
+                            ? deserializeAssembly($session['assembly'])
+                            : null,
                         'sessions' => array_map(function(BSONDocument $record) {
                             return [
                                 '_id' => $record['_id'],
-                                'congressman_party' => $record['congressman_party'] ? [
-                                    ...$record['congressman_party']
-                                ] : null,
-                                'congressman_constituency' => $record['congressman_constituency'] ? [
-                                    ...$record['congressman_constituency']
-                                ] : null,
+                                'congressman_party' => $record['congressman_party']
+                                    ? deserializeParty($record['congressman_party'])
+                                    : null,
+                                'congressman_constituency' => $record['congressman_constituency']
+                                    ? deserializeConstituency($record['congressman_constituency'])
+                                    : null,
                                 'type' => $record['type'],
                                 ...deserializeDatesRange($record),
                             ];
                         }, $session['sessions']->getArrayCopy()),
                     ];
                 }, $item['congressmen']->getArrayCopy()),
-                'assembly' => $item['assembly'] ? [
-                    ...$item['assembly'],
-                    ...deserializeDatesRange($item['assembly']),
-                ] : null,
-
             ];
         }, iterator_to_array($documents));
-
     }
 
     public function fetchConstituenciesSessions(int $assemblyId, bool $primary = true)
@@ -367,42 +355,30 @@ class CongressmanSitting implements SourceDatabaseAware
         return array_map(function (BSONDocument $item) {
             return [
                 '_id' => $item['_id'],
-                'constituency_id' => $item['constituency_id'],
-                'name' => $item['name'],
-                'abbr_short' => $item['abbr_short'],
-                'abbr_long' => $item['abbr_long'],
-                'description' => $item['description'],
+                ...deserializeConstituency($item),
+                'assembly' => $item['assembly']
+                    ? deserializeAssembly($item['assembly'])
+                    : null,
                 'congressmen' => array_map(function(BSONDocument $session) {
                     return [
                         '_id' => (int)"{$session['_id']['congressman']}{$session['_id']['constituency']}",
-                        'congressman' => $session['congressman'] ? [
-                            ...$session['congressman'],
-                            ...deserializeBirth($session['congressman']),
-                        ] : null,
-                        'assembly' => $session['assembly'] ? [
-                            ...$session['assembly'],
-                            ...deserializeDatesRange($session['assembly']),
-                        ] : null,
+                        'congressman' => $session['congressman'] ? deserializeCongressman($session['congressman']) : null,
+                        'assembly' => $session['assembly'] ? deserializeAssembly($session['assembly']) : null,
                         'sessions' => array_map(function(BSONDocument $record) {
                             return [
                                 '_id' => $record['_id'],
-                                'congressman_party' => $record['congressman_party'] ? [
-                                    ...$record['congressman_party']
-                                ] : null,
-                                'congressman_constituency' => $record['congressman_constituency'] ? [
-                                    ...$record['congressman_constituency']
-                                ] : null,
-                                'type' => $record['type'],
                                 ...deserializeDatesRange($record),
+                                'congressman_party' => $record['congressman_party']
+                                    ? deserializeParty($record['congressman_party'])
+                                    : null,
+                                'congressman_constituency' => $record['congressman_constituency']
+                                    ? deserializeConstituency($record['congressman_constituency'])
+                                    : null,
+                                'type' => $record['type'],
                             ];
                         }, $session['sessions']->getArrayCopy()),
                     ];
                 }, $item['congressmen']->getArrayCopy()),
-                'assembly' => $item['assembly'] ? [
-                    ...$item['assembly'],
-                    ...deserializeDatesRange($item['assembly']),
-                ] : null,
-
             ];
         }, iterator_to_array($documents));
 

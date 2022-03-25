@@ -5,6 +5,7 @@ namespace App\Service;
 use App\Decorator\SourceDatabaseAware;
 use MongoDB\Database;
 use MongoDB\Model\BSONDocument;
+use function App\{deserializeParty, serializeParty};
 
 class Party implements SourceDatabaseAware
 {
@@ -18,14 +19,14 @@ class Party implements SourceDatabaseAware
             ->findOne(['_id' => $id]);
 
         return $document
-            ? $document->getArrayCopy()
+            ? deserializeParty($document)
             : null;
     }
 
     public function fetch(): array
     {
         return array_map(function (BSONDocument $document)  {
-            return $document->getArrayCopy();
+            return deserializeParty($document);
         }, iterator_to_array(
             $this->getSourceDatabase()->selectCollection(self::COLLECTION)->find()
         ));
@@ -38,7 +39,7 @@ class Party implements SourceDatabaseAware
     {
         $document = [
             '_id' => $object['party_id'],
-            ...$object,
+            ...serializeParty($object),
         ];
 
         $result = $this->getSourceDatabase()

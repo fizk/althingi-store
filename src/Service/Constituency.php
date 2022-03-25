@@ -5,6 +5,10 @@ namespace App\Service;
 use App\Decorator\SourceDatabaseAware;
 use MongoDB\Database;
 use MongoDB\Model\BSONDocument;
+use function App\{
+    serializeConstituency,
+    deserializeConstituency
+};
 
 class Constituency implements SourceDatabaseAware
 {
@@ -18,14 +22,14 @@ class Constituency implements SourceDatabaseAware
             ->findOne(['_id' => $id]);
 
         return $document
-            ? $document->getArrayCopy()
+            ? deserializeConstituency($document)
             : null;
     }
 
     public function fetch(): array
     {
         return array_map(function (BSONDocument $document)  {
-            return $document->getArrayCopy();
+            return deserializeConstituency($document);
         }, iterator_to_array(
             $this->getSourceDatabase()->selectCollection(self::COLLECTION)->find()
         ));
@@ -38,7 +42,7 @@ class Constituency implements SourceDatabaseAware
     {
         $document = [
             '_id' => $object['constituency_id'],
-            ...$object,
+            ...serializeConstituency($object),
         ];
 
         $result = $this->getSourceDatabase()

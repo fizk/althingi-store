@@ -5,8 +5,8 @@ namespace App\Service;
 use App\Decorator\SourceDatabaseAware;
 use MongoDB\Database;
 use MongoDB\Model\BSONDocument;
-use function App\deserializeDatesRange;
-use function App\serializeAssembly;
+use function App\{deserializeAssembly, serializeAssembly};
+use function App\{serializeMinistry, deserializeMinistry};
 
 class Ministry implements SourceDatabaseAware
 {
@@ -20,15 +20,13 @@ class Ministry implements SourceDatabaseAware
             ->findOne(['_id' => $id]);
 
         return $document ? [
-            ...$document,
-            'first' => $document['first'] ? [
-                ...$document['first'],
-                ...deserializeDatesRange($document['first'])
-            ] : null,
-            'last' => $document['last'] ? [
-                ...$document['last'],
-                ...deserializeDatesRange($document['last'])
-            ] : null,
+            ...deserializeMinistry($document),
+            'first' => $document['first']
+                ? deserializeAssembly($document['first'])
+                : null,
+            'last' => $document['last']
+                ? deserializeAssembly($document['last'])
+                : null,
         ] : null;
     }
 
@@ -36,15 +34,13 @@ class Ministry implements SourceDatabaseAware
     {
         return array_map(function (BSONDocument $document) {
             return [
-                ...$document,
-                'first' => $document['first'] ? [
-                    ...$document['first'],
-                    ...deserializeDatesRange($document['first']),
-                ] : null,
-                'last' => $document['last'] ? [
-                    ...$document['last'],
-                    ...deserializeDatesRange($document['last']),
-                ] : null,
+                ...deserializeMinistry($document),
+                'first' => $document['first']
+                    ? deserializeAssembly($document['first'])
+                    : null,
+                'last' => $document['last']
+                    ? deserializeAssembly($document['last'])
+                    : null,
             ];
         }, iterator_to_array(
             $this->getSourceDatabase()->selectCollection(self::COLLECTION)->find()
@@ -58,7 +54,7 @@ class Ministry implements SourceDatabaseAware
     {
         $document = [
             '_id' => $object['ministry_id'],
-            ...$object,
+            ...serializeMinistry($object),
             'first' => $object['first']
                 ? serializeAssembly($object['first'])
                 : null,

@@ -5,8 +5,7 @@ namespace App\Service;
 use App\Decorator\SourceDatabaseAware;
 use MongoDB\Database;
 use MongoDB\Model\BSONDocument;
-use function App\serializeDatesRange;
-use function App\deserializeDatesRange;
+use function App\{deserializeAssembly, serializeAssembly};
 
 class Assembly implements SourceDatabaseAware
 {
@@ -19,19 +18,13 @@ class Assembly implements SourceDatabaseAware
             ->selectCollection(self::COLLECTION)
             ->findOne(['_id' => $id]);
 
-        return $document ? [
-            ...$document,
-            ...deserializeDatesRange($document)
-        ] : null;
+        return $document ? deserializeAssembly($document) : null;
     }
 
     public function fetch(): array
     {
         return array_map(function (BSONDocument $document)  {
-            return [
-                ...$document,
-                ...deserializeDatesRange($document)
-            ];
+            return deserializeAssembly($document);
         }, iterator_to_array(
             $this->getSourceDatabase()->selectCollection(self::COLLECTION)->find()
         ));
@@ -44,8 +37,7 @@ class Assembly implements SourceDatabaseAware
     {
         $document = [
             '_id' => $object['assembly_id'],
-            ...$object,
-            ...serializeDatesRange($object)
+            ...serializeAssembly($object),
         ];
 
         $result = $this->getSourceDatabase()

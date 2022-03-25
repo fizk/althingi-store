@@ -5,8 +5,10 @@ namespace App\Service;
 use App\Decorator\SourceDatabaseAware;
 use MongoDB\Database;
 use MongoDB\Model\BSONDocument;
-use function App\serializeDate;
-use function App\deserializeDate;
+use function App\{
+    deserializeInflation,
+    serializeInflation
+};
 
 class Inflation implements SourceDatabaseAware
 {
@@ -19,19 +21,15 @@ class Inflation implements SourceDatabaseAware
             ->selectCollection(self::COLLECTION)
             ->findOne(['_id' => $id]);
 
-        return $document ? [
-            ...$document,
-            ...deserializeDate($document),
-        ] : null;
+        return $document
+            ? deserializeInflation($document)
+            : null;
     }
 
     public function fetch(): array
     {
         return array_map(function (BSONDocument $document)  {
-            return [
-                ...$document,
-                ...deserializeDate($document),
-            ];
+            return deserializeInflation($document);
         }, iterator_to_array(
             $this->getSourceDatabase()->selectCollection(self::COLLECTION)->find()
         ));
@@ -44,8 +42,7 @@ class Inflation implements SourceDatabaseAware
     {
         $document = [
             '_id' => $object['id'],
-            ...$object,
-            ...serializeDate($object),
+            ...serializeInflation($object),
         ];
 
         $result = $this->getSourceDatabase()

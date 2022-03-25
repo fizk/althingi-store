@@ -5,8 +5,8 @@ namespace App\Service;
 use App\Decorator\SourceDatabaseAware;
 use MongoDB\Database;
 use MongoDB\Model\BSONDocument;
-use function App\deserializeDatesRange;
-use function App\serializeAssembly;
+use function App\{serializeAssembly, deserializeAssembly};
+use function App\{serializeCommittee, deserializeCommittee};
 
 class Committee implements SourceDatabaseAware
 {
@@ -20,15 +20,13 @@ class Committee implements SourceDatabaseAware
             ->findOne(['_id' => $id]);
 
         return $document ? [
-            ...$document,
-            'first' => $document['first'] ? [
-                ...$document['first'],
-                ...deserializeDatesRange($document['first']),
-            ] : null,
-            'last' => $document['last'] ? [
-                ...$document['last'],
-                ...deserializeDatesRange($document['last']),
-            ] : null,
+            ...deserializeCommittee($document),
+            'first' => $document['first']
+                ? deserializeAssembly($document['first'])
+                : null,
+            'last' => $document['last']
+                ? deserializeAssembly($document['last'])
+                : null,
         ] : null;
     }
 
@@ -36,15 +34,13 @@ class Committee implements SourceDatabaseAware
     {
         return array_map(function (BSONDocument $document)  {
             return [
-                ...$document,
-                'first' => $document['first'] ? [
-                    ...$document['first'],
-                    ...deserializeDatesRange($document['first']),
-                ] : null,
-                'last' => $document['last'] ? [
-                    ...$document['last'],
-                    ...deserializeDatesRange($document['last']),
-                ] : null,
+                ...deserializeCommittee($document),
+                'first' => $document['first']
+                    ? deserializeAssembly($document['first'])
+                    : null,
+                'last' => $document['last']
+                    ? deserializeAssembly($document['last'])
+                    : null,
             ];
         }, iterator_to_array(
             $this->getSourceDatabase()->selectCollection(self::COLLECTION)->find()
@@ -58,7 +54,7 @@ class Committee implements SourceDatabaseAware
     {
         $document = [
             '_id' => $object['committee_id'],
-            ...$object,
+            ...serializeCommittee($object),
             'first' => $object['first']
                 ? serializeAssembly($object['first'])
                 : null,
