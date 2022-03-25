@@ -36,6 +36,16 @@ return [
                 ->setCongressmanSittingService($container->get(Service\CongressmanSitting::class))
             ;
         },
+        Handler\AssemblyGovernmentParties::class => function (ContainerInterface $container) {
+            return (new Handler\AssemblyGovernmentParties())
+                ->setMinisterSittingService($container->get(Service\MinisterSitting::class))
+            ;
+        },
+        Handler\AssemblyGovernmentMinistries::class => function (ContainerInterface $container) {
+            return (new Handler\AssemblyGovernmentMinistries())
+                ->setMinisterSittingService($container->get(Service\MinisterSitting::class))
+            ;
+        },
         Handler\AssemblySittings::class => function (ContainerInterface $container) {
             return (new Handler\AssemblySittings())
                 ->setCongressmanSittingService($container->get(Service\CongressmanSitting::class))
@@ -209,14 +219,14 @@ return [
 
             return $client->selectDatabase('althingi');
         },
-        Psr\Log\LoggerInterface::class => function (ContainerInterface $container, $requestedName) {
+        LoggerInterface::class => function (ContainerInterface $container, $requestedName) {
             return (new Logger('aggregator'))
             ->pushHandler((new StreamHandler('php://stdout', Logger::DEBUG))
                     ->setFormatter(new LineFormatter("[%datetime%] %level_name% %message%\n"))
             );
         },
         EventDispatcherInterface::class => function (ContainerInterface $container, $requestedName) {
-            $logger = $container->get(Psr\Log\LoggerInterface::class);
+            $logger = $container->get(LoggerInterface::class);
             $provider = new PrioritizedListenerRegistry();
 
             $provider->subscribeTo(ErrorEvent::class, function (ErrorEvent $event) use ($logger) {

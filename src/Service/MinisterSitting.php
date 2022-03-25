@@ -83,6 +83,116 @@ class MinisterSitting implements SourceDatabaseAware
         ));
     }
 
+    public function fetchGovernmentPartiesByAssembly(int $assemblyId)
+    {
+        $documents = $this->getSourceDatabase()
+            ->selectCollection(self::COLLECTION)
+            ->aggregate([
+                [
+                    '$match' => [
+                        'assembly.assembly_id' => $assemblyId
+                    ]
+                ],
+                [
+                    '$group' => [
+                        '_id' => '$congressman_party.party_id',
+                        'party' => ['$push' => '$$ROOT']
+                    ]
+                ],
+                [
+                    '$addFields' => [
+                        'party' => ['$first' => '$party.congressman_party']
+                    ]
+                ],
+                [
+                    '$replaceRoot' => ['newRoot' => '$party']
+                ],
+                [
+                    '$sort' => ['name' => 1]
+                ]
+            ]);
+
+        return array_map(function (BSONDocument $item) {
+            return deserializeParty($item);
+        }, iterator_to_array($documents));
+    }
+
+    public function fetchGovernmentSessionsByAssembly(int $assemblyId)
+    {
+        $documents = $this->getSourceDatabase()
+            ->selectCollection(self::COLLECTION)
+            ->aggregate([
+                [
+                    '$match' => [
+                        'assembly.assembly_id' => $assemblyId
+                    ]
+                ],
+                [
+                    '$group' => [
+                        '_id' => '$ministry.ministry_id',
+                        'ministry_id' => ['$first' => '$ministry.ministry_id'],
+                        'name' => ['$first' => '$ministry.name'],
+                        'abbr_short' => ['$first' => '$ministry.abbr_short'],
+                        'abbr_long' => ['$first' => '$ministry.abbr_long'],
+                        'first' => ['$first' => '$ministry.first'],
+                        'last' => ['$first' => '$ministry.last'],
+                        'first_ministry_assembly' => ['$first' => '$first_ministry_assembly'],
+                        'last_ministry_assembly' => ['$first' => '$last_ministry_assembly'],
+                        'congressmen' => ['$push' => '$$ROOT']
+                    ]
+                ],
+                [
+                    '$set' => [
+                        'congressmen' => [
+                            '$function' => [
+                                'body' => 'function(all) {
+                                    all.sort((a, b) => a.from - b.from)
+                                    return all;
+                                }',
+                                'args' => ['$congressmen'],
+                                'lang' => "js"
+                            ]
+                        ]
+                    ]
+                ],
+            ]);
+
+        return array_map(function (BSONDocument $item) {
+            return [
+                '_id' => $item['_id'],
+                ...deserializeMinistry($item),
+                'first_ministry_assembly' => $item['first_ministry_assembly']
+                    ? deserializeAssembly($item['first_ministry_assembly'])
+                    : null,
+                'last_ministry_assembly' => $item['last_ministry_assembly']
+                    ? deserializeAssembly($item['last_ministry_assembly'])
+                    : null,
+                'congressmen' => array_map(function ($congressman) {
+                    return [
+                        '_id' => $congressman['_id'],
+                        'minister_sitting_id' => $congressman['minister_sitting_id'],
+                        ...deserializeDatesRange($congressman),
+                        'assembly' => $congressman['assembly']
+                            ? deserializeAssembly($congressman['assembly'])
+                            : null,
+                        'congressman' => $congressman['congressman']
+                            ? deserializeCongressman($congressman['congressman'])
+                            : null,
+                        'congressman_constituency' => $congressman['congressman_constituency']
+                            ? deserializeConstituency($congressman['congressman_constituency'])
+                            : null,
+                        'congressman_party' => $congressman['congressman_party']
+                            ? deserializeParty($congressman['congressman_party'])
+                            : null,
+                        'ministry' => $congressman['ministry']
+                            ? deserializeMinistry($congressman['ministry'])
+                            : null,
+                    ];
+                }, $item['congressmen']->getArrayCopy()),
+            ];
+        }, iterator_to_array($documents));
+    }
+
     /**
      * @return int | not modified = 0, create = 1, update = 2
      */

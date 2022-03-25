@@ -158,7 +158,6 @@ db.getCollection('congressman-sitting').aggregate([
 
 ```
 
-
 ## Get all parties including congressman sessions
 ```
 db.getCollection('congressman-sitting').aggregate([
@@ -225,5 +224,73 @@ db.getCollection('congressman-sitting').aggregate([
     {
             $sort: {name: 1}
     }
+])
+```
+
+## Get all parties in a government
+```
+db.getCollection('minister-sitting').aggregate([
+
+    {
+            $match: {
+                    'assembly.assembly_id': 146
+            }
+    },
+    {
+            $group: {
+                    _id: '$congressman_party.party_id',
+                    party: { $push: "$$ROOT"}
+            }
+    },
+    {
+            $addFields: {
+                 party: {$first: '$party.congressman_party'}
+            }
+    },
+    {
+        $replaceRoot: { newRoot: "$party" }
+    },
+    {
+            $sort: {name: 1}
+    }
+])
+```
+## Get minister sessions
+```
+db.getCollection('minister-sitting').aggregate([
+
+    {
+            $match: {
+                    'assembly.assembly_id': 140
+            }
+    }
+    ,
+    {
+            $group: {
+                _id: '$ministry.ministry_id',
+                ministry_id: {$first: '$ministry.ministry_id'},
+                abbr_short: {$first: '$ministry.abbr_short'},
+                abbr_long: {$first: '$ministry.abbr_long'},
+                first: {$first: '$ministry.first'},
+                last: {$first: '$ministry.last'},
+                name: {$first: '$ministry.name'},
+                congressmen: { $push: "$$ROOT"}
+            }
+    }
+    ,
+    {
+            $set: {
+                'congressmen': {
+                        $function: {
+                            body: function(all) {
+                                all.sort((a, b) => a.from - b.from)
+                                return all;
+                            },
+                            args: ['$congressmen'],
+                            lang: "js"
+                        }
+                 }
+            }
+    },
 ])
 ```

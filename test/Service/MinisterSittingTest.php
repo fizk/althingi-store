@@ -361,6 +361,206 @@ class MinisterSittingTest extends TestCase
         $this->assertEquals($expected, $actual);
     }
 
+    public function testFetchGovernmentPartiesByAssembly()
+    {
+        //GIVE
+        $this->getDatabase()->selectCollection(MinisterSitting::COLLECTION)->insertMany([
+            [
+                '_id' => 1,
+                'minister_sitting_id' => 1,
+                'from' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
+                'to' => null,
+                'assembly' => [
+                    'assembly_id' => 1,
+                    'from' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
+                    'to' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
+                ],
+                'ministry' => [
+                    'ministry_id' => 2,
+                    'name' => 'ministry-name-1',
+                    'abbr_short' => 'abbr_short-1',
+                    'abbr_long' => 'abbr_long-1',
+                    'first' => 1,
+                    'last' => 2,
+                ],
+                'congressman' => [
+                    'congressman_id' => 3,
+                    'name' => 'name',
+                    'birth' => new UTCDateTime((new DateTime('2005-01-01'))->getTimestamp() * 1000),
+                    'death' => null,
+                    'abbreviation' => 'abbreviation',
+                ],
+                'congressman_constituency' => [
+                    'constituency_id' => 4,
+                    'name' => 'name',
+                    'abbr_short' => 'abbr_short',
+                    'abbr_long' => 'abbr_long',
+                    'description' => 'description',
+                ],
+                'congressman_party' => [
+                    'party_id' => 5,
+                    'name' => 'name',
+                    'abbr_short' => 'abbr_short',
+                    'abbr_long' => 'abbr_long',
+                    'color' => 'color',
+                ],
+                'first_ministry_assembly' => [
+                    'assembly_id' => 1,
+                    'from' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
+                    'to' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
+                ],
+                'last_ministry_assembly' => [
+                    'assembly_id' => 2,
+                    'from' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
+                    'to' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
+                ],
+            ]
+        ]);
+
+        //WHEN
+        $actual = (new MinisterSitting())
+            ->setSourceDatabase($this->getDatabase())
+            ->fetchGovernmentPartiesByAssembly(1);
+
+        //THEN
+        $expected =[ [
+            'party_id' => 5,
+            'name' => 'name',
+            'abbr_short' => 'abbr_short',
+            'abbr_long' => 'abbr_long',
+            'color' => 'color',
+        ]];
+        $this->assertEquals($expected, $actual);
+    }
+
+    public function testFetchGovernmentSessionsByAssembly()
+    {
+        //GIVE
+        $this->getDatabase()->selectCollection(MinisterSitting::COLLECTION)->insertMany([
+            [
+                '_id' => 1,
+                'minister_sitting_id' => 1,
+                'from' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
+                'to' => null,
+                'assembly' => [
+                    'assembly_id' => 1,
+                    'from' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
+                    'to' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
+                ],
+                'ministry' => [
+                    'ministry_id' => 2,
+                    'name' => 'ministry-name-1',
+                    'abbr_short' => 'abbr_short-1',
+                    'abbr_long' => 'abbr_long-1',
+                    'first' => 1,
+                    'last' => 2,
+                ],
+                'congressman' => [
+                    'congressman_id' => 3,
+                    'name' => 'name',
+                    'birth' => new UTCDateTime((new DateTime('2005-01-01'))->getTimestamp() * 1000),
+                    'death' => null,
+                    'abbreviation' => 'abbreviation',
+                ],
+                'congressman_constituency' => [
+                    'constituency_id' => 4,
+                    'name' => 'name',
+                    'abbr_short' => 'abbr_short',
+                    'abbr_long' => 'abbr_long',
+                    'description' => 'description',
+                ],
+                'congressman_party' => [
+                    'party_id' => 5,
+                    'name' => 'name',
+                    'abbr_short' => 'abbr_short',
+                    'abbr_long' => 'abbr_long',
+                    'color' => 'color',
+                ],
+                'first_ministry_assembly' => [
+                    'assembly_id' => 1,
+                    'from' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
+                    'to' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
+                ],
+                'last_ministry_assembly' => [
+                    'assembly_id' => 2,
+                    'from' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
+                    'to' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
+                ],
+            ]
+        ]);
+
+        //WHEN
+        $actual = (new MinisterSitting())
+            ->setSourceDatabase($this->getDatabase())
+            ->fetchGovernmentSessionsByAssembly(1);
+
+        //THEN
+        $expected = [
+            [
+                '_id' => 2,
+                'ministry_id' => 2,
+                'name' => 'ministry-name-1',
+                'abbr_short' => 'abbr_short-1',
+                'abbr_long' => 'abbr_long-1',
+                'first' => 1,
+                'last' => 2,
+                'first_ministry_assembly' => [
+                    'assembly_id' => 1,
+                    'from' => '2001-01-01T00:00:00+00:00',
+                    'to' => '2001-01-01T00:00:00+00:00',
+                ],
+                'last_ministry_assembly' => [
+                    'assembly_id' => 2,
+                    'from' => '2001-01-01T00:00:00+00:00',
+                    'to' => '2001-01-01T00:00:00+00:00',
+                ],
+                'congressmen' => [
+                    [
+                        '_id' => 1,
+                        'minister_sitting_id' => 1,
+                        'from' => '2001-01-01T00:00:00+00:00',
+                        'to' => null,
+                        'assembly' => [
+                            'assembly_id' => 1,
+                            'from' => '2001-01-01T00:00:00+00:00',
+                            'to' => '2001-01-01T00:00:00+00:00',
+                        ],
+                        'ministry' => [
+                            'ministry_id' => 2,
+                            'name' => 'ministry-name-1',
+                            'abbr_short' => 'abbr_short-1',
+                            'abbr_long' => 'abbr_long-1',
+                            'first' => 1,
+                            'last' => 2,
+                        ],
+                        'congressman' => [
+                            'congressman_id' => 3,
+                            'name' => 'name',
+                            'birth' => '2005-01-01T00:00:00+00:00',
+                            'death' => null,
+                            'abbreviation' => 'abbreviation',
+                        ],
+                        'congressman_constituency' => [
+                            'constituency_id' => 4,
+                            'name' => 'name',
+                            'abbr_short' => 'abbr_short',
+                            'abbr_long' => 'abbr_long',
+                            'description' => 'description',
+                        ],
+                        'congressman_party' => [
+                            'party_id' => 5,
+                            'name' => 'name',
+                            'abbr_short' => 'abbr_short',
+                            'abbr_long' => 'abbr_long',
+                            'color' => 'color',
+                        ],
+                    ]
+                ],
+            ]
+        ];
+        $this->assertEquals($expected, $actual);
+    }
+
     public function testUpdateAssembly()
     {
         //GIVE
