@@ -73,4 +73,10 @@ return (new Route('root', '', []))
                 (new Route('thingmenn.item', '/(?<congressman_id>\d+)', ['handler' => Handler\Congressman::class]))
             )
     )
+    ->addRoute(
+        (new Route('forsetaseta', '/forsetaseta', ['handler' => handler\PresidentSittings::class]))
+            ->addRoute(
+                (new Route('forsetaseta.item', '/(?<president_id>\d+)', ['handler' => Handler\PresidentSitting::class]))
+            )
+    )
 ;

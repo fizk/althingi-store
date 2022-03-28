@@ -10,7 +10,33 @@ export interface PresidentSittingPayload {
     congressman: Maybe<Congressman>
     congressman_party: Maybe<Party>
     congressman_constituency: Maybe<Constituency>
+}
 
+export interface Assembly {
+    assembly_id: number
+    from: Maybe<string>
+    to: Maybe<string>
+}
+export interface Congressman {
+    congressman_id: number
+    name: string
+    birth: string
+    death: Maybe<string>
+    abbreviation: Maybe<string>
+}
+export interface Party {
+    party_id: number
+    name: string
+    abbr_short: Maybe<string>
+    abbr_long: Maybe<string>
+    color: Maybe<string>
+}
+export interface Constituency {
+    constituency_id: number
+    name: Maybe<string>
+    abbr_short: Maybe<string>
+    abbr_long: Maybe<string>
+    description: Maybe<string>
 }
 ```
 

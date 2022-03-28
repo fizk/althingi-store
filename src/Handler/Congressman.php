@@ -11,7 +11,8 @@ use App\Decorator\{
     ServiceCommitteeSittingAware,
     ServiceCongressmanAware,
     ServiceCongressmanSittingAware,
-    ServiceMinisterSittingAware
+    ServiceMinisterSittingAware,
+    ServicePresidentSittingAware
 };
 
 class Congressman implements
@@ -19,7 +20,8 @@ class Congressman implements
     ServiceCongressmanAware,
     ServiceCommitteeSittingAware,
     ServiceCongressmanSittingAware,
-    ServiceMinisterSittingAware
+    ServiceMinisterSittingAware,
+    ServicePresidentSittingAware
 {
     use HandlerTrait;
 
@@ -27,6 +29,7 @@ class Congressman implements
     private Service\CommitteeSitting $committeeSittingService;
     private Service\CongressmanSitting $congressmanSittingService;
     private Service\MinisterSitting $ministerSittingService;
+    private Service\PresidentSitting $presidentSittingService;
 
     public function get(ServerRequestInterface $request): ResponseInterface
     {
@@ -49,6 +52,7 @@ class Congressman implements
         $this->committeeSittingService->updateCongressman($congressman);
         $this->congressmanSittingService->updateCongressman($congressman);
         $this->ministerSittingService->updateCongressman($congressman);
+        $this->presidentSittingService->updateCongressman($congressman);
 
         return match($result) {
             1 => new EmptyResponse(201),
@@ -78,6 +82,12 @@ class Congressman implements
     public function setMinisterSittingService(Service\MinisterSitting $ministerSitting): self
     {
         $this->ministerSittingService = $ministerSitting;
+        return $this;
+    }
+
+    public function setPresidentSittingService(Service\PresidentSitting $presidentSitting): self
+    {
+        $this->presidentSittingService = $presidentSitting;
         return $this;
     }
 }

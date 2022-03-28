@@ -2,15 +2,15 @@
 
 namespace App\Service;
 
+use App\Service\SourceDatabaseTrait;
 use App\Decorator\SourceDatabaseAware;
-use MongoDB\Database;
 use MongoDB\Model\BSONDocument;
 use function App\{deserializeAssembly, serializeAssembly};
 
 class Assembly implements SourceDatabaseAware
 {
     const COLLECTION = 'assembly';
-    private Database $database;
+    use SourceDatabaseTrait;
 
     public function get(int $id): ?array
     {
@@ -49,16 +49,5 @@ class Assembly implements SourceDatabaseAware
             );
 
         return ($result->getModifiedCount() << 1) + $result->getUpsertedCount();
-    }
-
-    public function getSourceDatabase(): Database
-    {
-        return $this->database;
-    }
-
-    public function setSourceDatabase(Database $database): self
-    {
-        $this->database = $database;
-        return $this;
     }
 }

@@ -29,6 +29,7 @@ return [
                 ->setCongressmanSittingService($container->get(Service\CongressmanSitting::class))
                 ->setCommitteeSittingService($container->get(Service\CommitteeSitting::class))
                 ->setMinisterSittingService($container->get(Service\MinisterSitting::class))
+                ->setPresidentSittingService($container->get(Service\PresidentSitting::class))
             ;
         },
         Handler\AssemblyParties::class => function (ContainerInterface $container) {
@@ -83,6 +84,7 @@ return [
                 ->setCongressmanSittingService($container->get(Service\CongressmanSitting::class))
                 ->setPartyService($container->get(Service\Party::class))
                 ->setMinisterSittingService($container->get(Service\MinisterSitting::class))
+                ->setPresidentSittingService($container->get(Service\PresidentSitting::class))
             ;
         },
         Handler\Committees::class => function (ContainerInterface $container) {
@@ -106,6 +108,7 @@ return [
                 ->setCongressmanSittingService($container->get(Service\CongressmanSitting::class))
                 ->setCommitteeSittingService($container->get(Service\CommitteeSitting::class))
                 ->setMinisterSittingService($container->get(Service\MinisterSitting::class))
+                ->setPresidentSittingService($container->get(Service\PresidentSitting::class))
             ;
         },
         Handler\Inflations::class => function (ContainerInterface $container) {
@@ -154,11 +157,22 @@ return [
                 ->setCommitteeSittingService($container->get(Service\CommitteeSitting::class))
                 ->setCongressmanSittingService($container->get(Service\CongressmanSitting::class))
                 ->setMinisterSittingService($container->get(Service\MinisterSitting::class))
+                ->setPresidentSittingService($container->get(Service\PresidentSitting::class))
             ;
         },
         Handler\Congressmen::class => function (ContainerInterface $container) {
             return (new Handler\Congressmen())
                 ->setCongressmanService($container->get(Service\Congressman::class))
+            ;
+        },
+        Handler\PresidentSittings::class => function (ContainerInterface $container) {
+            return (new Handler\PresidentSittings())
+                ->setPresidentSittingService($container->get(Service\PresidentSitting::class))
+            ;
+        },
+        Handler\PresidentSitting::class => function (ContainerInterface $container) {
+            return (new Handler\PresidentSitting())
+                ->setPresidentSittingService($container->get(Service\PresidentSitting::class))
             ;
         },
 
@@ -203,6 +217,10 @@ return [
         },
         Service\MinisterSitting::class => function (ContainerInterface $container) {
             return (new Service\MinisterSitting)
+                ->setSourceDatabase($container->get(Database::class));
+        },
+        Service\PresidentSitting::class => function (ContainerInterface $container) {
+            return (new Service\PresidentSitting)
                 ->setSourceDatabase($container->get(Database::class));
         },
 
