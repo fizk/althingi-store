@@ -3,12 +3,14 @@
 namespace App\Service;
 
 use MongoDB\Model\BSONDocument;
+use MongoDB\BSON\UTCDateTime;
 use App\Service\SourceDatabaseTrait;
 use App\Decorator\SourceDatabaseAware;
 use function App\{
     deserializeInflation,
     serializeInflation
 };
+use DateTime;
 
 class Inflation implements SourceDatabaseAware
 {
@@ -24,6 +26,24 @@ class Inflation implements SourceDatabaseAware
         return $document
             ? deserializeInflation($document)
             : null;
+    }
+
+    public function fetchRange(DateTime $from, DateTime $to): array
+    {
+        $from = new UTCDateTime($from->getTimestamp() * 1000);
+        $to = new UTCDateTime($to->getTimestamp() * 1000);
+        $documents = $this->getSourceDatabase()
+            ->selectCollection(self::COLLECTION)
+            ->find([
+                '$and' => [
+                    ['date' => ['$gte' => $from]],
+                    ['date' => ['$lte' => $to]],
+                ]
+            ]);
+
+        return array_map(function ($document) {
+            return deserializeInflation($document);
+        }, iterator_to_array($documents, false));
     }
 
     public function fetch(): array

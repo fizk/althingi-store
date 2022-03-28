@@ -62,6 +62,12 @@ return [
                 ->setCongressmanSittingService($container->get(Service\CongressmanSitting::class))
             ;
         },
+        Handler\AssemblyInflation::class => function (ContainerInterface $container) {
+            return (new Handler\AssemblyInflation())
+                ->setAssemblyService($container->get(Service\Assembly::class))
+                ->setInflationService($container->get(Service\Inflation::class))
+            ;
+        },
         Handler\Ministries::class => function (ContainerInterface $container) {
             return (new Handler\Ministries())
                 ->setMinistryService($container->get(Service\Ministry::class))

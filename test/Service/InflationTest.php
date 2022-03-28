@@ -205,4 +205,125 @@ class InflationTest extends TestCase
 
         $this->assertEquals($expected, $actual);
     }
+
+    public function testFetchRangeOne()
+    {
+        //GIVE
+        $this->getDatabase()->selectCollection(Inflation::COLLECTION)->insertMany([
+            [
+                '_id' => 1,
+                'id' => 1,
+                'date' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
+                'value' => 1.23,
+            ],
+            [
+                '_id' => 2,
+                'id' => 2,
+                'date' => new UTCDateTime((new DateTime('2001-02-01'))->getTimestamp() * 1000),
+                'value' => 1.23,
+            ],
+        ]);
+
+        //WHEN
+        $actual = (new Inflation())
+            ->setSourceDatabase($this->getDatabase())
+            ->fetchRange(
+                new DateTime('2001-01-01'),
+                new DateTime('2001-01-20'),
+            );
+
+        //THEN
+        $expected = [
+            [
+                '_id' => 1,
+                'id' => 1,
+                'date' => '2001-01-01T00:00:00+00:00',
+                'value' => 1.23,
+            ]
+        ];
+
+        $this->assertEquals($expected, $actual);
+    }
+
+    public function testFetchRangeTwo()
+    {
+        //GIVE
+        $this->getDatabase()->selectCollection(Inflation::COLLECTION)->insertMany([
+            [
+                '_id' => 1,
+                'id' => 1,
+                'date' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
+                'value' => 1.23,
+            ],
+            [
+                '_id' => 2,
+                'id' => 2,
+                'date' => new UTCDateTime((new DateTime('2001-02-01'))->getTimestamp() * 1000),
+                'value' => 1.23,
+            ],
+        ]);
+
+        //WHEN
+        $actual = (new Inflation())
+            ->setSourceDatabase($this->getDatabase())
+            ->fetchRange(
+                new DateTime('2001-01-02'),
+                new DateTime('2002-02-01'),
+            );
+
+        //THEN
+        $expected = [
+            [
+                '_id' => 2,
+                'id' => 2,
+                'date' => '2001-02-01T00:00:00+00:00',
+                'value' => 1.23,
+            ]
+        ];
+
+        $this->assertEquals($expected, $actual);
+    }
+    public function testFetchRange()
+    {
+        //GIVE
+        $this->getDatabase()->selectCollection(Inflation::COLLECTION)->insertMany([
+            [
+                '_id' => 1,
+                'id' => 1,
+                'date' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
+                'value' => 1.23,
+            ],
+            [
+                '_id' => 2,
+                'id' => 2,
+                'date' => new UTCDateTime((new DateTime('2001-02-01'))->getTimestamp() * 1000),
+                'value' => 1.23,
+            ],
+        ]);
+
+        //WHEN
+        $actual = (new Inflation())
+            ->setSourceDatabase($this->getDatabase())
+            ->fetchRange(
+                new DateTime('2000-01-01'),
+                new DateTime('2002-02-01'),
+            );
+
+        //THEN
+        $expected = [
+            [
+                '_id' => 1,
+                'id' => 1,
+                'date' => '2001-01-01T00:00:00+00:00',
+                'value' => 1.23,
+            ], [
+                '_id' => 2,
+                'id' => 2,
+                'date' => '2001-02-01T00:00:00+00:00',
+                'value' => 1.23,
+            ]
+        ];
+
+        $this->assertEquals($expected, $actual);
+    }
 }

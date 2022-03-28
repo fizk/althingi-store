@@ -9,6 +9,7 @@ return (new Route('root', '', []))
         (new Route('loggjafarthing', '/loggjafarthing', ['handler' => Handler\Assemblies::class]))
             ->addRoute(
                 (new Route('loggjafarthing.item', '/(?<assembly_id>\d+)', ['handler' => Handler\Assembly::class]))
+                    ->addRoute((new Route('loggjafarthing.item.inflation', '/verdbolga', ['handler' => Handler\AssemblyInflation::class])))
                     ->addRoute((new Route('loggjafarthing.item.government', '/rikisstjorn', ['handler' => Handler\AssemblyGovernmentMinistries::class])))
                     ->addRoute((new Route('loggjafarthing.item.government', '/stjornarflokkar', ['handler' => Handler\AssemblyGovernmentParties::class])))
                     ->addRoute((new Route('loggjafarthing.item.parties', '/thingflokkar', ['handler' => Handler\AssemblyParties::class])))
