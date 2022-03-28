@@ -2,16 +2,16 @@
 
 namespace App\Service;
 
-use App\Decorator\SourceDatabaseAware;
-use MongoDB\Database;
 use MongoDB\Model\BSONDocument;
+use App\Service\SourceDatabaseTrait;
+use App\Decorator\SourceDatabaseAware;
 use function App\{deserializeAssembly, serializeAssembly};
 use function App\{serializeMinistry, deserializeMinistry};
 
 class Ministry implements SourceDatabaseAware
 {
     const COLLECTION = 'ministry';
-    private Database $database;
+    use SourceDatabaseTrait;
 
     public function get(int $id): ?array
     {
@@ -96,16 +96,5 @@ class Ministry implements SourceDatabaseAware
                 ['upsert' => false]
             );
 
-    }
-
-    public function getSourceDatabase(): Database
-    {
-        return $this->database;
-    }
-
-    public function setSourceDatabase(Database $database): self
-    {
-        $this->database = $database;
-        return $this;
     }
 }

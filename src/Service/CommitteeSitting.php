@@ -2,6 +2,7 @@
 
 namespace App\Service;
 
+use App\Service\SourceDatabaseTrait;
 use App\Decorator\SourceDatabaseAware;
 use function App\{
     serializeDatesRange,
@@ -18,7 +19,6 @@ use function App\{
     deserializeConstituency
 };
 use MongoDB\Model\BSONDocument;
-use MongoDB\Database;
 
 /**
  * @todo there is no call to updateCongressman method
@@ -27,7 +27,7 @@ use MongoDB\Database;
 class CommitteeSitting implements SourceDatabaseAware
 {
     const COLLECTION = 'committee-sitting';
-    private Database $database;
+    use SourceDatabaseTrait;
 
     public function get(int $id): ?array
     {
@@ -227,16 +227,5 @@ class CommitteeSitting implements SourceDatabaseAware
                 ['$set' => ['congressman_constituency' => serializeConstituency($constituency)]],
                 ['upsert' => false]
             );
-    }
-
-    public function getSourceDatabase(): Database
-    {
-        return $this->database;
-    }
-
-    public function setSourceDatabase(Database $database): self
-    {
-        $this->database = $database;
-        return $this;
     }
 }

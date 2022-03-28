@@ -2,16 +2,16 @@
 
 namespace App\Service;
 
-use App\Decorator\SourceDatabaseAware;
-use MongoDB\Database;
 use MongoDB\Model\BSONDocument;
+use App\Service\SourceDatabaseTrait;
+use App\Decorator\SourceDatabaseAware;
 use function App\{serializeAssembly, deserializeAssembly};
 use function App\{serializeCommittee, deserializeCommittee};
 
 class Committee implements SourceDatabaseAware
 {
     const COLLECTION = 'committee';
-    private Database $database;
+    use SourceDatabaseTrait;
 
     public function get(int $id): ?array
     {
@@ -95,16 +95,5 @@ class Committee implements SourceDatabaseAware
                 ['$set' => ['last' => serializeAssembly($assembly)]],
                 ['upsert' => false]
             );
-    }
-
-    public function getSourceDatabase(): Database
-    {
-        return $this->database;
-    }
-
-    public function setSourceDatabase(Database $database): self
-    {
-        $this->database = $database;
-        return $this;
     }
 }

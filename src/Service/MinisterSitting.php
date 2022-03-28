@@ -2,9 +2,9 @@
 
 namespace App\Service;
 
-use App\Decorator\SourceDatabaseAware;
-use MongoDB\Database;
 use MongoDB\Model\BSONDocument;
+use App\Service\SourceDatabaseTrait;
+use App\Decorator\SourceDatabaseAware;
 use function App\{serializeDatesRange, deserializeDatesRange};
 use function App\{serializeAssembly, deserializeAssembly};
 use function App\{serializeCongressman, deserializeCongressman};
@@ -15,7 +15,7 @@ use function App\{deserializeMinistry, serializeMinistry};
 class MinisterSitting implements SourceDatabaseAware
 {
     const COLLECTION = 'minister-sitting';
-    private Database $database;
+    use SourceDatabaseTrait;
 
     public function get(int $id): ?array
     {
@@ -325,16 +325,5 @@ class MinisterSitting implements SourceDatabaseAware
                 ['$set' => ['congressman' => serializeCongressman($congressman)]],
                 ['upsert' => false]
             );
-    }
-
-    public function getSourceDatabase(): Database
-    {
-        return $this->database;
-    }
-
-    public function setSourceDatabase(Database $database): self
-    {
-        $this->database = $database;
-        return $this;
     }
 }

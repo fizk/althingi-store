@@ -2,9 +2,9 @@
 
 namespace App\Service;
 
-use App\Decorator\SourceDatabaseAware;
-use MongoDB\Database;
 use MongoDB\Model\BSONDocument;
+use App\Service\SourceDatabaseTrait;
+use App\Decorator\SourceDatabaseAware;
 use function App\{
     serializeCongressman,
     deserializeCongressman
@@ -13,7 +13,7 @@ use function App\{
 class Congressman implements SourceDatabaseAware
 {
     const COLLECTION = 'congressman';
-    private Database $database;
+    use SourceDatabaseTrait;
 
     public function get(int $id): ?array
     {
@@ -54,16 +54,5 @@ class Congressman implements SourceDatabaseAware
             );
 
         return ($result->getModifiedCount() << 1) + $result->getUpsertedCount();
-    }
-
-    public function getSourceDatabase(): Database
-    {
-        return $this->database;
-    }
-
-    public function setSourceDatabase(Database $database): self
-    {
-        $this->database = $database;
-        return $this;
     }
 }
