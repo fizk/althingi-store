@@ -64,6 +64,57 @@ class PresidentSitting implements SourceDatabaseAware
         ));
     }
 
+    public function fetchByAssembly(int $assemblyId): array
+    {
+        return array_map(function (BSONDocument $document) {
+            return [
+                '_id' => $document['_id'],
+                'assembly' => $document['assembly']
+                    ? deserializeAssembly($document['assembly'])
+                    : null,
+                'congressman' => $document['congressman']
+                    ? deserializeCongressman($document['congressman'])
+                    : null,
+                'sessions' => array_map(function (BSONDocument $item) {
+                    return [
+                        ...$item,
+                        ...deserializeDatesRange($item),
+                        'congressman_party' => $item['congressman_party']
+                            ? deserializeParty($item['congressman_party'])
+                            : null,
+                        'congressman_constituency' => $item['congressman_constituency']
+                            ? deserializeConstituency($item['congressman_constituency'])
+                            : null,
+                    ];
+                }, $document['sessions']->getArrayCopy()),
+            ];
+        }, iterator_to_array(
+            $this->getSourceDatabase()->selectCollection(self::COLLECTION)->aggregate([
+                [
+                    '$match' => [
+                        'assembly.assembly_id' => $assemblyId
+                    ]
+                ],
+                [
+                    '$project' => [
+                        '_id' => '$_id',
+                        'congressman' => '$congressman',
+                        'assembly' => '$assembly',
+                        'sessions' => [[
+                            '_id' => '$_id',
+                            'abbr' => '$abbr',
+                            'congressman_party' => '$congressman_party',
+                            'congressman_constituency' => '$congressman_constituency',
+                            'from' => '$from',
+                            'to' => '$to',
+                            'type' => '$title'
+                        ]]
+                    ]
+                ]
+            ])
+        ));
+    }
+
     /**
      * @return int | not modified = 0, create = 1, update = 2
      */

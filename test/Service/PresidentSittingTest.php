@@ -6,8 +6,8 @@ use MongoDB\Model\BSONDocument;
 use PHPUnit\Framework\TestCase;
 use App\Service\PresidentSitting;
 use App\DatabaseConnectionTrait;
-use DateTime;
 use MongoDB\BSON\UTCDateTime;
+use DateTime;
 
 class PresidentSittingTest extends TestCase
 {
@@ -262,6 +262,93 @@ class PresidentSittingTest extends TestCase
                     'abbr_short' => 'abbr_short',
                     'abbr_long' => 'abbr_long',
                     'description' => 'description',
+                ],
+            ]
+        ];
+        $this->assertEquals($expected, $actual);
+    }
+
+    public function testFetchByAssembly()
+    {
+        //GIVE
+        $this->getDatabase()->selectCollection(PresidentSitting::COLLECTION)->insertOne([
+            '_id' => 1,
+            'president_id' => 1,
+            'from' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
+            'to' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
+            'title' => 'title',
+            'abbr' => 'abbr',
+            'assembly' => [
+                'assembly_id' =>  2,
+                'from' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
+                'to' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
+            ],
+            'congressman' => [
+                'congressman_id' => 3,
+                'name' => 'name',
+                'birth' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
+                'death' => null,
+                'abbreviation' => 'abbreviation',
+            ],
+            'congressman_party' => [
+                'party_id' => 4,
+                'name' => 'name',
+                'abbr_short' => 'abbr_short',
+                'abbr_long' => 'abbr_long',
+                'color' => 'color',
+            ],
+            'congressman_constituency' => [
+                'constituency_id' => 5,
+                'name' => 'name',
+                'abbr_short' => 'abbr_short',
+                'abbr_long' => 'abbr_long',
+                'description' => 'description',
+            ],
+        ]);
+
+        //WHEN
+        $actual = (new PresidentSitting())
+            ->setSourceDatabase($this->getDatabase())
+            ->fetchByAssembly(2);
+
+        //THEN
+        $expected =[
+            [
+                '_id' => 1,
+                'assembly' => [
+                    'assembly_id' =>  2,
+                    'from' => '2001-01-01T00:00:00+00:00',
+                    'to' => '2001-01-01T00:00:00+00:00',
+                ],
+                'congressman' => [
+                    'congressman_id' => 3,
+                    'name' => 'name',
+                    'birth' => '2001-01-01T00:00:00+00:00',
+                    'death' => null,
+                    'abbreviation' => 'abbreviation',
+                ],
+                'sessions' => [
+                   [
+                        '_id' => 1,
+                        'from' => '2001-01-01T00:00:00+00:00',
+                        'to' => '2001-01-01T00:00:00+00:00',
+                        'type' => 'title',
+                        'abbr' => 'abbr',
+                        'congressman_party' => [
+                            'party_id' => 4,
+                            'name' => 'name',
+                            'abbr_short' => 'abbr_short',
+                            'abbr_long' => 'abbr_long',
+                            'color' => 'color',
+                        ],
+                        'congressman_constituency' => [
+                            'constituency_id' => 5,
+                            'name' => 'name',
+                            'abbr_short' => 'abbr_short',
+                            'abbr_long' => 'abbr_long',
+                            'description' => 'description',
+                        ],
+                    ]
                 ],
             ]
         ];

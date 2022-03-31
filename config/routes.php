@@ -15,6 +15,7 @@ return (new Route('root', '', []))
                     ->addRoute((new Route('loggjafarthing.item.parties', '/thingflokkar', ['handler' => Handler\AssemblyParties::class])))
                     ->addRoute(
                         (new Route('loggjafarthing.item.sessions', '/thingsetur', ['handler' => Handler\AssemblySittings::class]))
+                            ->addRoute(new Route('loggjafarthing.item.sessions.presidents', '/forsetar', ['handler' => Handler\AssemblyPresidentSittings::class]))
                             ->addRoute(new Route('loggjafarthing.item.sessions.parties', '/flokkar', ['handler' => Handler\AssemblyPartiesSittings::class]))
                             ->addRoute(new Route('loggjafarthing.item.sessions.constituencies', '/kjordaemi', ['handler' => Handler\AssemblyConstituenciesSittings::class]))
                     )
