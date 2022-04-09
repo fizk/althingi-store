@@ -67,6 +67,11 @@ return [
                 ->setPresidentSittingService($container->get(Service\PresidentSitting::class))
             ;
         },
+        Handler\AssemblyCommitteeSittings::class => function (ContainerInterface $container) {
+            return (new Handler\AssemblyCommitteeSittings())
+                ->setCommitteeSittingService($container->get(Service\CommitteeSitting::class))
+            ;
+        },
         Handler\AssemblyInflation::class => function (ContainerInterface $container) {
             return (new Handler\AssemblyInflation())
                 ->setAssemblyService($container->get(Service\Assembly::class))

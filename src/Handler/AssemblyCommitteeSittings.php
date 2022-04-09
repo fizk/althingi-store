@@ -8,9 +8,8 @@ use Laminas\Diactoros\Response\JsonResponse;
 use App\Service;
 use App\Handler\HandlerTrait;
 use App\Decorator\ServiceCommitteeSittingAware;
-use Exception;
 
-class CommitteeSittings implements
+class AssemblyCommitteeSittings implements
     RequestHandlerInterface,
     ServiceCommitteeSittingAware
 {
@@ -21,7 +20,9 @@ class CommitteeSittings implements
     public function get(ServerRequestInterface $request): ResponseInterface
     {
         return new JsonResponse(
-            $this->committeeSittingService->fetch(),
+            $this->committeeSittingService->fetchByAssembly(
+                $request->getAttribute('assembly_id')
+            ),
             200
         );
     }

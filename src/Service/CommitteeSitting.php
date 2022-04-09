@@ -20,10 +20,6 @@ use function App\{
 };
 use MongoDB\Model\BSONDocument;
 
-/**
- * @todo there is no call to updateCongressman method
- *  because there is no CongressmanController (currently).
- */
 class CommitteeSitting implements SourceDatabaseAware
 {
     const COLLECTION = 'committee-sitting';
@@ -93,6 +89,119 @@ class CommitteeSitting implements SourceDatabaseAware
         }, iterator_to_array(
             $this->getSourceDatabase()->selectCollection(self::COLLECTION)->find()
         ));
+    }
+
+    public function fetchByAssembly(int $assemblyId): array
+    {
+        $documents = $this->getSourceDatabase()
+            ->selectCollection(self::COLLECTION)
+            ->aggregate([
+                [
+                    '$match' => [
+                        'assembly.assembly_id' => $assemblyId
+                    ]
+                ],
+                [
+                    '$project' => [
+                        '_id' => 1,
+                        'assembly' => 1,
+                        'committee' => 1,
+                        'committee_sitting_id' => 1,
+                        'congressman' => 1,
+                        'congressman_constituency' => 1,
+                        'congressman_party' => 1,
+                        'first_committee_assembly' => 1,
+                        'from' => 1,
+                        'last_committee_assembly' => 1,
+                        'type' => '$role',
+                        'order' => 1,
+                        'to' => 1,
+                    ]
+                ],
+                [
+                    '$group' => [
+                        '_id' => [
+                            'congressman' => '$congressman.congressman_id',
+                            'committee' => '$committee.committee_id'
+                        ],
+                        'id' => ['$first' => '$_id'],
+                        'committee' => ['$first' => '$committee'],
+                        'congressman' => ['$first' => '$congressman'],
+                        'assembly' => ['$first' => '$assembly'],
+                        'first_assembly' => ['$first' => '$first_committee_assembly'],
+                        'last_assembly' => ['$first' => '$last_committee_assembly'],
+                        'sessions' => ['$push' => '$$ROOT']
+                    ]
+                ],
+                [
+                    '$group' => [
+                        '_id' => '$_id.committee',
+                        'committee_id' => ['$first' => '$committee.committee_id'],
+                        'name' => ['$first' => '$committee.name'],
+                        'first_assembly_id' => ['$first' => '$committee.first_assembly_id'],
+                        'last_assembly_id' => ['$first' => '$committee.last_assembly_id'],
+                        'abbr_long' => ['$first' => '$committee.abbr_long'],
+                        'abbr_short' => ['$first' => '$committee.abbr_short'],
+                        'assembly' => ['$first' => '$assembly'],
+                        'first_assembly' => ['$first' => '$first_assembly'],
+                        'last_assembly' => ['$first' => '$last_assembly'],
+                        'sessions' => [
+                            '$push' => [
+                                '_id' => '$id',
+                                'congressman' => '$$ROOT.congressman',
+                                'assembly' => '$$ROOT.assembly',
+                                'sessions' => '$$ROOT.sessions'
+                            ],
+                        ]
+                    ]
+                ],
+                [
+                    '$sort' => ['committee.name' => 1]
+                ]
+            ]);
+
+        return array_map(function (BSONDocument $item) {
+            return [
+                ...$item,
+                'assembly' => $item['assembly']
+                    ? deserializeAssembly($item['assembly'])
+                    : null,
+                'first_assembly' => $item['first_assembly']
+                    ? deserializeAssembly($item['first_assembly'])
+                    : null,
+                'last_assembly' => $item['last_assembly']
+                    ? deserializeAssembly($item['last_assembly'])
+                    : null,
+                'sessions' => array_map(function (BSONDocument $session) {
+                    return [
+                        ...$session,
+                        'congressman' => $session['congressman']
+                            ? deserializeCongressman($session['congressman']) : null,
+                        'assembly' => $session['assembly']
+                            ? deserializeAssembly($session['assembly']) : null,
+                        'sessions' => array_map(function (BSONDocument $document) {
+                            return [
+                                '_id' => $document['_id'],
+                                ...deserializeDatesRange($document),
+                                'assembly' => $document['assembly']
+                                    ? deserializeAssembly($document['assembly'])
+                                    : null,
+                                'congressman_party' => $document['congressman_party']
+                                    ? deserializeParty($document['congressman_party'])
+                                    : null,
+                                'congressman_constituency' => $document['congressman_constituency']
+                                    ? deserializeConstituency($document['congressman_constituency'])
+                                    : null,
+                                'abbr' => null,
+                                'type' => $document['type'],
+                                'order' => $document['order'],
+                            ];
+                        }, $session['sessions']->getArrayCopy())
+                    ];
+                }, $item['sessions']->getArrayCopy()),
+
+            ];
+        }, iterator_to_array($documents));
     }
 
     /**

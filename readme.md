@@ -320,3 +320,72 @@ db.getCollection('minister-sitting').aggregate([
     },
 ])
 ```
+
+## Get commitees
+```
+db.getCollection('committee-sitting').aggregate([
+
+    {
+        $match: {
+            'assembly.assembly_id': 140
+        }
+    }
+    ,
+    {
+        $project: {
+            type: '$role',
+            '_id': 1,
+            'assembly': 1,
+            'committee': 1,
+            'committee_sitting_id': 1,
+            'congressman': 1,
+            'congressman_constituency': 1,
+            'congressman_party': 1,
+            'first_committee_assembly': 1,
+            'from': 1,
+            'last_committee_assembly': 1,
+            'order': 1,
+            'to': 1,
+        }
+    }
+    ,
+    {
+        $group: {
+            _id: {
+                congressman: '$congressman.congressman_id',
+                committee: '$committee.committee_id'
+            },
+            id: {$first: '$_id'},
+            committee: {$first: '$committee'},
+            congressman: {$first: '$congressman'},
+            assembly: {$first: '$assembly'},
+            first_assembly: {$first: '$first_committee_assembly'},
+            last_assembly: {$first: '$last_committee_assembly'},
+            sessions: {$push:'$$ROOT'}
+        }
+    }
+    ,
+    {
+        $group: {
+            _id: '$_id.committee',
+            committee_id: {$first: '$committee.committee_id'},
+            name: {$first: '$committee.name'},
+            first_assembly_id: {$first: '$committee.first_assembly_id'},
+            last_assembly_id: {$first: '$committee.last_assembly_id'},
+            abbr_long: {$first: '$committee.abbr_long'},
+            abbr_short: {$first: '$committee.abbr_short'},
+            assembly: {$first: '$assembly'},
+            first_assembly: {$first: '$first_assembly'},
+            last_assembly: {$first: '$last_assembly'},
+            sessions: {$push:{
+                _id: '$id',
+                congressman: '$$ROOT.congressman',
+                assembly: '$$ROOT.assembly',
+                sessions: '$$ROOT.sessions'
+            }},
+        }
+    }
+
+])
+
+```
