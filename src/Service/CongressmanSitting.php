@@ -47,6 +47,44 @@ class CongressmanSitting implements SourceDatabaseAware
         ] : null;
     }
 
+    public function getCongressmanAndAssembly(int $assemblyId, int $congressmanId): ?array
+    {
+        /** @var \MongoDB\Driver\Cursor */
+        $documents = $this->getSourceDatabase()->selectCollection(self::COLLECTION)->aggregate([
+            [
+                '$match' => [
+                    'assembly.assembly_id' => $assemblyId,
+                    'congressman.congressman_id' => $congressmanId
+                ]
+            ],
+            [
+                '$project' => [
+                    'assembly' => 1,
+                    'congressman' => 1
+                ]
+            ],
+            [
+                '$limit' => 1
+            ]
+        ]);
+
+        $documents->rewind();
+        $document = $documents->current();
+
+        if (!$document) {
+            return null;
+        }
+
+        return [
+            'assembly' => $document['assembly']
+                ? deserializeAssembly($document['assembly'])
+                : null,
+            'congressman' => $document['congressman']
+                ? deserializeCongressman($document['congressman'])
+                : null,
+        ];
+    }
+
     public function fetch(): array
     {
         return array_map(function (BSONDocument $document)  {

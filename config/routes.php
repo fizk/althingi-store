@@ -13,6 +13,7 @@ return (new Route('root', '', []))
                     ->addRoute((new Route('loggjafarthing.item.government', '/rikisstjorn', ['handler' => Handler\AssemblyGovernmentMinistries::class])))
                     ->addRoute((new Route('loggjafarthing.item.government', '/stjornarflokkar', ['handler' => Handler\AssemblyGovernmentParties::class])))
                     ->addRoute((new Route('loggjafarthing.item.parties', '/thingflokkar', ['handler' => Handler\AssemblyParties::class])))
+                    ->addRoute((new Route('loggjafarthing.item.parties', '/thingmenn/(?<congressman_id>\d+)', ['handler' => Handler\AssemblyCongressman::class])))
                     ->addRoute(
                         (new Route('loggjafarthing.item.sessions', '/thingsetur', ['handler' => Handler\AssemblySittings::class]))
                             ->addRoute(new Route('loggjafarthing.item.sessions.committees', '/nefndir', ['handler' => Handler\AssemblyCommitteeSittings::class]))
