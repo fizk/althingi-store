@@ -30,6 +30,7 @@ return [
                 ->setCommitteeSittingService($container->get(Service\CommitteeSitting::class))
                 ->setMinisterSittingService($container->get(Service\MinisterSitting::class))
                 ->setPresidentSittingService($container->get(Service\PresidentSitting::class))
+                ->setPlenaryAgendaService($container->get(Service\PlenaryAgenda::class))
             ;
         },
         Handler\AssemblyParties::class => function (ContainerInterface $container) {
@@ -83,6 +84,27 @@ return [
                 ->setInflationService($container->get(Service\Inflation::class))
             ;
         },
+        Handler\AssemblyPlenary::class => function (ContainerInterface $container) {
+            return (new Handler\AssemblyPlenary())
+                ->setPlenaryService($container->get(Service\Plenary::class))
+                ->setPlenaryAgendaService($container->get(Service\PlenaryAgenda::class))
+            ;
+        },
+        Handler\AssemblyPlenaries::class => function (ContainerInterface $container) {
+            return (new Handler\AssemblyPlenaries())
+                ->setPlenaryService($container->get(Service\Plenary::class))
+            ;
+        },
+        Handler\AssemblyPlenaryAgenda::class => function (ContainerInterface $container) {
+            return (new Handler\AssemblyPlenaryAgenda())
+                ->setPlenaryAgendaService($container->get(Service\PlenaryAgenda::class))
+            ;
+        },
+        Handler\AssemblyPlenaryAgendaItem::class => function (ContainerInterface $container) {
+            return (new Handler\AssemblyPlenaryAgendaItem())
+                ->setPlenaryAgendaService($container->get(Service\PlenaryAgenda::class))
+            ;
+        },
         Handler\Ministries::class => function (ContainerInterface $container) {
             return (new Handler\Ministries())
                 ->setMinistryService($container->get(Service\Ministry::class))
@@ -106,6 +128,7 @@ return [
                 ->setPartyService($container->get(Service\Party::class))
                 ->setMinisterSittingService($container->get(Service\MinisterSitting::class))
                 ->setPresidentSittingService($container->get(Service\PresidentSitting::class))
+                ->setPlenaryAgendaService($container->get(Service\PlenaryAgenda::class))
             ;
         },
         Handler\Committees::class => function (ContainerInterface $container) {
@@ -130,6 +153,7 @@ return [
                 ->setCommitteeSittingService($container->get(Service\CommitteeSitting::class))
                 ->setMinisterSittingService($container->get(Service\MinisterSitting::class))
                 ->setPresidentSittingService($container->get(Service\PresidentSitting::class))
+                ->setPlenaryAgendaService($container->get(Service\PlenaryAgenda::class))
             ;
         },
         Handler\Inflations::class => function (ContainerInterface $container) {
@@ -179,6 +203,7 @@ return [
                 ->setCongressmanSittingService($container->get(Service\CongressmanSitting::class))
                 ->setMinisterSittingService($container->get(Service\MinisterSitting::class))
                 ->setPresidentSittingService($container->get(Service\PresidentSitting::class))
+                ->setPlenaryAgendaService($container->get(Service\PlenaryAgenda::class))
             ;
         },
         Handler\Congressmen::class => function (ContainerInterface $container) {
@@ -196,6 +221,7 @@ return [
                 ->setPresidentSittingService($container->get(Service\PresidentSitting::class))
             ;
         },
+
 
 
 
@@ -242,6 +268,14 @@ return [
         },
         Service\PresidentSitting::class => function (ContainerInterface $container) {
             return (new Service\PresidentSitting)
+                ->setSourceDatabase($container->get(Database::class));
+        },
+        Service\Plenary::class => function (ContainerInterface $container) {
+            return (new Service\Plenary)
+                ->setSourceDatabase($container->get(Database::class));
+        },
+        Service\PlenaryAgenda::class => function (ContainerInterface $container) {
+            return (new Service\PlenaryAgenda)
                 ->setSourceDatabase($container->get(Database::class));
         },
 

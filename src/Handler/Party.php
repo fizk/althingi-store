@@ -12,7 +12,8 @@ use App\Decorator\{
     ServiceCongressmanSittingAware,
     ServiceCommitteeSittingAware,
     ServiceMinisterSittingAware,
-    ServicePresidentSittingAware
+    ServicePresidentSittingAware,
+    ServicePlenaryAgendaAware,
 };
 
 class Party implements
@@ -21,7 +22,8 @@ class Party implements
     ServiceCongressmanSittingAware,
     ServiceCommitteeSittingAware,
     ServiceMinisterSittingAware,
-    ServicePresidentSittingAware
+    ServicePresidentSittingAware,
+    ServicePlenaryAgendaAware
 {
     use HandlerTrait;
 
@@ -30,6 +32,7 @@ class Party implements
     private Service\CommitteeSitting $committeeSittingService;
     private Service\MinisterSitting $ministerSittingService;
     private Service\PresidentSitting $presidentSittingService;
+    private Service\PlenaryAgenda $plenaryAgendaService;
 
     public function get(ServerRequestInterface $request): ResponseInterface
     {
@@ -54,6 +57,7 @@ class Party implements
         $this->committeeSittingService->updateParty($party);
         $this->ministerSittingService->updateParty($party);
         $this->presidentSittingService->updateParty($party);
+        $this->plenaryAgendaService->updateParty($party);
 
         return match ($result) {
             1 => new EmptyResponse(201),
@@ -89,6 +93,12 @@ class Party implements
     public function setPresidentSittingService(Service\PresidentSitting $presidentSitting): self
     {
         $this->presidentSittingService = $presidentSitting;
+        return $this;
+    }
+
+    public function setPlenaryAgendaService(Service\PlenaryAgenda $plenaryAgenda): self
+    {
+        $this->plenaryAgendaService = $plenaryAgenda;
         return $this;
     }
 }

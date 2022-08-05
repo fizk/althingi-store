@@ -14,7 +14,9 @@ use App\Decorator\{
     ServiceCongressmanSittingAware,
     ServiceMinisterSittingAware,
     ServiceMinistryAware,
-    ServicePresidentSittingAware
+    ServicePresidentSittingAware,
+    ServicePlenaryAware,
+    ServicePlenaryAgendaAware,
 };
 
 class Assembly implements
@@ -25,7 +27,9 @@ class Assembly implements
     ServiceCongressmanSittingAware,
     ServiceCommitteeSittingAware,
     ServiceMinisterSittingAware,
-    ServicePresidentSittingAware
+    ServicePresidentSittingAware,
+    ServicePlenaryAware,
+    ServicePlenaryAgendaAware
 {
     use HandlerTrait;
 
@@ -36,6 +40,8 @@ class Assembly implements
     private Service\CommitteeSitting $committeeSittingService;
     private Service\MinisterSitting $ministerSittingService;
     private Service\PresidentSitting $presidentSittingService;
+    private Service\Plenary $plenaryService;
+    private Service\PlenaryAgenda $plenaryAgendaService;
 
     public function get(ServerRequestInterface $request): ResponseInterface
     {
@@ -62,6 +68,8 @@ class Assembly implements
         $this->committeeSittingService->updateAssembly($assembly);
         $this->ministerSittingService->updateAssembly($assembly);
         $this->presidentSittingService->updateAssembly($assembly);
+        $this->plenaryService->updateAssembly($assembly);
+        $this->plenaryAgendaService->updateAssembly($assembly);
 
         return match($result) {
             1 => new EmptyResponse(201),
@@ -109,6 +117,18 @@ class Assembly implements
     public function setPresidentSittingService(Service\PresidentSitting $presidentSitting): self
     {
         $this->presidentSittingService = $presidentSitting;
+        return $this;
+    }
+
+    public function setPlenaryService(Service\Plenary $plenary): self
+    {
+        $this->plenaryService = $plenary;
+        return $this;
+    }
+
+    public function setPlenaryAgendaService(Service\PlenaryAgenda $plenaryAgenda): self
+    {
+        $this->plenaryAgendaService = $plenaryAgenda;
         return $this;
     }
 }

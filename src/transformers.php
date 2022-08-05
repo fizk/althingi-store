@@ -6,7 +6,7 @@ use MongoDB\BSON\UTCDateTime;
 use MongoDB\Model\BSONDocument;
 use DateTime;
 
-function serializeDatesRange($range): array
+function serializeDatesRange(array $range): array
 {
     return [
         'from' => $range['from']
@@ -30,7 +30,7 @@ function deserializeDatesRange(BSONDocument $range): array
     ];
 }
 
-function serializeBirth($date): array
+function serializeBirth(array $date): array
 {
     return [
         'birth' => $date['birth']
@@ -48,7 +48,7 @@ function deserializeBirth(BSONDocument $date): array
     ];
 }
 
-function serializeDate($date): array
+function serializeDate(array $date): array
 {
     return [
         'date' => $date['date']
@@ -66,100 +66,206 @@ function deserializeDate(BSONDocument $date): array
     ];
 }
 
-function serializeAssembly($assembly): array
+function serializeAssembly(?array $assembly): ?array
 {
+    if (!$assembly) return null;
+
     return [
         ...$assembly,
         ...serializeDatesRange($assembly),
     ];
 }
 
-function deserializeAssembly(BSONDocument $assembly): array
+function deserializeAssembly(?BSONDocument $assembly): ?array
 {
+    if (!$assembly) return null;
     return [
         ...$assembly,
         ...deserializeDatesRange($assembly)
     ];
 }
 
-function serializeCongressman($congressman): array
+function serializeCongressman(?array $congressman): ?array
 {
+    if (!$congressman) return null;
     return [
         ...$congressman,
         ...serializeBirth($congressman),
     ];
 }
 
-function deserializeCongressman(BSONDocument $congressman): array
+function deserializeCongressman(?BSONDocument $congressman): ?array
 {
+    if (!$congressman) return null;
     return [
         ...$congressman,
         ...deserializeBirth($congressman),
     ];
 }
 
-function serializeCommittee($committee): array
+function serializeCommittee(?array $committee): ?array
 {
+    if (!$committee) return null;
     return [
         ...$committee,
     ];
 }
 
-function deserializeCommittee(BSONDocument $committee): array
+function deserializeCommittee(?BSONDocument $committee): ?array
 {
+    if (!$committee) return null;
     return [...$committee];
 }
 
-function serializeParty($party): array
+function serializeParty(?array $party): ?array
 {
+    if (!$party) return null;
     return [
         ...$party,
     ];
 }
 
-function deserializeParty(BSONDocument $party): array
+function deserializeParty(?BSONDocument $party): ?array
 {
+    if (!$party) return null;
     return [...$party];
 }
 
-function serializeConstituency($constituency): array
+function serializeConstituency(?array $constituency): ?array
 {
+    if (!$constituency) return null;
     return [
         ...$constituency,
     ];
 }
 
-function deserializeConstituency(BSONDocument $constituency): array
+function deserializeConstituency(?BSONDocument $constituency): ?array
 {
+    if (!$constituency) return null;
     return [...$constituency];
 }
 
-function serializeMinistry($ministry): array
+function serializeMinistry(?array $ministry): ?array
 {
+    if (!$ministry) return null;
     return [
         ...$ministry,
     ];
 }
 
-function deserializeMinistry(BSONDocument $ministry): array
+function deserializeMinistry(?BSONDocument $ministry): ?array
 {
+    if (!$ministry) return null;
     return [
         ...$ministry,
     ];
 }
 
-function serializeInflation($inflation): array
+function serializeInflation(?array $inflation): ?array
 {
+    if (!$inflation) return null;
     return [
         ...$inflation,
         ...serializeDate($inflation),
     ];
 }
 
-function deserializeInflation(BSONDocument $inflation): array
+function deserializeInflation(?BSONDocument $inflation): ?array
 {
+    if (!$inflation) return null;
     return [
         ...$inflation,
         ...deserializeDate($inflation),
     ];
+}
+
+function serializePlenary(?array $plenary): ?array
+{
+    if (!$plenary) return null;
+    return array_merge([
+        ...$plenary,
+        ...serializeDatesRange($plenary),
+    ], isset($plenary['assembly']) ? ['assembly' => serializeAssembly($plenary['assembly'])] : []);
+}
+
+function deserializePlenary(?BSONDocument $plenary): ?array
+{
+    if (!$plenary) return null;
+
+    return array_merge([
+        ...$plenary,
+        'assembly' => deserializeAssembly($plenary['assembly']),
+        ...deserializeDatesRange($plenary),
+    ], isset($plenary['_id']) ? ['_id' => [...$plenary['_id']]] : []);
+}
+
+function serializePlenaryAgenda(?array $plenary): ?array
+{
+    if (!$plenary) return null;
+    return [
+        ...$plenary,
+        'assembly' => serializeAssembly($plenary['assembly']),
+        'issue' => serializeIssue($plenary['issue']),
+        'plenary' => serializePlenary($plenary['plenary']),
+
+        'posed' => serializeCongressman($plenary['posed']),
+        'posed_party' => serializeParty($plenary['posed_party']),
+        'posed_constituency' => serializeConstituency($plenary['posed_constituency']),
+
+        'answerer' => serializeCongressman($plenary['answerer']),
+        'answerer_party' => serializeParty($plenary['answerer_party']),
+        'answerer_constituency' => serializeConstituency($plenary['answerer_constituency']),
+
+        'counter_answerer' => serializeCongressman($plenary['counter_answerer']),
+        'counter_answerer_party' => serializeParty($plenary['counter_answerer_party']),
+        'counter_answerer_constituency' => serializeConstituency($plenary['counter_answerer_constituency']),
+
+        'instigator' => serializeCongressman($plenary['instigator']),
+        'instigator_party' => serializeParty($plenary['instigator_party']),
+        'instigator_constituency' => serializeConstituency($plenary['instigator_constituency']),
+    ];
+}
+
+function deserializePlenaryAgenda(?BSONDocument $plenary): ?array
+{
+    if (!$plenary) return null;
+    return [
+        ...$plenary,
+        '_id' => (array) $plenary['_id'],
+        'assembly' => deserializeAssembly($plenary['assembly']),
+        'issue' => deserializeIssue($plenary['issue']),
+        'plenary' => deserializePlenary($plenary['plenary']),
+
+        'posed' => deserializeCongressman($plenary['posed']),
+        'posed_party' => deserializeParty($plenary['posed_party']),
+        'posed_constituency' => deserializeConstituency($plenary['posed_constituency']),
+
+        'answerer' => deserializeCongressman($plenary['answerer']),
+        'answerer_party' => deserializeParty($plenary['answerer_party']),
+        'answerer_constituency' => deserializeConstituency($plenary['answerer_constituency']),
+
+        'counter_answerer' => deserializeCongressman($plenary['counter_answerer']),
+        'counter_answerer_party' => deserializeParty($plenary['counter_answerer_party']),
+        'counter_answerer_constituency' => deserializeConstituency($plenary['counter_answerer_constituency']),
+
+        'instigator' => deserializeCongressman($plenary['instigator']),
+        'instigator_party' => deserializeParty($plenary['instigator_party']),
+        'instigator_constituency' => deserializeConstituency($plenary['instigator_constituency']),
+    ];
+}
+
+function serializeIssue(?array $issue): ?array {
+    if (!$issue) return null;
+
+    return array_merge([
+        ...$issue,
+    ], isset($issue['assembly']) ? ['assembly' => serializeAssembly($issue['assembly'])] : []);
+}
+
+function deserializeIssue(?BSONDocument $issue): ?array {
+    if (!$issue) return null;
+
+    return array_merge([
+        ...$issue,
+    ], isset($issue['assembly']) ? ['assembly' => deserializeAssembly($issue['assembly'])] : []);
 }
