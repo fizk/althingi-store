@@ -295,12 +295,18 @@ class PlenaryAgendaTest extends TestCase
             'instigator_constituency' => null,
             'instigator_party' => null,
             'instigator_title' => null,
-            'issue' => (object)[],
+            'issue' => [
+                'assembly_id' => 1,
+                'issue_id' => 1,
+                'category' => 'a',
+            ],
             'item_id' => 1,
             'iteration_comment' => null,
             'iteration_continue' => null,
             'iteration_type' => null,
             'plenary' => [
+                'plenary_id' => 2,
+                'assembly_id' => 1,
                 'from' => null,
                 'to' => null,
             ],
@@ -342,6 +348,14 @@ class PlenaryAgendaTest extends TestCase
             'instigator_party' => null,
             'instigator_title' => null,
             'issue' => [
+                '_id' => [
+                    'assembly_id' => 1,
+                    'issue_id' => 1,
+                    'category' => 'a',
+                ],
+                'assembly_id' => 1,
+                'issue_id' => 1,
+                'category' => 'a',
                 'assembly' => [
                     'assembly_id' => 1,
                     'from' => '2001-01-01T00:00:00+00:00',
@@ -353,6 +367,12 @@ class PlenaryAgendaTest extends TestCase
             'iteration_continue' => null,
             'iteration_type' => null,
             'plenary' => [
+                '_id' => [
+                    'assembly_id' => 1,
+                    'plenary_id' => 2,
+                ],
+                'assembly_id' => 1,
+                'plenary_id' => 2,
                 'from' => null,
                 'to' => null,
                 'assembly' => [
@@ -408,12 +428,18 @@ class PlenaryAgendaTest extends TestCase
             'instigator_constituency' => null,
             'instigator_party' => null,
             'instigator_title' => null,
-            'issue' => (object)[],
+            'issue' => [
+                'assembly_id' => 1,
+                'issue_id' => 1,
+                'category' => 'a',
+            ],
             'item_id' => 1,
             'iteration_comment' => null,
             'iteration_continue' => null,
             'iteration_type' => null,
             'plenary' => [
+                'assembly_id' => 1,
+                'plenary_id' => 2,
                 'from' => null,
                 'to' => null,
             ],
@@ -455,16 +481,31 @@ class PlenaryAgendaTest extends TestCase
             'instigator_party' => null,
             'instigator_title' => null,
             'issue' => [
-                'assembly' => [
+                '_id' => [
+                    'assembly_id' => 1,
+                    'issue_id' => 1,
+                    'category' => 'a',
+                ],
                 'assembly_id' => 1,
-                'from' => null,
-                'to' => null
-            ]],
+                'issue_id' => 1,
+                'category' => 'a',
+                'assembly' => [
+                    'assembly_id' => 1,
+                    'from' => null,
+                    'to' => null
+                ]
+            ],
             'item_id' => 1,
             'iteration_comment' => null,
             'iteration_continue' => null,
             'iteration_type' => null,
             'plenary' => [
+                '_id' => [
+                    'assembly_id' => 1,
+                    'plenary_id' => 2,
+                ],
+                'assembly_id' => 1,
+                'plenary_id' => 2,
                 'from' => null,
                 'to' => null,
                 'assembly' => [
@@ -834,6 +875,81 @@ class PlenaryAgendaTest extends TestCase
                 'posed_constituency' => null,
                 'posed_party' => null,
                 'posed_title' => null
+            ]),
+        ];
+        $this->assertEquals($expected, $actual);
+    }
+
+    public function testUpdateIssue() {
+        $this->getDatabase()->selectCollection(PlenaryAgenda::COLLECTION)->insertMany([
+            [
+                '_id' => [
+                    'assembly_id' => 1,
+                    'plenary_id' => 1,
+                    'item_id' => 3
+                ],
+                'issue' => [
+                    'issue_id' => 1,
+                    'assembly_id' => 1,
+                    'category' => 'a',
+                    'status' => 'one'
+                ],
+            ],
+            [
+                '_id' => [
+                    'assembly_id' => 2,
+                    'plenary_id' => 2,
+                    'item_id' => 3
+                ],
+                'issue' => [
+                    'issue_id' => 2,
+                    'assembly_id' => 1,
+                    'category' => 'a',
+                    'status' => 'one'
+                ],
+            ],
+        ]);
+
+        //WHEN
+        (new PlenaryAgenda())
+            ->setSourceDatabase($this->getDatabase())
+            ->updateIssue([
+                'issue_id' => 1,
+                'assembly_id' => 1,
+                'category' => 'a',
+                'status' => 'update'
+            ]);
+
+        // THEN
+        $actual = iterator_to_array(
+            $this->getDatabase()->selectCollection(PlenaryAgenda::COLLECTION)->find([])
+        );
+        $expected = [
+            new BSONDocument([
+                '_id' => new BSONDocument([
+                    'assembly_id' => 1,
+                    'plenary_id' => 1,
+                    'item_id' => 3
+                ]),
+                'issue' => new BSONDocument([
+                    'issue_id' => 1,
+                    'assembly_id' => 1,
+                    'category' => 'a',
+                    'status' => 'update'
+                ]),
+            ]),
+            new BSONDocument([
+                '_id' => new BSONDocument([
+                    'assembly_id' => 2,
+                    'plenary_id' => 2,
+                    'item_id' => 3
+                ]),
+                'issue' => new BSONDocument([
+                    'issue_id' => 2,
+                    'assembly_id' => 1,
+                    'category' => 'a',
+                    'status' => 'one'
+                ]),
             ]),
         ];
         $this->assertEquals($expected, $actual);

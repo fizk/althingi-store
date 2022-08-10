@@ -5,12 +5,32 @@ namespace App\Service;
 use App\Service\SourceDatabaseTrait;
 use App\Decorator\SourceDatabaseAware;
 use MongoDB\Model\BSONDocument;
-use function App\{deserializePlenaryAgenda, serializeAssembly, serializePlenary, serializePlenaryAgenda};
+use function App\{
+    deserializePlenaryAgenda,
+    serializeAssembly,
+    serializeIssue,
+    serializePlenary,
+    serializePlenaryAgenda
+};
 
 class PlenaryAgenda implements SourceDatabaseAware
 {
     const COLLECTION = 'plenary-agenda';
     use SourceDatabaseTrait;
+
+    private $addFields = [
+        'issue.assembly' => '$assembly',
+        'issue._id' => [
+            'assembly_id' => '$issue.assembly_id',
+            'issue_id' => '$issue.issue_id',
+            'category' => '$issue.category',
+        ],
+        'plenary.assembly' => '$assembly',
+        'plenary._id' => [
+            'assembly_id' => '$plenary.assembly_id',
+            'plenary_id' => '$plenary.plenary_id',
+        ]
+    ];
 
     public function get(int $assemblyId, int $plenaryId, int $itemId): ?array
     {
@@ -26,10 +46,7 @@ class PlenaryAgenda implements SourceDatabaseAware
                     ]
                 ],
                 [
-                    '$addFields' => [
-                        'issue.assembly' => '$assembly',
-                        'plenary.assembly' => '$assembly',
-                    ]
+                    '$addFields' => $this->addFields
                 ],
             ]);
         $documents->rewind();
@@ -49,10 +66,7 @@ class PlenaryAgenda implements SourceDatabaseAware
                     ]
                 ],
                 [
-                    '$addFields' => [
-                        'issue.assembly'=> '$assembly',
-                        'plenary.assembly'=> '$assembly',
-                    ]
+                    '$addFields' => $this->addFields
                 ],
         ]);
 
@@ -194,19 +208,25 @@ class PlenaryAgenda implements SourceDatabaseAware
         //     );
     }
 
-    // @todo | hook this up to the handler when it's created
     public function updateIssue(?array $issue): void
     {
         if (!$issue) {
             return;
         }
 
-        // $this->getSourceDatabase()
-        //     ->selectCollection(self::COLLECTION)
-        //     ->updateMany(
-        //         ['assembly.assembly_id' => $assembly['assembly_id']],
-        //         ['$set' => ['assembly' => serializeAssembly($assembly)]],
-        //         ['upsert' => false]
-        //     );
+        $this->getSourceDatabase()
+            ->selectCollection(self::COLLECTION)
+            ->updateMany(
+                [
+                    'issue.assembly_id' => isset($issue['assembly_id'])
+                        /** @todo do I need this? */
+                        ? $issue['assembly_id']
+                        : $issue['assembly']['assembly_id'],
+                    'issue.issue_id' => $issue['issue_id'],
+                    'issue.category' => $issue['category'],
+                ],
+                ['$set' => ['issue' => serializeIssue($issue)]],
+                ['upsert' => false]
+            );
     }
 }
