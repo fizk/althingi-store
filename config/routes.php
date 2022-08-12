@@ -5,6 +5,7 @@ use Fizk\Router\Route;
 use App\Handler;
 
 return (new Route('root', '', []))
+    ->addRoute(new Route('index', '/', ['handler' => Handler\Index::class]))
     ->addRoute(
         (new Route('loggjafarthing', '/loggjafarthing', ['handler' => Handler\Assemblies::class]))
             ->addRoute(
@@ -15,11 +16,13 @@ return (new Route('root', '', []))
                     ->addRoute((new Route('loggjafarthing.item.parties', '/thingflokkar', ['handler' => Handler\AssemblyParties::class])))
                     ->addRoute((new Route('loggjafarthing.item.congressmen', '/thingmenn/(?<congressman_id>\d+)', ['handler' => Handler\AssemblyCongressman::class])))
                     ->addRoute(
-                        (new Route('loggjafarthing.item.plenary', '/thingfundir/(?<plenary_id>\d+)', ['handler' => Handler\AssemblyPlenary::class]))
+                        (new Route('loggjafarthing.item.plenary', '/thingfundir/(?<plenary_id>(\d+|-))', ['handler' => Handler\AssemblyPlenary::class]))
                             ->addRoute(new Route('loggjafarthing.item.plenary.agenda', '/lidir', ['handler' => Handler\AssemblyPlenaryAgenda::class]))
                             ->addRoute(new Route('loggjafarthing.item.plenary.agenda.item', '/lidir/(?<item_id>\d+)', ['handler' => Handler\AssemblyPlenaryAgendaItem::class]))
                     )
-                    ->addRoute((new Route('loggjafarthing.item.plenaries', '/thingfundir', ['handler' => Handler\AssemblyPlenaries::class])))
+                    ->addRoute(new Route('loggjafarthing.item.plenaries', '/thingfundir', ['handler' => Handler\AssemblyPlenaries::class]))
+                    ->addRoute(new Route('loggjafarthing.item.issues', '/thingmal(/)?(?<category>(a|b))?', ['handler' => Handler\AssemblyIssues::class]))
+                    ->addRoute(new Route('loggjafarthing.item.issue.item', '/thingmal/(?<issue_id>\d+)/(?<category>(a|b))', ['handler' => Handler\AssemblyIssue::class]))
                     ->addRoute(
                         (new Route('loggjafarthing.item.sessions', '/thingsetur', ['handler' => Handler\AssemblySittings::class]))
                             ->addRoute(new Route('loggjafarthing.item.sessions.committees', '/nefndir', ['handler' => Handler\AssemblyCommitteeSittings::class]))

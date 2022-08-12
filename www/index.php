@@ -10,6 +10,7 @@ use Laminas\ServiceManager\ServiceManager;
 use Laminas\HttpHandlerRunner\Emitter\SapiEmitter;
 use Laminas\Diactoros\Response\EmptyResponse;
 use Psr\EventDispatcher\EventDispatcherInterface;
+use Fizk\Router\RouteInterface;
 use function App\read_resource;
 use function App\exception_error_handler;
 
@@ -27,8 +28,7 @@ $request = ServerRequestFactory::fromGlobals(
 $manager = new ServiceManager(require_once './config/service.php');
 $emitter = new SapiEmitter();
 
-$router = require_once('./config/routes.php');
-$match = $router->match($request);
+$match = $manager->get(RouteInterface::class)->match($request);
 
 try {
     if ($match) {

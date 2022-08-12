@@ -267,5 +267,7 @@ function deserializeIssue(?BSONDocument $issue): ?array {
 
     return array_merge([
         ...$issue,
+        'proponents' => [...$issue['proponents']],
+        '_id' => [...$issue['_id']]
     ], isset($issue['assembly']) ? ['assembly' => deserializeAssembly($issue['assembly'])] : []);
 }

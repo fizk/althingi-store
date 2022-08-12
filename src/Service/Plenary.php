@@ -12,16 +12,23 @@ class Plenary implements SourceDatabaseAware
     const COLLECTION = 'plenary';
     use SourceDatabaseTrait;
 
-    public function get(int $assemblyId, int $plenaryId): ?array
+    public function get(int $assemblyId, ?int $plenaryId = null): ?array
     {
-        // $document = $this->getSourceDatabase()
-        //     ->selectCollection(self::COLLECTION)
-        //     ->findOne(['_id' => [
-        //         'assembly_id' => $assemblyId,
-        //         'plenary_id' => $plenaryId
-        //     ]]);
+        if ($plenaryId === null) {
+            /** @var \Iterator */
+            $minResult = $this->getSourceDatabase()->selectCollection(self::COLLECTION)->aggregate([
+                ['$match' => ['_id.assembly_id' => $assemblyId ]],
+                [
+                    '$group' => [
+                        '_id' => [],
+                        'min' => [ '$min' => '$_id.plenary_id' ]
+                    ]
+                ]
+            ]);
 
-        // return $document ? deserializePlenary($document) : null;
+            $minResult->rewind();
+            $plenaryId = $minResult->current()['min'];
+        }
 
         /** @var \Iterator */
         $documents = $this->getSourceDatabase()->selectCollection(self::COLLECTION)->aggregate([

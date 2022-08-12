@@ -31,9 +31,10 @@ class AssemblyPlenary implements
 
     public function get(ServerRequestInterface $request): ResponseInterface
     {
+        $plenaryId = $request->getAttribute('plenary_id');
         $plenary = $this->plenaryService->get(
             $request->getAttribute('assembly_id'),
-            $request->getAttribute('plenary_id')
+            is_numeric($plenaryId) ? $plenaryId : null
         );
 
         return $plenary

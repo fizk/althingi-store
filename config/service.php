@@ -13,9 +13,14 @@ use League\Event\EventDispatcher;
 use Monolog\Logger;
 use Monolog\Handler\StreamHandler;
 use Monolog\Formatter\LineFormatter;
+use Fizk\Router\RouteInterface;
 
 return [
     'factories' => [
+        Handler\Index::class => function (ContainerInterface $container) {
+            return (new Handler\Index($container))
+            ;
+        },
         Handler\Assemblies::class => function (ContainerInterface $container) {
             return (new Handler\Assemblies())
                 ->setAssemblyService($container->get(Service\Assembly::class))
@@ -36,6 +41,17 @@ return [
         Handler\AssemblyParties::class => function (ContainerInterface $container) {
             return (new Handler\AssemblyParties())
                 ->setCongressmanSittingService($container->get(Service\CongressmanSitting::class))
+            ;
+        },
+        Handler\AssemblyIssue::class => function (ContainerInterface $container) {
+            return (new Handler\AssemblyIssue())
+                ->setIssueService($container->get(Service\Issue::class))
+                ->setPlenaryAgendaService($container->get(Service\PlenaryAgenda::class))
+            ;
+        },
+        Handler\AssemblyIssues::class => function (ContainerInterface $container) {
+            return (new Handler\AssemblyIssues())
+                ->setIssueService($container->get(Service\Issue::class))
             ;
         },
         Handler\AssemblyGovernmentParties::class => function (ContainerInterface $container) {
@@ -234,6 +250,10 @@ return [
             return (new Service\Ministry)
                 ->setSourceDatabase($container->get(Database::class));
         },
+        Service\Issue::class => function (ContainerInterface $container) {
+            return (new Service\Issue)
+                ->setSourceDatabase($container->get(Database::class));
+        },
         Service\Party::class => function (ContainerInterface $container) {
             return (new Service\Party)
                 ->setSourceDatabase($container->get(Database::class));
@@ -311,5 +331,9 @@ return [
 
             return new EventDispatcher($provider);
         },
+
+        RouteInterface::class => function () {
+            return require_once('./config/routes.php');
+        }
     ],
 ];
