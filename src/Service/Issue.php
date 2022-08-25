@@ -4,8 +4,12 @@ namespace App\Service;
 
 use App\Service\SourceDatabaseTrait;
 use App\Decorator\SourceDatabaseAware;
+use App\Presenter\{
+    IssuePresenter,
+    CategoryPresenter,
+    SuperCategoryPresenter
+};
 use MongoDB\Model\BSONDocument;
-use function App\{deserializeIssue, serializeIssue};
 
 class Issue implements SourceDatabaseAware
 {
@@ -24,7 +28,7 @@ class Issue implements SourceDatabaseAware
             ->selectCollection(self::COLLECTION)
             ->findOne(['_id' => $id]);
 
-        return $document? deserializeIssue($document) : null;
+        return (new IssuePresenter)->unserialize($document);
     }
 
     /**
@@ -42,28 +46,69 @@ class Issue implements SourceDatabaseAware
             ->find($query);
 
         return array_map(function (BSONDocument $document) {
-            return deserializeIssue($document);
+            return (new IssuePresenter)->unserialize($document);
         }, iterator_to_array($documents));
     }
 
+    /**
+     * @return int | not modified = 0, create = 1, update = 2
+     */
     public function store(mixed $object): int
     {
-        $id = [
-            'assembly_id' => (int) $object['assembly']['assembly_id'],
-            'issue_id' => (int) $object['issue_id'],
-            'category' => $object['category']
-        ];
+        $document = (new IssuePresenter)->serialize($object);
+        $result = $this->getSourceDatabase()
+            ->selectCollection(self::COLLECTION)
+            ->updateOne(
+                ['_id' => $document['_id']],
+                ['$set' => $document],
+                ['upsert' => true]
+            );
 
-        $document = serializeIssue([
-            '_id' => $id,
-            ...$object,
-        ]);
+        return ($result->getModifiedCount() << 1) + $result->getUpsertedCount();
+    }
+
+    /**
+     * @return int | not modified = 0, create = 1, update = 2
+     */
+    public function addContentSuperCategory(int $assemblyId, int $issueId, string $category, mixed $object)
+    {
+        $id = [
+            'assembly_id' => (int) $assemblyId,
+            'issue_id' => (int) $issueId,
+            'category' => $category
+        ];
 
         $result = $this->getSourceDatabase()
             ->selectCollection(self::COLLECTION)
             ->updateOne(
                 ['_id' => $id],
-                ['$set' => $document],
+                ['$addToSet' => [
+                    'content_super_categories' => (new SuperCategoryPresenter)->serialize($object)
+                ]],
+                ['upsert' => true]
+            );
+
+        return ($result->getModifiedCount() << 1) + $result->getUpsertedCount();
+    }
+
+    /**
+     * @return int | not modified = 0, create = 1, update = 2
+     */
+    public function addContentCategory(int $assemblyId, int $issueId, string $category, mixed $object)
+    {
+        $id = [
+            'assembly_id' => (int) $assemblyId,
+            'issue_id' => (int) $issueId,
+            'category' => $category
+        ];
+
+        $result = $this->getSourceDatabase()
+            ->selectCollection(self::COLLECTION)
+            ->updateOne(
+                ['_id' => $id],
+                ['$addToSet' => [
+                    'content_categories' => (new CategoryPresenter)->serialize($object)
+                ]],
                 ['upsert' => true]
             );
 

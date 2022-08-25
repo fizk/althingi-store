@@ -4,19 +4,14 @@ namespace App\Service;
 
 use App\Service\SourceDatabaseTrait;
 use App\Decorator\SourceDatabaseAware;
-use function App\{
-    serializeDatesRange,
-    deserializeDatesRange,
-    serializeAssembly,
-    deserializeAssembly,
-    serializeCongressman,
-    deserializeCongressman,
-    serializeCommittee,
-    deserializeCommittee,
-    serializeParty,
-    deserializeParty,
-    serializeConstituency,
-    deserializeConstituency
+use App\Presenter\{
+    AssemblyPresenter,
+    AssemblyCommitteeSittingPresenter,
+    CommitteePresenter,
+    CommitteeSittingPresenter,
+    CongressmanPresenter,
+    ConstituencyPresenter,
+    PartyPresenter
 };
 use MongoDB\Model\BSONDocument;
 
@@ -31,64 +26,19 @@ class CommitteeSitting implements SourceDatabaseAware
             ->selectCollection(self::COLLECTION)
             ->findOne(['_id' => $id]);
 
-        return $document ? [
-            ...$document,
-            ...deserializeDatesRange($document),
-            'assembly' => $document['assembly']
-                ? deserializeAssembly($document['assembly'])
-                : null,
-            'congressman' => $document['congressman']
-                ? deserializeCongressman($document['congressman'])
-                : null,
-            'committee' => $document['committee']
-                ? deserializeCommittee($document['committee'])
-                : null,
-            'congressman_party' => $document['congressman_party']
-                ? deserializeParty($document['congressman_party'])
-                : null,
-            'congressman_constituency' => $document['congressman_constituency']
-                ? deserializeConstituency($document['congressman_constituency'])
-                : null,
-            'first_committee_assembly' => $document['first_committee_assembly']
-                ? deserializeAssembly($document['first_committee_assembly'])
-                : null,
-            'last_committee_assembly' => $document['last_committee_assembly']
-                ? deserializeAssembly($document['last_committee_assembly'])
-                : null,
-        ] : null;
+        return (new CommitteeSittingPresenter)->unserialize($document);
     }
 
     public function fetch(): array
     {
+        $documents = $this->getSourceDatabase()->selectCollection(self::COLLECTION)->aggregate([
+            [
+                '$sort' => ['session_id' => 1]
+            ]
+        ]);
         return array_map(function (BSONDocument $document) {
-            return [
-                ...$document,
-                ...deserializeDatesRange($document),
-                'assembly' => $document['assembly']
-                    ? deserializeAssembly($document['assembly'])
-                    : null,
-                'congressman' => $document['congressman']
-                    ? deserializeCongressman($document['congressman'])
-                    : null,
-                'committee' => $document['committee']
-                    ? deserializeCommittee($document['committee'])
-                    : null,
-                'congressman_party' => $document['congressman_party']
-                    ? deserializeParty($document['congressman_party'])
-                    : null,
-                'congressman_constituency' => $document['congressman_constituency']
-                    ? deserializeConstituency($document['congressman_constituency'])
-                    : null,
-                'first_committee_assembly' => $document['first_committee_assembly']
-                    ? deserializeAssembly($document['first_committee_assembly'])
-                    : null,
-                'last_committee_assembly' => $document['last_committee_assembly']
-                    ? deserializeAssembly($document['last_committee_assembly'])
-                    : null,
-            ];
-        }, iterator_to_array(
-            $this->getSourceDatabase()->selectCollection(self::COLLECTION)->find()
-        ));
+            return (new CommitteeSittingPresenter)->unserialize($document);
+        }, iterator_to_array($documents));
     }
 
     public function fetchByAssembly(int $assemblyId): array
@@ -150,57 +100,33 @@ class CommitteeSitting implements SourceDatabaseAware
                                 '_id' => '$id',
                                 'congressman' => '$$ROOT.congressman',
                                 'assembly' => '$$ROOT.assembly',
-                                'sessions' => '$$ROOT.sessions'
+                                "sessions" => [
+                                    '$sortArray' => [
+                                        'input' => '$$ROOT.sessions',
+                                        'sortBy' => [ 'from' => 1 ]
+                                    ]
+                                ]
                             ],
                         ]
                     ]
                 ],
                 [
-                    '$sort' => ['committee.name' => 1]
+                    '$set' => [
+                            "sessions" => [
+                                    '$sortArray' => [
+                                        'input' => '$sessions',
+                                        'sortBy' => ["congressman.name" => 1]
+                                    ]
+                            ]
+                    ]
+                ],
+                [
+                    '$sort' => ['name' => 1]
                 ]
             ]);
 
         return array_map(function (BSONDocument $item) {
-            return [
-                ...$item,
-                'assembly' => $item['assembly']
-                    ? deserializeAssembly($item['assembly'])
-                    : null,
-                'first_assembly' => $item['first_assembly']
-                    ? deserializeAssembly($item['first_assembly'])
-                    : null,
-                'last_assembly' => $item['last_assembly']
-                    ? deserializeAssembly($item['last_assembly'])
-                    : null,
-                'sessions' => array_map(function (BSONDocument $session) {
-                    return [
-                        ...$session,
-                        'congressman' => $session['congressman']
-                            ? deserializeCongressman($session['congressman']) : null,
-                        'assembly' => $session['assembly']
-                            ? deserializeAssembly($session['assembly']) : null,
-                        'sessions' => array_map(function (BSONDocument $document) {
-                            return [
-                                '_id' => $document['_id'],
-                                ...deserializeDatesRange($document),
-                                'assembly' => $document['assembly']
-                                    ? deserializeAssembly($document['assembly'])
-                                    : null,
-                                'congressman_party' => $document['congressman_party']
-                                    ? deserializeParty($document['congressman_party'])
-                                    : null,
-                                'congressman_constituency' => $document['congressman_constituency']
-                                    ? deserializeConstituency($document['congressman_constituency'])
-                                    : null,
-                                'abbr' => null,
-                                'type' => $document['type'],
-                                'order' => $document['order'],
-                            ];
-                        }, $session['sessions']->getArrayCopy())
-                    ];
-                }, $item['sessions']->getArrayCopy()),
-
-            ];
+            return (new AssemblyCommitteeSittingPresenter)->unserialize($item);
         }, iterator_to_array($documents));
     }
 
@@ -209,37 +135,12 @@ class CommitteeSitting implements SourceDatabaseAware
      */
     public function store(mixed $object): int
     {
-        $document = [
-            '_id' => $object['committee_sitting_id'],
-            ...$object,
-            ...serializeDatesRange($object),
-            'assembly' => $object['assembly']
-                ? serializeAssembly($object['assembly'])
-                : null,
-            'congressman' => $object['congressman']
-                ? serializeCongressman($object['congressman'])
-                : null,
-            'committee' => $object['committee']
-                ? serializeCommittee($object['committee'])
-                : null,
-            'congressman_party' => $object['congressman_party']
-                ? serializeParty($object['congressman_party'])
-                : null,
-            'congressman_constituency' => $object['congressman_constituency']
-                ? serializeConstituency($object['congressman_constituency'])
-                : null,
-            'first_committee_assembly' => $object['first_committee_assembly']
-                ? serializeAssembly($object['first_committee_assembly'])
-                : null,
-            'last_committee_assembly' => $object['last_committee_assembly']
-                ? serializeAssembly($object['last_committee_assembly'])
-                : null,
-        ];
+        $document = (new CommitteeSittingPresenter)->serialize($object);
 
         $result = $this->getSourceDatabase()
             ->selectCollection(self::COLLECTION)
             ->updateOne(
-                ['_id' => $object['committee_sitting_id']],
+                ['_id' => $document['committee_sitting_id']],
                 ['$set' => $document],
                 ['upsert' => true]
             );
@@ -257,7 +158,7 @@ class CommitteeSitting implements SourceDatabaseAware
             ->selectCollection(self::COLLECTION)
             ->updateMany(
                 ['assembly.assembly_id' => $assembly['assembly_id']],
-                ['$set' => ['assembly' => serializeAssembly($assembly)]],
+                ['$set' => ['assembly' => (new AssemblyPresenter)->serialize($assembly)]],
                 ['upsert' => false]
             );
 
@@ -265,7 +166,7 @@ class CommitteeSitting implements SourceDatabaseAware
             ->selectCollection(self::COLLECTION)
             ->updateMany(
                 ['first_committee_assembly.assembly_id' => $assembly['assembly_id']],
-                ['$set' => ['first_committee_assembly' => serializeAssembly($assembly)]],
+                ['$set' => ['first_committee_assembly' => (new AssemblyPresenter)->serialize($assembly)]],
                 ['upsert' => false]
             );
 
@@ -273,12 +174,12 @@ class CommitteeSitting implements SourceDatabaseAware
             ->selectCollection(self::COLLECTION)
             ->updateMany(
                 ['last_committee_assembly.assembly_id' => $assembly['assembly_id']],
-                ['$set' => ['last_committee_assembly' => serializeAssembly($assembly)]],
+                ['$set' => ['last_committee_assembly' => (new AssemblyPresenter)->serialize($assembly)]],
                 ['upsert' => false]
             );
     }
 
-    public function updateCommittee($committee): void
+    public function updateCommittee(?array $committee): void
     {
         if (!$committee) {
             return;
@@ -288,12 +189,12 @@ class CommitteeSitting implements SourceDatabaseAware
             ->selectCollection(self::COLLECTION)
             ->updateMany(
                 ['committee.committee_id' => $committee['committee_id']],
-                ['$set' => ['committee' => serializeCommittee($committee)]],
+                ['$set' => ['committee' => (new CommitteePresenter)->serialize($committee)]],
                 ['upsert' => false]
             );
     }
 
-    public function updateCongressman($congressman): void
+    public function updateCongressman(?array $congressman): void
     {
         if (!$congressman) {
             return;
@@ -303,12 +204,12 @@ class CommitteeSitting implements SourceDatabaseAware
             ->selectCollection(self::COLLECTION)
             ->updateMany(
                 ['congressman.congressman_id' => $congressman['congressman_id']],
-                ['$set' => ['congressman' => serializeCongressman($congressman)]],
+                ['$set' => ['congressman' => (new CongressmanPresenter)->serialize($congressman)]],
                 ['upsert' => false]
             );
     }
 
-    public function updateParty($party): void
+    public function updateParty(?array $party): void
     {
         if (!$party) {
             return;
@@ -318,12 +219,12 @@ class CommitteeSitting implements SourceDatabaseAware
             ->selectCollection(self::COLLECTION)
             ->updateMany(
                 ['congressman_party.party_id' => $party['party_id']],
-                ['$set' => ['congressman_party' => serializeParty($party)]],
+                ['$set' => ['congressman_party' => (new PartyPresenter)->serialize($party)]],
                 ['upsert' => false]
             );
     }
 
-    public function updateConstituency($constituency): void
+    public function updateConstituency(?array $constituency): void
     {
         if (!$constituency) {
             return;
@@ -333,7 +234,7 @@ class CommitteeSitting implements SourceDatabaseAware
             ->selectCollection(self::COLLECTION)
             ->updateMany(
                 ['congressman_constituency.constituency_id' => $constituency['constituency_id']],
-                ['$set' => ['congressman_constituency' => serializeConstituency($constituency)]],
+                ['$set' => ['congressman_constituency' => (new ConstituencyPresenter)->serialize($constituency)]],
                 ['upsert' => false]
             );
     }

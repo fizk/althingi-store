@@ -6,6 +6,7 @@ use MongoDB\Model\BSONDocument;
 use PHPUnit\Framework\TestCase;
 use App\Service\Constituency;
 use App\DatabaseConnectionTrait;
+use App\Presenter\ConstituencyPresenter;
 
 class ConstituencyTest extends TestCase
 {
@@ -28,18 +29,21 @@ class ConstituencyTest extends TestCase
         ]);
 
         //THEN
-        $actual = array_map(function(BSONDocument $item) {
-            return $item->getArrayCopy();
-        }, iterator_to_array($this->getDatabase()->selectCollection(Constituency::COLLECTION)->find([]), false));
+        $actual = iterator_to_array(
+            $this->getDatabase()->selectCollection(Constituency::COLLECTION)->find([]),
+            false
+        );
 
-        $expected = [[
-            '_id' => 1,
-            'constituency_id' => 1,
-            'name' => 'name',
-            'abbr_short' => 'abbr_short',
-            'abbr_long' => 'abbr_long',
-            'description' => 'description',
-        ]];
+        $expected = [
+            new BSONDocument([
+                '_id' => 1,
+                'constituency_id' => 1,
+                'name' => 'name',
+                'abbr_short' => 'abbr_short',
+                'abbr_long' => 'abbr_long',
+                'description' => 'description',
+            ])
+        ];
 
         $createdResultCode = 1;
 
@@ -50,14 +54,15 @@ class ConstituencyTest extends TestCase
     public function testStoreUpdate()
     {
         //GIVE
-        $this->getDatabase()->selectCollection(Constituency::COLLECTION)->insertOne([
-            '_id' => 1,
-            'constituency_id' => 1,
-            'name' => 'name',
-            'abbr_short' => 'abbr_short',
-            'abbr_long' => 'abbr_long',
-            'description' => 'description',
-        ]);
+        $this->getDatabase()->selectCollection(Constituency::COLLECTION)->insertOne(
+            (new ConstituencyPresenter)->serialize([
+                'constituency_id' => 1,
+                'name' => 'name',
+                'abbr_short' => 'abbr_short',
+                'abbr_long' => 'abbr_long',
+                'description' => 'description',
+            ])
+        );
 
         //WHEN
         $result = (new Constituency())
@@ -71,18 +76,21 @@ class ConstituencyTest extends TestCase
         ]);
 
         //THEN
-        $actual = array_map(function(BSONDocument $item) {
-            return $item->getArrayCopy();
-        }, iterator_to_array($this->getDatabase()->selectCollection(Constituency::COLLECTION)->find([]), false));
+        $actual = iterator_to_array(
+            $this->getDatabase()->selectCollection(Constituency::COLLECTION)->find([]),
+            false
+        );
 
-        $expected = [[
-            '_id' => 1,
-            'constituency_id' => 1,
-            'name' => 'name',
-            'abbr_short' => 'abbr_short-update',
-            'abbr_long' => 'abbr_long-update',
-            'description' => 'description-update',
-        ]];
+        $expected = [
+            new BSONDocument([
+                '_id' => 1,
+                'constituency_id' => 1,
+                'name' => 'name',
+                'abbr_short' => 'abbr_short-update',
+                'abbr_long' => 'abbr_long-update',
+                'description' => 'description-update',
+            ])
+        ];
 
         $createdResultCode = 2;
 
@@ -93,14 +101,15 @@ class ConstituencyTest extends TestCase
     public function testStoreNoChange()
     {
         //GIVE
-        $this->getDatabase()->selectCollection(Constituency::COLLECTION)->insertOne([
-            '_id' => 1,
-            'constituency_id' => 1,
-            'name' => 'name',
-            'abbr_short' => 'abbr_short',
-            'abbr_long' => 'abbr_long',
-            'description' => 'description',
-        ]);
+        $this->getDatabase()->selectCollection(Constituency::COLLECTION)->insertOne(
+            (new ConstituencyPresenter)->serialize([
+                'constituency_id' => 1,
+                'name' => 'name',
+                'abbr_short' => 'abbr_short',
+                'abbr_long' => 'abbr_long',
+                'description' => 'description',
+            ])
+        );
 
         //WHEN
         $result = (new Constituency())
@@ -114,18 +123,21 @@ class ConstituencyTest extends TestCase
         ]);
 
         //THEN
-        $actual = array_map(function(BSONDocument $item) {
-            return $item->getArrayCopy();
-        }, iterator_to_array($this->getDatabase()->selectCollection(Constituency::COLLECTION)->find([]), false));
+        $actual = iterator_to_array(
+            $this->getDatabase()->selectCollection(Constituency::COLLECTION)->find([]),
+            false
+        );
 
-        $expected = [[
-            '_id' => 1,
-            'constituency_id' => 1,
-            'name' => 'name',
-            'abbr_short' => 'abbr_short',
-            'abbr_long' => 'abbr_long',
-            'description' => 'description',
-        ]];
+        $expected = [
+            new BSONDocument([
+                '_id' => 1,
+                'constituency_id' => 1,
+                'name' => 'name',
+                'abbr_short' => 'abbr_short',
+                'abbr_long' => 'abbr_long',
+                'description' => 'description',
+            ])
+        ];
 
         $createdResultCode = 0;
 
@@ -136,14 +148,15 @@ class ConstituencyTest extends TestCase
     public function testGet()
     {
         //GIVE
-        $this->getDatabase()->selectCollection(Constituency::COLLECTION)->insertOne([
-            '_id' => 1,
-            'constituency_id' => 1,
-            'name' => 'name',
-            'abbr_short' => 'abbr_short',
-            'abbr_long' => 'abbr_long',
-            'description' => 'description',
-        ]);
+        $this->getDatabase()->selectCollection(Constituency::COLLECTION)->insertOne(
+            (new ConstituencyPresenter)->serialize([
+                'constituency_id' => 1,
+                'name' => 'name',
+                'abbr_short' => 'abbr_short',
+                'abbr_long' => 'abbr_long',
+                'description' => 'description',
+            ])
+        );
 
         //WHEN
         $actual = (new Constituency())
@@ -166,14 +179,14 @@ class ConstituencyTest extends TestCase
     public function testGetNotFound()
     {
         //GIVE
-        $this->getDatabase()->selectCollection(Constituency::COLLECTION)->insertOne([
-            '_id' => 1,
+        $this->getDatabase()->selectCollection(Constituency::COLLECTION)->insertOne(
+            (new ConstituencyPresenter)->serialize([
             'constituency_id' => 1,
             'name' => 'name',
             'abbr_short' => 'abbr_short',
             'abbr_long' => 'abbr_long',
             'description' => 'description',
-        ]);
+        ]));
 
         //WHEN
         $actual = (new Constituency())
@@ -190,21 +203,20 @@ class ConstituencyTest extends TestCase
     {
         //GIVE
         $this->getDatabase()->selectCollection(Constituency::COLLECTION)->insertMany([
-            [
-                '_id' => 1,
+            (new ConstituencyPresenter)->serialize([
                 'constituency_id' => 1,
                 'name' => 'name',
                 'abbr_short' => 'abbr_short',
                 'abbr_long' => 'abbr_long',
                 'description' => 'description',
-            ], [
-                '_id' => 2,
+            ]),
+            (new ConstituencyPresenter)->serialize([
                 'constituency_id' => 2,
                 'name' => 'name',
                 'abbr_short' => 'abbr_short',
                 'abbr_long' => 'abbr_long',
                 'description' => 'description',
-            ]
+            ])
         ]);
 
         //WHEN

@@ -7,6 +7,7 @@ use MongoDB\BSON\UTCDateTime;
 use PHPUnit\Framework\TestCase;
 use App\Service\CongressmanSitting;
 use App\DatabaseConnectionTrait;
+use App\Presenter\CongressmanSittingPresenter;
 use DateTime;
 
 
@@ -17,43 +18,6 @@ class CongressmanSittingTest extends TestCase
     public function testStoreSimpleStructureCreate()
     {
         //GIVEN
-        $expected = [
-            new BSONDocument([
-                '_id' => 1,
-                'session_id' => 1,
-                'from' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
-                'to' => new UTCDateTime((new DateTime('2002-01-01'))->getTimestamp() * 1000),
-                'type' => 'type',
-                'abbr' => 'appr',
-                'assembly' => new BSONDocument([
-                    'assembly_id' => 2,
-                    'from' => new UTCDateTime((new DateTime('2003-01-01'))->getTimestamp() * 1000),
-                    'to' => new UTCDateTime((new DateTime('2004-01-01'))->getTimestamp() * 1000),
-                ]),
-                'congressman' => new BSONDocument([
-                    'congressman_id' => 3,
-                    'name' => 'name',
-                    'birth' => new UTCDateTime((new DateTime('2005-01-01'))->getTimestamp() * 1000),
-                    'death' => null,
-                    'abbreviation' => 'abbreviation',
-                ]),
-                'congressman_constituency' => new BSONDocument([
-                    'constituency_id' => 4,
-                    'name' => 'name',
-                    'abbr_short' => 'abbr_short',
-                    'abbr_long' => 'abbr_long',
-                    'description' => 'description',
-                ]),
-                'congressman_party' => new BSONDocument([
-                    'party_id' => 5,
-                    'name' => 'name',
-                    'abbr_short' => 'abbr_short',
-                    'abbr_long' => 'abbr_long',
-                    'color' => 'color',
-                ])
-            ])
-        ];
-        $createdResultCode = 1;
 
         //WHEN
         $result = (new CongressmanSitting())
@@ -93,6 +57,47 @@ class CongressmanSittingTest extends TestCase
         ]);
 
         //THEN
+        $expected = [
+                new BSONDocument([
+                    '_id' => 1,
+                    'session_id' => 1,
+                    'from' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
+                    'to' => new UTCDateTime((new DateTime('2002-01-01'))->getTimestamp() * 1000),
+                    'type' => 'type',
+                    'abbr' => 'appr',
+                    'assembly' => new BSONDocument([
+                        '_id' => 2,
+                        'assembly_id' => 2,
+                        'from' => new UTCDateTime((new DateTime('2003-01-01'))->getTimestamp() * 1000),
+                        'to' => new UTCDateTime((new DateTime('2004-01-01'))->getTimestamp() * 1000),
+                    ]),
+                    'congressman' => new BSONDocument([
+                        '_id' => 3,
+                        'congressman_id' => 3,
+                        'name' => 'name',
+                        'birth' => new UTCDateTime((new DateTime('2005-01-01'))->getTimestamp() * 1000),
+                        'death' => null,
+                        'abbreviation' => 'abbreviation',
+                    ]),
+                    'congressman_constituency' => new BSONDocument([
+                        '_id' => 4,
+                        'constituency_id' => 4,
+                        'name' => 'name',
+                        'abbr_short' => 'abbr_short',
+                        'abbr_long' => 'abbr_long',
+                        'description' => 'description',
+                    ]),
+                    'congressman_party' => new BSONDocument([
+                        '_id' => 5,
+                        'party_id' => 5,
+                        'name' => 'name',
+                        'abbr_short' => 'abbr_short',
+                        'abbr_long' => 'abbr_long',
+                        'color' => 'color',
+                    ])
+                ])
+            ];
+        $createdResultCode = 1;
         $actual = iterator_to_array(
             $this->getDatabase()->selectCollection(CongressmanSitting::COLLECTION)->find([]),
             false
@@ -105,40 +110,41 @@ class CongressmanSittingTest extends TestCase
     public function testGet()
     {
         //GIVE
-        $this->getDatabase()->selectCollection(CongressmanSitting::COLLECTION)->insertOne([
-            '_id' => 1,
-            'session_id' => 1,
-            'from' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
-            'to' => new UTCDateTime((new DateTime('2002-01-01'))->getTimestamp() * 1000),
-            'type' => 'type',
-            'abbr' => 'appr',
-            'assembly' =>  [
-                'assembly_id' => 2,
-                'from' => new UTCDateTime((new DateTime('2003-01-01'))->getTimestamp() * 1000),
-                'to' => new UTCDateTime((new DateTime('2004-01-01'))->getTimestamp() * 1000),
-            ],
-            'congressman' =>  [
-                'congressman_id' => 3,
-                'name' => 'name',
-                'birth' => new UTCDateTime((new DateTime('2005-01-01'))->getTimestamp() * 1000),
-                'death' => null,
-                'abbreviation' => 'abbreviation',
-            ],
-            'congressman_constituency' =>  [
-                'constituency_id' => 4,
-                'name' => 'name',
-                'abbr_short' => 'abbr_short',
-                'abbr_long' => 'abbr_long',
-                'description' => 'description',
-            ],
-            'congressman_party' =>  [
-                'party_id' => 5,
-                'name' => 'name',
-                'abbr_short' => 'abbr_short',
-                'abbr_long' => 'abbr_long',
-                'color' => 'color',
-            ]
-        ]);
+        $this->getDatabase()->selectCollection(CongressmanSitting::COLLECTION)->insertOne(
+            (new CongressmanSittingPresenter)->serialize([
+                'session_id' => 1,
+                'from' => '2001-01-01',
+                'to' => '2002-01-01',
+                'type' => 'type',
+                'abbr' => 'appr',
+                'assembly' =>  [
+                    'assembly_id' => 2,
+                    'from' => '2003-01-01',
+                    'to' => '2004-01-01',
+                ],
+                'congressman' =>  [
+                    'congressman_id' => 3,
+                    'name' => 'name',
+                    'birth' => '2005-01-01',
+                    'death' => null,
+                    'abbreviation' => 'abbreviation',
+                ],
+                'congressman_constituency' =>  [
+                    'constituency_id' => 4,
+                    'name' => 'name',
+                    'abbr_short' => 'abbr_short',
+                    'abbr_long' => 'abbr_long',
+                    'description' => 'description',
+                ],
+                'congressman_party' =>  [
+                    'party_id' => 5,
+                    'name' => 'name',
+                    'abbr_short' => 'abbr_short',
+                    'abbr_long' => 'abbr_long',
+                    'color' => 'color',
+                ]
+            ])
+        );
 
         //WHEN
         $actual = (new CongressmanSitting())
@@ -154,11 +160,13 @@ class CongressmanSittingTest extends TestCase
             'type' => 'type',
             'abbr' => 'appr',
             'assembly' =>  [
+                '_id' => 2,
                 'assembly_id' => 2,
                 'from' => '2003-01-01T00:00:00+00:00',
                 'to' => '2004-01-01T00:00:00+00:00',
             ],
             'congressman' =>  [
+                '_id' => 3,
                 'congressman_id' => 3,
                 'name' => 'name',
                 'birth' => '2005-01-01T00:00:00+00:00',
@@ -166,6 +174,7 @@ class CongressmanSittingTest extends TestCase
                 'abbreviation' => 'abbreviation',
             ],
             'congressman_constituency' =>  [
+                '_id' => 4,
                 'constituency_id' => 4,
                 'name' => 'name',
                 'abbr_short' => 'abbr_short',
@@ -173,6 +182,7 @@ class CongressmanSittingTest extends TestCase
                 'description' => 'description',
             ],
             'congressman_party' =>  [
+                '_id' => 5,
                 'party_id' => 5,
                 'name' => 'name',
                 'abbr_short' => 'abbr_short',
@@ -187,40 +197,45 @@ class CongressmanSittingTest extends TestCase
     public function testGetNotFound()
     {
         //GIVE
-        $this->getDatabase()->selectCollection(CongressmanSitting::COLLECTION)->insertOne([
-            '_id' => 1,
-            'session_id' => 1,
-            'from' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
-            'to' => new UTCDateTime((new DateTime('2002-01-01'))->getTimestamp() * 1000),
-            'type' => 'type',
-            'abbr' => 'appr',
-            'assembly' =>  [
-                'assembly_id' => 2,
-                'from' => new UTCDateTime((new DateTime('2003-01-01'))->getTimestamp() * 1000),
-                'to' => new UTCDateTime((new DateTime('2004-01-01'))->getTimestamp() * 1000),
-            ],
-            'congressman' =>  [
-                'congressman_id' => 3,
-                'name' => 'name',
-                'birth' => new UTCDateTime((new DateTime('2005-01-01'))->getTimestamp() * 1000),
-                'death' => null,
-                'abbreviation' => 'abbreviation',
-            ],
-            'congressman_constituency' =>  [
-                'constituency_id' => 4,
-                'name' => 'name',
-                'abbr_short' => 'abbr_short',
-                'abbr_long' => 'abbr_long',
-                'description' => 'description',
-            ],
-            'congressman_party' =>  [
-                'party_id' => 5,
-                'name' => 'name',
-                'abbr_short' => 'abbr_short',
-                'abbr_long' => 'abbr_long',
-                'color' => 'color',
-            ]
-        ]);
+        $this->getDatabase()->selectCollection(CongressmanSitting::COLLECTION)->insertOne(
+            (new CongressmanSittingPresenter)->serialize([
+                'session_id' => 1,
+                'from' => '2001-01-01',
+                'to' => '2002-01-01',
+                'type' => 'type',
+                'abbr' => 'appr',
+                'assembly' =>  [
+                    '_id' => 2,
+                    'assembly_id' => 2,
+                    'from' => '2003-01-01',
+                    'to' => '2004-01-01',
+                ],
+                'congressman' =>  [
+                    '_id' => 3,
+                    'congressman_id' => 3,
+                    'name' => 'name',
+                    'birth' => '2005-01-01',
+                    'death' => null,
+                    'abbreviation' => 'abbreviation',
+                ],
+                'congressman_constituency' =>  [
+                    '_id' => 4,
+                    'constituency_id' => 4,
+                    'name' => 'name',
+                    'abbr_short' => 'abbr_short',
+                    'abbr_long' => 'abbr_long',
+                    'description' => 'description',
+                ],
+                'congressman_party' =>  [
+                    '_id' => 5,
+                    'party_id' => 5,
+                    'name' => 'name',
+                    'abbr_short' => 'abbr_short',
+                    'abbr_long' => 'abbr_long',
+                    'color' => 'color',
+                ]
+            ])
+        );
 
         //WHEN
         $actual = (new CongressmanSitting())
@@ -237,22 +252,21 @@ class CongressmanSittingTest extends TestCase
     {
         //GIVE
         $this->getDatabase()->selectCollection(CongressmanSitting::COLLECTION)->insertMany([
-            [
-                '_id' => 1,
+            (new CongressmanSittingPresenter)->serialize([
                 'session_id' => 1,
-                'from' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
-                'to' => new UTCDateTime((new DateTime('2002-01-01'))->getTimestamp() * 1000),
+                'from' => '2001-01-01',
+                'to' => '2002-01-01',
                 'type' => 'type',
                 'abbr' => 'appr',
                 'assembly' =>  [
                     'assembly_id' => 2,
-                    'from' => new UTCDateTime((new DateTime('2003-01-01'))->getTimestamp() * 1000),
-                    'to' => new UTCDateTime((new DateTime('2004-01-01'))->getTimestamp() * 1000),
+                    'from' => '2003-01-01',
+                    'to' => '2004-01-01',
                 ],
                 'congressman' =>  [
                     'congressman_id' => 3,
                     'name' => 'name',
-                    'birth' => new UTCDateTime((new DateTime('2005-01-01'))->getTimestamp() * 1000),
+                    'birth' => '2005-01-01',
                     'death' => null,
                     'abbreviation' => 'abbreviation',
                 ],
@@ -270,22 +284,22 @@ class CongressmanSittingTest extends TestCase
                     'abbr_long' => 'abbr_long',
                     'color' => 'color',
                 ]
-            ], [
-                '_id' => 2,
+            ]),
+            (new CongressmanSittingPresenter)->serialize([
                 'session_id' => 2,
-                'from' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
-                'to' => new UTCDateTime((new DateTime('2002-01-01'))->getTimestamp() * 1000),
+                'from' => '2001-01-01',
+                'to' => '2002-01-01',
                 'type' => 'type',
                 'abbr' => 'appr',
                 'assembly' =>  [
                     'assembly_id' => 2,
-                    'from' => new UTCDateTime((new DateTime('2003-01-01'))->getTimestamp() * 1000),
-                    'to' => new UTCDateTime((new DateTime('2004-01-01'))->getTimestamp() * 1000),
+                    'from' => '2003-01-01',
+                    'to' => '2004-01-01',
                 ],
                 'congressman' =>  [
                     'congressman_id' => 3,
                     'name' => 'name',
-                    'birth' => new UTCDateTime((new DateTime('2005-01-01'))->getTimestamp() * 1000),
+                    'birth' => '2005-01-01',
                     'death' => null,
                     'abbreviation' => 'abbreviation',
                 ],
@@ -303,7 +317,7 @@ class CongressmanSittingTest extends TestCase
                     'abbr_long' => 'abbr_long',
                     'color' => 'color',
                 ]
-            ]
+            ])
         ]);
 
         //WHEN
@@ -321,11 +335,13 @@ class CongressmanSittingTest extends TestCase
                 'type' => 'type',
                 'abbr' => 'appr',
                 'assembly' =>  [
+                    '_id' => 2,
                     'assembly_id' => 2,
                     'from' => '2003-01-01T00:00:00+00:00',
                     'to' => '2004-01-01T00:00:00+00:00',
                 ],
                 'congressman' =>  [
+                    '_id' => 3,
                     'congressman_id' => 3,
                     'name' => 'name',
                     'birth' => '2005-01-01T00:00:00+00:00',
@@ -333,6 +349,7 @@ class CongressmanSittingTest extends TestCase
                     'abbreviation' => 'abbreviation',
                 ],
                 'congressman_constituency' =>  [
+                    '_id' => 4,
                     'constituency_id' => 4,
                     'name' => 'name',
                     'abbr_short' => 'abbr_short',
@@ -340,6 +357,7 @@ class CongressmanSittingTest extends TestCase
                     'description' => 'description',
                 ],
                 'congressman_party' =>  [
+                    '_id' => 5,
                     'party_id' => 5,
                     'name' => 'name',
                     'abbr_short' => 'abbr_short',
@@ -347,7 +365,6 @@ class CongressmanSittingTest extends TestCase
                     'color' => 'color',
                 ]
             ], [
-
                 '_id' => 2,
                 'session_id' => 2,
                 'from' => '2001-01-01T00:00:00+00:00',
@@ -355,11 +372,13 @@ class CongressmanSittingTest extends TestCase
                 'type' => 'type',
                 'abbr' => 'appr',
                 'assembly' =>  [
+                    '_id' => 2,
                     'assembly_id' => 2,
                     'from' => '2003-01-01T00:00:00+00:00',
                     'to' => '2004-01-01T00:00:00+00:00',
                 ],
                 'congressman' =>  [
+                    '_id' => 3,
                     'congressman_id' => 3,
                     'name' => 'name',
                     'birth' => '2005-01-01T00:00:00+00:00',
@@ -367,6 +386,7 @@ class CongressmanSittingTest extends TestCase
                     'abbreviation' => 'abbreviation',
                 ],
                 'congressman_constituency' =>  [
+                    '_id' => 4,
                     'constituency_id' => 4,
                     'name' => 'name',
                     'abbr_short' => 'abbr_short',
@@ -374,6 +394,7 @@ class CongressmanSittingTest extends TestCase
                     'description' => 'description',
                 ],
                 'congressman_party' =>  [
+                    '_id' => 5,
                     'party_id' => 5,
                     'name' => 'name',
                     'abbr_short' => 'abbr_short',
@@ -390,22 +411,21 @@ class CongressmanSittingTest extends TestCase
     {
         //GIVE
         $this->getDatabase()->selectCollection(CongressmanSitting::COLLECTION)->insertMany([
-            [
-                '_id' => 1,
+            (new CongressmanSittingPresenter)->serialize([
                 'session_id' => 1,
-                'from' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
-                'to' => new UTCDateTime((new DateTime('2002-01-01'))->getTimestamp() * 1000),
+                'from' => '2001-01-01',
+                'to' => '2002-01-01',
                 'type' => 'type',
                 'abbr' => 'appr',
                 'assembly' =>  [
                     'assembly_id' => 1,
-                    'from' => new UTCDateTime((new DateTime('2003-01-01'))->getTimestamp() * 1000),
-                    'to' => new UTCDateTime((new DateTime('2004-01-01'))->getTimestamp() * 1000),
+                    'from' => '2003-01-01',
+                    'to' => '2004-01-01',
                 ],
                 'congressman' =>  [
                     'congressman_id' => 3,
                     'name' => 'name',
-                    'birth' => new UTCDateTime((new DateTime('2005-01-01'))->getTimestamp() * 1000),
+                    'birth' => '2005-01-01',
                     'death' => null,
                     'abbreviation' => 'abbreviation',
                 ],
@@ -423,22 +443,23 @@ class CongressmanSittingTest extends TestCase
                     'abbr_long' => 'abbr_long',
                     'color' => 'color',
                 ]
-            ], [
+            ]),
+            (new CongressmanSittingPresenter)->serialize([
                 '_id' => 2,
                 'session_id' => 2,
-                'from' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
-                'to' => new UTCDateTime((new DateTime('2002-01-01'))->getTimestamp() * 1000),
+                'from' => '2001-01-01',
+                'to' => '2002-01-01',
                 'type' => 'type',
                 'abbr' => 'appr',
                 'assembly' =>  [
                     'assembly_id' => 2,
-                    'from' => new UTCDateTime((new DateTime('2003-01-01'))->getTimestamp() * 1000),
-                    'to' => new UTCDateTime((new DateTime('2004-01-01'))->getTimestamp() * 1000),
+                    'from' => '2003-01-01',
+                    'to' => '2004-01-01',
                 ],
                 'congressman' =>  [
                     'congressman_id' => 3,
                     'name' => 'name',
-                    'birth' => new UTCDateTime((new DateTime('2005-01-01'))->getTimestamp() * 1000),
+                    'birth' => '2005-01-01',
                     'death' => null,
                     'abbreviation' => 'abbreviation',
                 ],
@@ -456,7 +477,7 @@ class CongressmanSittingTest extends TestCase
                     'abbr_long' => 'abbr_long',
                     'color' => 'color',
                 ]
-            ]
+            ])
         ]);
 
         //WHEN
@@ -467,6 +488,7 @@ class CongressmanSittingTest extends TestCase
         //THEN
         $expected = [
             [
+                '_id' => 5,
                 'party_id' => 5,
                 'name' => 'name',
                 'abbr_short' => 'abbr_short',
@@ -482,22 +504,21 @@ class CongressmanSittingTest extends TestCase
     {
         //GIVE
         $this->getDatabase()->selectCollection(CongressmanSitting::COLLECTION)->insertMany([
-            [
-                '_id' => 1,
+            (new CongressmanSittingPresenter)->serialize([
                 'session_id' => 1,
-                'from' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
-                'to' => new UTCDateTime((new DateTime('2002-01-01'))->getTimestamp() * 1000),
+                'from' => '2001-01-01',
+                'to' => '2002-01-01',
                 'type' => 'type',
                 'abbr' => 'appr',
                 'assembly' =>  [
                     'assembly_id' => 1,
-                    'from' => new UTCDateTime((new DateTime('2003-01-01'))->getTimestamp() * 1000),
-                    'to' => new UTCDateTime((new DateTime('2004-01-01'))->getTimestamp() * 1000),
+                    'from' => '2003-01-01',
+                    'to' => '2004-01-01',
                 ],
                 'congressman' =>  [
                     'congressman_id' => 3,
                     'name' => 'A',
-                    'birth' => new UTCDateTime((new DateTime('2005-01-01'))->getTimestamp() * 1000),
+                    'birth' => '2005-01-01',
                     'death' => null,
                     'abbreviation' => 'abbreviation',
                 ],
@@ -515,23 +536,22 @@ class CongressmanSittingTest extends TestCase
                     'abbr_long' => 'abbr_long',
                     'color' => 'color',
                 ]
-            ],
-            [
-                '_id' => 2,
+            ]),
+            (new CongressmanSittingPresenter)->serialize([
                 'session_id' => 2,
-                'from' => new UTCDateTime((new DateTime('2001-01-02'))->getTimestamp() * 1000),
-                'to' => new UTCDateTime((new DateTime('2002-01-01'))->getTimestamp() * 1000),
+                'from' => '2001-01-02',
+                'to' => '2002-01-01',
                 'type' => 'type',
                 'abbr' => 'appr',
                 'assembly' =>  [
                     'assembly_id' => 1,
-                    'from' => new UTCDateTime((new DateTime('2003-01-01'))->getTimestamp() * 1000),
-                    'to' => new UTCDateTime((new DateTime('2004-01-01'))->getTimestamp() * 1000),
+                    'from' => '2003-01-01',
+                    'to' => '2004-01-01',
                 ],
                 'congressman' =>  [
                     'congressman_id' => 4,
                     'name' => 'B',
-                    'birth' => new UTCDateTime((new DateTime('2005-01-01'))->getTimestamp() * 1000),
+                    'birth' => '2005-01-01',
                     'death' => null,
                     'abbreviation' => 'abbreviation',
                 ],
@@ -549,7 +569,7 @@ class CongressmanSittingTest extends TestCase
                     'abbr_long' => 'abbr_long',
                     'color' => 'color',
                 ]
-            ]
+            ])
         ]);
 
         //WHEN
@@ -562,6 +582,7 @@ class CongressmanSittingTest extends TestCase
             [
                 '_id' => 3,
                 'assembly' => [
+                    '_id' => 1,
                     'assembly_id' => 1,
                     'from' => '2003-01-01T00:00:00+00:00',
                     'to' => '2004-01-01T00:00:00+00:00',
@@ -575,11 +596,13 @@ class CongressmanSittingTest extends TestCase
                         'type' => 'type',
                         'abbr' => 'appr',
                         'assembly' =>  [
+                            '_id' => 1,
                             'assembly_id' => 1,
                             'from' => '2003-01-01T00:00:00+00:00',
                             'to' => '2004-01-01T00:00:00+00:00',
                         ],
                         'congressman' =>  [
+                            '_id' => 3,
                             'congressman_id' => 3,
                             'name' => 'A',
                             'birth' => '2005-01-01T00:00:00+00:00',
@@ -587,6 +610,7 @@ class CongressmanSittingTest extends TestCase
                             'abbreviation' => 'abbreviation',
                         ],
                         'congressman_constituency' =>  [
+                            '_id' => 4,
                             'constituency_id' => 4,
                             'name' => 'name',
                             'abbr_short' => 'abbr_short',
@@ -594,6 +618,7 @@ class CongressmanSittingTest extends TestCase
                             'description' => 'description',
                         ],
                         'congressman_party' =>  [
+                            '_id' => 5,
                             'party_id' => 5,
                             'name' => 'name',
                             'abbr_short' => 'abbr_short',
@@ -603,6 +628,7 @@ class CongressmanSittingTest extends TestCase
                     ]
                 ],
                 'congressman' => [
+                    '_id' => 3,
                     'congressman_id' => 3,
                     'name' => 'A',
                     'birth' => '2005-01-01T00:00:00+00:00',
@@ -613,6 +639,7 @@ class CongressmanSittingTest extends TestCase
             [
                 '_id' => 4,
                 'assembly' => [
+                    '_id' => 1,
                     'assembly_id' => 1,
                     'from' => '2003-01-01T00:00:00+00:00',
                     'to' => '2004-01-01T00:00:00+00:00',
@@ -626,11 +653,13 @@ class CongressmanSittingTest extends TestCase
                         'type' => 'type',
                         'abbr' => 'appr',
                         'assembly' =>  [
+                            '_id' => 1,
                             'assembly_id' => 1,
                             'from' => '2003-01-01T00:00:00+00:00',
                             'to' => '2004-01-01T00:00:00+00:00',
                         ],
                         'congressman' =>  [
+                            '_id' => 4,
                             'congressman_id' => 4,
                             'name' => 'B',
                             'birth' => '2005-01-01T00:00:00+00:00',
@@ -638,6 +667,7 @@ class CongressmanSittingTest extends TestCase
                             'abbreviation' => 'abbreviation',
                         ],
                         'congressman_constituency' =>  [
+                            '_id' => 4,
                             'constituency_id' => 4,
                             'name' => 'name',
                             'abbr_short' => 'abbr_short',
@@ -645,6 +675,7 @@ class CongressmanSittingTest extends TestCase
                             'description' => 'description',
                         ],
                         'congressman_party' =>  [
+                            '_id' => 5,
                             'party_id' => 5,
                             'name' => 'name',
                             'abbr_short' => 'abbr_short',
@@ -654,6 +685,7 @@ class CongressmanSittingTest extends TestCase
                     ]
                 ],
                 'congressman' =>  [
+                    '_id' => 4,
                     'congressman_id' => 4,
                     'name' => 'B',
                     'birth' => '2005-01-01T00:00:00+00:00',
@@ -670,22 +702,21 @@ class CongressmanSittingTest extends TestCase
     {
         //GIVE
         $this->getDatabase()->selectCollection(CongressmanSitting::COLLECTION)->insertMany([
-            [
-                '_id' => 1,
+            (new CongressmanSittingPresenter)->serialize([
                 'session_id' => 1,
-                'from' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
-                'to' => new UTCDateTime((new DateTime('2002-01-01'))->getTimestamp() * 1000),
+                'from' => '2001-01-01',
+                'to' => '2002-01-01',
                 'type' => 'type',
                 'abbr' => 'appr',
                 'assembly' =>  [
                     'assembly_id' => 1,
-                    'from' => new UTCDateTime((new DateTime('2003-01-01'))->getTimestamp() * 1000),
-                    'to' => new UTCDateTime((new DateTime('2004-01-01'))->getTimestamp() * 1000),
+                    'from' => '2003-01-01',
+                    'to' => '2004-01-01',
                 ],
                 'congressman' =>  [
                     'congressman_id' => 3,
                     'name' => 'A',
-                    'birth' => new UTCDateTime((new DateTime('2005-01-01'))->getTimestamp() * 1000),
+                    'birth' => '2005-01-01',
                     'death' => null,
                     'abbreviation' => 'abbreviation',
                 ],
@@ -703,23 +734,23 @@ class CongressmanSittingTest extends TestCase
                     'abbr_long' => 'abbr_long',
                     'color' => 'color',
                 ]
-            ],
-            [
+            ]),
+            (new CongressmanSittingPresenter)->serialize([
                 '_id' => 2,
                 'session_id' => 2,
-                'from' => new UTCDateTime((new DateTime('2001-01-02'))->getTimestamp() * 1000),
-                'to' => new UTCDateTime((new DateTime('2002-01-01'))->getTimestamp() * 1000),
+                'from' => '2001-01-02',
+                'to' => '2002-01-01',
                 'type' => 'type',
                 'abbr' => 'appr',
                 'assembly' =>  [
                     'assembly_id' => 1,
-                    'from' => new UTCDateTime((new DateTime('2003-01-01'))->getTimestamp() * 1000),
-                    'to' => new UTCDateTime((new DateTime('2004-01-01'))->getTimestamp() * 1000),
+                    'from' => '2003-01-01',
+                    'to' => '2004-01-01',
                 ],
                 'congressman' =>  [
                     'congressman_id' => 4,
                     'name' => 'B',
-                    'birth' => new UTCDateTime((new DateTime('2005-01-01'))->getTimestamp() * 1000),
+                    'birth' => '2005-01-01',
                     'death' => null,
                     'abbreviation' => 'abbreviation',
                 ],
@@ -737,7 +768,7 @@ class CongressmanSittingTest extends TestCase
                     'abbr_long' => 'abbr_long',
                     'color' => 'color',
                 ]
-            ]
+            ])
         ]);
 
         //WHEN
@@ -758,6 +789,7 @@ class CongressmanSittingTest extends TestCase
                     [
                         '_id' => 34,
                         'congressman' => [
+                            "_id" => 3,
                             "congressman_id" => 3,
                             "name" => "A",
                             "birth" => '2005-01-01T00:00:00+00:00',
@@ -765,6 +797,7 @@ class CongressmanSittingTest extends TestCase
                             "abbreviation" => "abbreviation"
                         ],
                         'assembly' => [
+                            "_id" => 1,
                             "assembly_id" => 1,
                             "from" => '2003-01-01T00:00:00+00:00',
                             "to" => '2004-01-01T00:00:00+00:00',
@@ -773,6 +806,7 @@ class CongressmanSittingTest extends TestCase
                             [
                                 '_id' => 1,
                                 'congressman_party' => [
+                                    '_id' => 5,
                                     'party_id' => 5,
                                     'name' => 'name',
                                     'abbr_short' => 'abbr_short',
@@ -780,6 +814,7 @@ class CongressmanSittingTest extends TestCase
                                     'color' => 'color',
                                 ],
                                 'congressman_constituency' => [
+                                    '_id' => 4,
                                     'constituency_id' => 4,
                                     'name' => 'name',
                                     'abbr_short' => 'abbr_short',
@@ -795,6 +830,7 @@ class CongressmanSittingTest extends TestCase
                     [
                         '_id' => 44,
                         'congressman' => [
+                            "_id" => 4,
                             "congressman_id" => 4,
                             "name" => "B",
                             "birth" => '2005-01-01T00:00:00+00:00',
@@ -802,6 +838,7 @@ class CongressmanSittingTest extends TestCase
                             "abbreviation" => "abbreviation"
                         ],
                         'assembly' => [
+                            "_id" => 1,
                             "assembly_id" => 1,
                             'from' => '2003-01-01T00:00:00+00:00',
                             'to' => '2004-01-01T00:00:00+00:00',
@@ -810,6 +847,7 @@ class CongressmanSittingTest extends TestCase
                             [
                                 '_id' => 2,
                                 'congressman_party' => [
+                                    '_id' => 5,
                                     'party_id' => 5,
                                     'name' => 'name',
                                     'abbr_short' => 'abbr_short',
@@ -817,6 +855,7 @@ class CongressmanSittingTest extends TestCase
                                     'color' => 'color',
                                 ],
                                 'congressman_constituency' => [
+                                    '_id' => 4,
                                     'constituency_id' => 4,
                                     'name' => 'name',
                                     'abbr_short' => 'abbr_short',
@@ -832,6 +871,7 @@ class CongressmanSittingTest extends TestCase
 
                 ],
                 'assembly' => [
+                    "_id" => 1,
                     "assembly_id" => 1,
                     "from" => '2003-01-01T00:00:00+00:00',
                     "to" => '2004-01-01T00:00:00+00:00',
@@ -846,18 +886,18 @@ class CongressmanSittingTest extends TestCase
     {
         //GIVEN
         $this->getDatabase()->selectCollection(CongressmanSitting::COLLECTION)->insertMany([
-            [
-                "_id" => 1,
+            (new CongressmanSittingPresenter)->serialize([
+                'session_id' => 1,
                 "abbr" => null,
                 "assembly" => [
                     "assembly_id" => 1,
-                    "from" => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
-                    "to" => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
+                    "from" => '2001-01-01',
+                    "to" => '2001-01-01',
                 ],
                 "congressman" => [
                     "congressman_id" => 45,
                     "name" => "A",
-                    "birth" => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
+                    "birth" => '2001-01-01',
                     "death" => null,
                     "abbreviation" => "ÁsgE"
                 ],
@@ -875,23 +915,22 @@ class CongressmanSittingTest extends TestCase
                     "abbr_long" => null,
                     "color" => null
                 ],
-                "from" => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
-                "session_id" => 1,
-                "to" => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
+                "from" => '2001-01-01',
+                "to" => '2001-01-01',
                 "type" => "þingmaður"
-            ],
-            [
-                "_id" => 2,
+            ]),
+            (new CongressmanSittingPresenter)->serialize([
+                'session_id' => 2,
                 "abbr" => null,
                 "assembly" => [
                     "assembly_id" => 1,
-                    "from" => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
-                    "to" => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
+                    "from" => '2001-01-01',
+                    "to" => '2001-01-01',
                 ],
                 "congressman" => [
                     "congressman_id" => 44,
                     "name" => "B",
-                    "birth" => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
+                    "birth" => '2001-01-01',
                     "death" => null,
                     "abbreviation" => "ÁsgE"
                 ],
@@ -909,23 +948,22 @@ class CongressmanSittingTest extends TestCase
                     "abbr_long" => null,
                     "color" => null
                 ],
-                "from" => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
-                "session_id" => 1,
-                "to" => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
+                "from" => '2001-01-01',
+                "to" => '2001-01-01',
                 "type" => "þingmaður"
-            ],
-            [
-                "_id" => 3,
+            ]),
+            (new CongressmanSittingPresenter)->serialize([
+                'session_id' => 3,
                 "abbr" => null,
                 "assembly" => [
                     "assembly_id" => 2,
-                    "from" => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
-                    "to" => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
+                    "from" => '2001-01-01',
+                    "to" => '2001-01-01',
                 ],
                 "congressman" => [
                     "congressman_id" => 45,
                     "name" => "Ásgeir Einarsson",
-                    "birth" => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
+                    "birth" => '2001-01-01',
                     "death" => null,
                     "abbreviation" => "ÁsgE"
                 ],
@@ -943,11 +981,10 @@ class CongressmanSittingTest extends TestCase
                     "abbr_long" => null,
                     "color" => null
                 ],
-                "from" => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
-                "session_id" => 1,
-                "to" => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
+                "from" => '2001-01-01',
+                "to" => '2001-01-01',
                 "type" => "þingmaður"
-            ]
+            ])
         ]);
 
         //WHEN
@@ -968,6 +1005,7 @@ class CongressmanSittingTest extends TestCase
                     [
                         '_id' => 4526,
                         'congressman' => [
+                            "_id" => 45,
                             "congressman_id" => 45,
                             "name" => "A",
                             "birth" => '2001-01-01T00:00:00+00:00',
@@ -975,6 +1013,7 @@ class CongressmanSittingTest extends TestCase
                             "abbreviation" => "ÁsgE"
                         ],
                         'assembly' => [
+                            "_id" => 1,
                             "assembly_id" => 1,
                             "from" => '2001-01-01T00:00:00+00:00',
                             "to" => '2001-01-01T00:00:00+00:00',
@@ -983,7 +1022,7 @@ class CongressmanSittingTest extends TestCase
                             [
                                 '_id' => 1,
                                 'congressman_party' => [
-                                    // '_id' => 26,
+                                    '_id' => 26,
                                     'party_id' => 26,
                                     'name' => '-',
                                     'abbr_short' => '-',
@@ -991,6 +1030,7 @@ class CongressmanSittingTest extends TestCase
                                     'color' => null,
                                 ],
                                 'congressman_constituency' => [
+                                    "_id" => 12,
                                     "constituency_id" => 12,
                                     "name" => "Húnavatnssýsla",
                                     "abbr_short" => "Hú",
@@ -1006,6 +1046,7 @@ class CongressmanSittingTest extends TestCase
                     [
                         '_id' => 4426,
                         'congressman' => [
+                            "_id" => 44,
                             "congressman_id" => 44,
                             "name" => "B",
                             "birth" => '2001-01-01T00:00:00+00:00',
@@ -1013,6 +1054,7 @@ class CongressmanSittingTest extends TestCase
                             "abbreviation" => "ÁsgE"
                         ],
                         'assembly' => [
+                            "_id" => 1,
                             "assembly_id" => 1,
                             "from" => '2001-01-01T00:00:00+00:00',
                             "to" => '2001-01-01T00:00:00+00:00',
@@ -1021,7 +1063,7 @@ class CongressmanSittingTest extends TestCase
                             [
                                 '_id' => 2,
                                 'congressman_party' => [
-                                    // '_id' => 26,
+                                    '_id' => 26,
                                     'party_id' => 26,
                                     'name' => '-',
                                     'abbr_short' => '-',
@@ -1029,6 +1071,7 @@ class CongressmanSittingTest extends TestCase
                                     'color' => null,
                                 ],
                                 'congressman_constituency' => [
+                                    "_id" => 12,
                                     "constituency_id" => 12,
                                     "name" => "Húnavatnssýsla",
                                     "abbr_short" => "Hú",
@@ -1044,6 +1087,7 @@ class CongressmanSittingTest extends TestCase
 
                 ],
                 'assembly' => [
+                    "_id" => 1,
                     "assembly_id" => 1,
                     "from" => '2001-01-01T00:00:00+00:00',
                     "to" => '2001-01-01T00:00:00+00:00',
@@ -1057,54 +1101,51 @@ class CongressmanSittingTest extends TestCase
     {
         //GIVEN
         $this->getDatabase()->selectCollection(CongressmanSitting::COLLECTION)->insertMany([
-            [
-                '_id' => 1,
+            (new CongressmanSittingPresenter)->serialize([
                 'session_id' => 1,
-                'from' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
-                'to' => new UTCDateTime((new DateTime('2002-01-01'))->getTimestamp() * 1000),
+                'from' => '2001-01-01',
+                'to' => '2002-01-01',
                 'type' => 'type',
                 'abbr' => 'appr',
                 'assembly' =>  [
                     'assembly_id' => 2,
-                    'from' => new UTCDateTime((new DateTime('2003-01-01'))->getTimestamp() * 1000),
+                    'from' => '2003-01-01',
                     'to' => null,
                 ],
                 'congressman' =>  null,
                 'congressman_constituency' =>  null,
                 'congressman_party' =>  null
-            ],
-            [
-                '_id' => 2,
+            ]),
+            (new CongressmanSittingPresenter)->serialize([
                 'session_id' => 2,
-                'from' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
-                'to' => new UTCDateTime((new DateTime('2002-01-01'))->getTimestamp() * 1000),
+                'from' => '2001-01-01',
+                'to' => '2002-01-01',
                 'type' => 'type',
                 'abbr' => 'appr',
                 'assembly' => [
                     'assembly_id' => 1,
-                    'from' => new UTCDateTime((new DateTime('2003-01-01'))->getTimestamp() * 1000),
+                    'from' => '2003-01-01',
                     'to' => null,
                 ],
                 'congressman' =>  null,
                 'congressman_constituency' =>  null,
                 'congressman_party' =>  null
-            ],
-            [
-                '_id' => 3,
+            ]),
+            (new CongressmanSittingPresenter)->serialize([
                 'session_id' => 3,
-                'from' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
-                'to' => new UTCDateTime((new DateTime('2002-01-01'))->getTimestamp() * 1000),
+                'from' => '2001-01-01',
+                'to' => '2002-01-01',
                 'type' => 'type',
                 'abbr' => 'appr',
                 'assembly' => [
                     'assembly_id' => 2,
-                    'from' => new UTCDateTime((new DateTime('2003-01-01'))->getTimestamp() * 1000),
+                    'from' => '2003-01-01',
                     'to' => null,
                 ],
                 'congressman' =>  null,
                 'congressman_constituency' =>  null,
                 'congressman_party' =>  null
-            ],
+            ]),
         ]);
 
         //WHEN
@@ -1126,6 +1167,7 @@ class CongressmanSittingTest extends TestCase
                 'type' => 'type',
                 'abbr' => 'appr',
                 'assembly' =>  new BSONDocument([
+                    '_id' => 2,
                     'assembly_id' => 2,
                     'from' => new UTCDateTime((new DateTime('1978-04-11'))->getTimestamp() * 1000),
                     'to' => new UTCDateTime((new DateTime('1980-04-11'))->getTimestamp() * 1000),
@@ -1142,6 +1184,7 @@ class CongressmanSittingTest extends TestCase
                 'type' => 'type',
                 'abbr' => 'appr',
                 'assembly' =>  new BSONDocument([
+                    '_id' => 1,
                     'assembly_id' => 1,
                     'from' => new UTCDateTime((new DateTime('2003-01-01'))->getTimestamp() * 1000),
                     'to' => null,
@@ -1158,6 +1201,7 @@ class CongressmanSittingTest extends TestCase
                 'type' => 'type',
                 'abbr' => 'appr',
                 'assembly' =>  new BSONDocument([
+                    '_id' => 2,
                     'assembly_id' => 2,
                     'from' => new UTCDateTime((new DateTime('1978-04-11'))->getTimestamp() * 1000),
                     'to' => new UTCDateTime((new DateTime('1980-04-11'))->getTimestamp() * 1000),
@@ -1179,11 +1223,10 @@ class CongressmanSittingTest extends TestCase
     {
         //GIVEN
         $this->getDatabase()->selectCollection(CongressmanSitting::COLLECTION)->insertMany([
-            [
-                '_id' => 1,
+            (new CongressmanSittingPresenter)->serialize([
                 'session_id' => 1,
-                'from' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
-                'to' => new UTCDateTime((new DateTime('2002-01-01'))->getTimestamp() * 1000),
+                'from' => '2001-01-01',
+                'to' => '2002-01-01',
                 'type' => 'type',
                 'abbr' => 'appr',
                 'assembly' =>  null,
@@ -1196,12 +1239,11 @@ class CongressmanSittingTest extends TestCase
                     'abbr_long' => 'abbr_long',
                     'color' => null,
                 ],
-            ],
-            [
-                '_id' => 2,
+            ]),
+            (new CongressmanSittingPresenter)->serialize([
                 'session_id' => 2,
-                'from' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
-                'to' => new UTCDateTime((new DateTime('2002-01-01'))->getTimestamp() * 1000),
+                'from' => '2001-01-01',
+                'to' => '2002-01-01',
                 'type' => 'type',
                 'abbr' => 'appr',
                 'assembly' => null,
@@ -1214,12 +1256,11 @@ class CongressmanSittingTest extends TestCase
                     'abbr_long' => 'abbr_long',
                     'color' => null,
                 ],
-            ],
-            [
-                '_id' => 3,
+            ]),
+            (new CongressmanSittingPresenter)->serialize([
                 'session_id' => 3,
-                'from' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
-                'to' => new UTCDateTime((new DateTime('2002-01-01'))->getTimestamp() * 1000),
+                'from' => '2001-01-01',
+                'to' => '2002-01-01',
                 'type' => 'type',
                 'abbr' => 'appr',
                 'assembly' => null,
@@ -1232,7 +1273,7 @@ class CongressmanSittingTest extends TestCase
                     'abbr_long' => 'abbr_long',
                     'color' => null,
                 ],
-            ],
+            ]),
         ]);
 
         //WHEN
@@ -1259,6 +1300,7 @@ class CongressmanSittingTest extends TestCase
                 'congressman' =>  null,
                 'congressman_constituency' =>  null,
                 'congressman_party' => new BSONDocument([
+                    '_id' => 1,
                     'party_id' => 1,
                     'name' => 'name',
                     'abbr_short' => 'abbr_short',
@@ -1277,6 +1319,7 @@ class CongressmanSittingTest extends TestCase
                 'congressman' =>  null,
                 'congressman_constituency' =>  null,
                 'congressman_party' => new BSONDocument([
+                    '_id' => 2,
                     'party_id' => 2,
                     'name' => 'name',
                     'abbr_short' => 'abbr_short',
@@ -1295,6 +1338,7 @@ class CongressmanSittingTest extends TestCase
                 'congressman' =>  null,
                 'congressman_constituency' =>  null,
                 'congressman_party' => new BSONDocument([
+                    '_id' => 1,
                     'party_id' => 1,
                     'name' => 'name',
                     'abbr_short' => 'abbr_short',
@@ -1315,11 +1359,10 @@ class CongressmanSittingTest extends TestCase
     {
         //GIVEN
         $this->getDatabase()->selectCollection(CongressmanSitting::COLLECTION)->insertMany([
-            [
-                '_id' => 1,
+            (new CongressmanSittingPresenter)->serialize([
                 'session_id' => 1,
-                'from' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
-                'to' => new UTCDateTime((new DateTime('2002-01-01'))->getTimestamp() * 1000),
+                'from' => '2001-01-01',
+                'to' => '2002-01-01',
                 'type' => 'type',
                 'abbr' => 'appr',
                 'assembly' =>  null,
@@ -1332,12 +1375,11 @@ class CongressmanSittingTest extends TestCase
                     'description' => null,
                 ],
                 'congressman_party' => null,
-            ],
-            [
-                '_id' => 2,
+            ]),
+            (new CongressmanSittingPresenter)->serialize([
                 'session_id' => 2,
-                'from' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
-                'to' => new UTCDateTime((new DateTime('2002-01-01'))->getTimestamp() * 1000),
+                'from' => '2001-01-01',
+                'to' => '2002-01-01',
                 'type' => 'type',
                 'abbr' => 'appr',
                 'assembly' => null,
@@ -1350,12 +1392,11 @@ class CongressmanSittingTest extends TestCase
                     'description' => null,
                 ],
                 'congressman_party' => null,
-            ],
-            [
-                '_id' => 3,
+            ]),
+            (new CongressmanSittingPresenter)->serialize([
                 'session_id' => 3,
-                'from' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
-                'to' => new UTCDateTime((new DateTime('2002-01-01'))->getTimestamp() * 1000),
+                'from' => '2001-01-01',
+                'to' => '2002-01-01',
                 'type' => 'type',
                 'abbr' => 'appr',
                 'assembly' => null,
@@ -1368,7 +1409,7 @@ class CongressmanSittingTest extends TestCase
                     'description' => null,
                 ],
                 'congressman_party' => null,
-            ],
+            ]),
         ]);
 
         //WHEN
@@ -1394,6 +1435,7 @@ class CongressmanSittingTest extends TestCase
                 'assembly' =>  null,
                 'congressman' =>  null,
                 'congressman_constituency' => new BSONDocument([
+                    '_id' => 1,
                     'constituency_id' => 1,
                     'name' => 'name',
                     'abbr_short' => 'abbr_short',
@@ -1412,6 +1454,7 @@ class CongressmanSittingTest extends TestCase
                 'assembly' =>  null,
                 'congressman' =>  null,
                 'congressman_constituency' =>  new BSONDocument([
+                    '_id' => 2,
                     'constituency_id' => 2,
                     'name' => 'name',
                     'abbr_short' => 'abbr_short',
@@ -1430,6 +1473,7 @@ class CongressmanSittingTest extends TestCase
                 'assembly' => null,
                 'congressman' =>  null,
                 'congressman_constituency' =>  new BSONDocument([
+                    '_id' => 1,
                     'constituency_id' => 1,
                     'name' => 'name',
                     'abbr_short' => 'abbr_short',
@@ -1451,11 +1495,10 @@ class CongressmanSittingTest extends TestCase
     {
         //GIVEN
         $this->getDatabase()->selectCollection(CongressmanSitting::COLLECTION)->insertMany([
-            [
-                '_id' => 1,
+            (new CongressmanSittingPresenter)->serialize([
                 'session_id' => 1,
-                'from' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
-                'to' => new UTCDateTime((new DateTime('2002-01-01'))->getTimestamp() * 1000),
+                'from' => '2001-01-01',
+                'to' => '2002-01-01',
                 'type' => 'type',
                 'abbr' => 'appr',
                 'assembly' =>  null,
@@ -1463,17 +1506,16 @@ class CongressmanSittingTest extends TestCase
                 'congressman' =>  [
                     'congressman_id' => 3,
                     'name' => 'name',
-                    'birth' => new UTCDateTime((new DateTime('2005-01-01'))->getTimestamp() * 1000),
+                    'birth' => '2005-01-01',
                     'death' => null,
                     'abbreviation' => 'abbreviation',
                 ],
                 'congressman_party' => null,
-            ],
-            [
-                '_id' => 2,
+            ]),
+            (new CongressmanSittingPresenter)->serialize([
                 'session_id' => 2,
-                'from' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
-                'to' => new UTCDateTime((new DateTime('2002-01-01'))->getTimestamp() * 1000),
+                'from' => '2001-01-01',
+                'to' => '2002-01-01',
                 'type' => 'type',
                 'abbr' => 'appr',
                 'assembly' =>  null,
@@ -1481,17 +1523,16 @@ class CongressmanSittingTest extends TestCase
                 'congressman' =>  [
                     'congressman_id' => 3,
                     'name' => 'name',
-                    'birth' => new UTCDateTime((new DateTime('2005-01-01'))->getTimestamp() * 1000),
+                    'birth' => '2005-01-01',
                     'death' => null,
                     'abbreviation' => 'abbreviation',
                 ],
                 'congressman_party' => null,
-            ],
-            [
-                '_id' => 3,
+            ]),
+            (new CongressmanSittingPresenter)->serialize([
                 'session_id' => 3,
-                'from' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
-                'to' => new UTCDateTime((new DateTime('2002-01-01'))->getTimestamp() * 1000),
+                'from' => '2001-01-01',
+                'to' => '2002-01-01',
                 'type' => 'type',
                 'abbr' => 'appr',
                 'assembly' =>  null,
@@ -1499,12 +1540,12 @@ class CongressmanSittingTest extends TestCase
                 'congressman' =>  [
                     'congressman_id' => 2,
                     'name' => 'name',
-                    'birth' => new UTCDateTime((new DateTime('2005-01-01'))->getTimestamp() * 1000),
+                    'birth' => '2005-01-01',
                     'death' => null,
                     'abbreviation' => 'abbreviation',
                 ],
                 'congressman_party' => null,
-            ],
+            ]),
         ]);
 
         //WHEN
@@ -1530,6 +1571,7 @@ class CongressmanSittingTest extends TestCase
                 'assembly' =>  null,
                 'congressman_constituency' =>  null,
                 'congressman' =>  new BSONDocument([
+                    '_id' => 3,
                     'congressman_id' => 3,
                     'name' => 'name',
                     'birth' => new UTCDateTime((new DateTime('2005-01-01'))->getTimestamp() * 1000),
@@ -1548,6 +1590,7 @@ class CongressmanSittingTest extends TestCase
                 'assembly' =>  null,
                 'congressman_constituency' =>  null,
                 'congressman' =>  new BSONDocument([
+                    '_id' => 3,
                     'congressman_id' => 3,
                     'name' => 'name',
                     'birth' => new UTCDateTime((new DateTime('2005-01-01'))->getTimestamp() * 1000),
@@ -1566,6 +1609,7 @@ class CongressmanSittingTest extends TestCase
                 'assembly' =>  null,
                 'congressman_constituency' =>  null,
                 'congressman' =>  new BSONDocument([
+                    '_id' => 2,
                     'congressman_id' => 2,
                     'name' => 'name-edit',
                     'birth' => new UTCDateTime((new DateTime('1978-04-11'))->getTimestamp() * 1000),

@@ -2,15 +2,18 @@
 
 namespace App\Service;
 
-use MongoDB\Model\BSONDocument;
 use App\Service\SourceDatabaseTrait;
 use App\Decorator\SourceDatabaseAware;
-use function App\{serializeDatesRange, deserializeDatesRange};
-use function App\{serializeAssembly, deserializeAssembly};
-use function App\{serializeCongressman, deserializeCongressman};
-use function App\{serializeParty, deserializeParty};
-use function App\{deserializeConstituency, serializeConstituency};
-use function App\{deserializeMinistry, serializeMinistry};
+use App\Presenter\{
+    AssemblyMinisterSittingPresenter,
+    AssemblyPresenter,
+    CongressmanPresenter,
+    ConstituencyPresenter,
+    MinisterSittingPresenter,
+    MinistryPresenter,
+    PartyPresenter
+};
+use MongoDB\Model\BSONDocument;
 
 class MinisterSitting implements SourceDatabaseAware
 {
@@ -23,61 +26,13 @@ class MinisterSitting implements SourceDatabaseAware
             ->selectCollection(self::COLLECTION)
             ->findOne(['_id' => $id]);
 
-        return $document ? [
-            ...$document,
-            ...deserializeDatesRange($document),
-            'assembly' => $document['assembly']
-                ? deserializeAssembly($document['assembly'])
-                : null,
-            'ministry' => $document['ministry']
-                ? deserializeMinistry($document['ministry'])
-                : null,
-            'congressman' => $document['congressman']
-                ? deserializeCongressman($document['congressman'])
-                : null,
-            'congressman_party' => $document['congressman_party']
-                ? deserializeParty($document['congressman_party'])
-                : null,
-            'congressman_constituency' => $document['congressman_constituency']
-                ? deserializeConstituency($document['congressman_constituency'])
-                : null,
-            'first_ministry_assembly' => $document['first_ministry_assembly']
-                ? deserializeAssembly($document['first_ministry_assembly'])
-                : null,
-            'last_ministry_assembly' => $document['last_ministry_assembly']
-                ? deserializeAssembly($document['last_ministry_assembly'])
-                : null,
-        ] : null;
+        return (new MinisterSittingPresenter)->unserialize($document);
     }
 
     public function fetch(): array
     {
         return array_map(function (BSONDocument $document) {
-            return [
-                ...$document,
-                ...deserializeDatesRange($document),
-                'assembly' => $document['assembly']
-                    ? deserializeAssembly($document['assembly'])
-                    : null,
-                'ministry' => $document['ministry']
-                    ? deserializeMinistry($document['ministry'])
-                    : null,
-                'congressman' => $document['congressman']
-                    ? deserializeCongressman($document['congressman'])
-                    : null,
-                'congressman_party' => $document['congressman_party']
-                    ? deserializeParty($document['congressman_party'])
-                    : null,
-                'congressman_constituency' => $document['congressman_constituency']
-                    ? deserializeConstituency($document['congressman_constituency'])
-                    : null,
-                'first_ministry_assembly' => $document['first_ministry_assembly']
-                    ? deserializeAssembly($document['first_ministry_assembly'])
-                    : null,
-                'last_ministry_assembly' => $document['last_ministry_assembly']
-                    ? deserializeAssembly($document['last_ministry_assembly'])
-                    : null,
-            ];
+            return (new MinisterSittingPresenter)->unserialize($document);
         }, iterator_to_array(
             $this->getSourceDatabase()->selectCollection(self::COLLECTION)->find()
         ));
@@ -113,7 +68,7 @@ class MinisterSitting implements SourceDatabaseAware
             ]);
 
         return array_map(function (BSONDocument $item) {
-            return deserializeParty($item);
+            return (new PartyPresenter)->unserialize($item);
         }, iterator_to_array($documents));
     }
 
@@ -157,39 +112,8 @@ class MinisterSitting implements SourceDatabaseAware
                 ],
             ]);
 
-        return array_map(function (BSONDocument $item) {
-            return [
-                '_id' => $item['_id'],
-                ...deserializeMinistry($item),
-                'first_ministry_assembly' => $item['first_ministry_assembly']
-                    ? deserializeAssembly($item['first_ministry_assembly'])
-                    : null,
-                'last_ministry_assembly' => $item['last_ministry_assembly']
-                    ? deserializeAssembly($item['last_ministry_assembly'])
-                    : null,
-                'congressmen' => array_map(function ($congressman) {
-                    return [
-                        '_id' => $congressman['_id'],
-                        'minister_sitting_id' => $congressman['minister_sitting_id'],
-                        ...deserializeDatesRange($congressman),
-                        'assembly' => $congressman['assembly']
-                            ? deserializeAssembly($congressman['assembly'])
-                            : null,
-                        'congressman' => $congressman['congressman']
-                            ? deserializeCongressman($congressman['congressman'])
-                            : null,
-                        'congressman_constituency' => $congressman['congressman_constituency']
-                            ? deserializeConstituency($congressman['congressman_constituency'])
-                            : null,
-                        'congressman_party' => $congressman['congressman_party']
-                            ? deserializeParty($congressman['congressman_party'])
-                            : null,
-                        'ministry' => $congressman['ministry']
-                            ? deserializeMinistry($congressman['ministry'])
-                            : null,
-                    ];
-                }, $item['congressmen']->getArrayCopy()),
-            ];
+        return array_map(function (BSONDocument $document) {
+            return (new AssemblyMinisterSittingPresenter)->unserialize($document);
         }, iterator_to_array($documents));
     }
 
@@ -198,37 +122,12 @@ class MinisterSitting implements SourceDatabaseAware
      */
     public function store(mixed $object): int
     {
-        $document = [
-            '_id' => $object['minister_sitting_id'],
-            ...$object,
-            ...serializeDatesRange($object),
-            'assembly' => $object['assembly']
-                ? serializeAssembly($object['assembly'])
-                : null,
-            'ministry' => $object['ministry'] ? [
-                ...$object['ministry'],
-            ] : null,
-            'congressman' => $object['congressman']
-                ? serializeCongressman($object['congressman'])
-                : null,
-            'congressman_constituency' => $object['congressman_constituency']
-                ? serializeConstituency($object['congressman_constituency'])
-                : null,
-            'congressman_party' => $object['congressman_party']
-                ? serializeParty($object['congressman_party'])
-                : null,
-            'first_ministry_assembly' => $object['first_ministry_assembly']
-                ? serializeAssembly($object['first_ministry_assembly'])
-                : null,
-            'last_ministry_assembly' => $object['last_ministry_assembly']
-                ? serializeAssembly($object['last_ministry_assembly'])
-                : null,
-        ];
+        $document = (new MinisterSittingPresenter)->serialize($object);
 
         $result = $this->getSourceDatabase()
             ->selectCollection(self::COLLECTION)
             ->updateOne(
-                ['_id' => $object['minister_sitting_id']],
+                ['_id' => $document['minister_sitting_id']],
                 ['$set' => $document],
                 ['upsert' => true]
             );
@@ -246,7 +145,8 @@ class MinisterSitting implements SourceDatabaseAware
             ->selectCollection(self::COLLECTION)
             ->updateMany(
                 ['assembly.assembly_id' => $assembly['assembly_id']],
-                ['$set' => ['assembly' => serializeAssembly($assembly)]],
+                ['$set' => ['assembly' => (new AssemblyPresenter)
+                    ->serialize($assembly)]],
                 ['upsert' => false]
             );
 
@@ -254,7 +154,8 @@ class MinisterSitting implements SourceDatabaseAware
             ->selectCollection(self::COLLECTION)
             ->updateMany(
                 ['first_ministry_assembly.assembly_id' => $assembly['assembly_id']],
-                ['$set' => ['first_ministry_assembly' => serializeAssembly($assembly)]],
+                ['$set' => ['first_ministry_assembly' => (new AssemblyPresenter)
+                    ->serialize($assembly)]],
                 ['upsert' => false]
             );
 
@@ -262,7 +163,8 @@ class MinisterSitting implements SourceDatabaseAware
             ->selectCollection(self::COLLECTION)
             ->updateMany(
                 ['last_ministry_assembly.assembly_id' => $assembly['assembly_id']],
-                ['$set' => ['last_ministry_assembly' => serializeAssembly($assembly)]],
+                ['$set' => ['last_ministry_assembly' => (new AssemblyPresenter)
+                    ->serialize($assembly)]],
                 ['upsert' => false]
             );
     }
@@ -277,7 +179,7 @@ class MinisterSitting implements SourceDatabaseAware
             ->selectCollection(self::COLLECTION)
             ->updateMany(
                 ['congressman_party.party_id' => $party['party_id']],
-                ['$set' => ['congressman_party' => serializeParty($party)]],
+                ['$set' => ['congressman_party' => (new PartyPresenter)->serialize($party)]],
                 ['upsert' => false]
             );
     }
@@ -292,7 +194,7 @@ class MinisterSitting implements SourceDatabaseAware
             ->selectCollection(self::COLLECTION)
             ->updateMany(
                 ['congressman_constituency.constituency_id' => $constituency['constituency_id']],
-                ['$set' => ['congressman_constituency' => serializeConstituency($constituency)]],
+                ['$set' => ['congressman_constituency' => (new ConstituencyPresenter)->serialize($constituency)]],
                 ['upsert' => false]
             );
     }
@@ -307,7 +209,7 @@ class MinisterSitting implements SourceDatabaseAware
             ->selectCollection(self::COLLECTION)
             ->updateMany(
                 ['ministry.ministry_id' => $ministry['ministry_id']],
-                ['$set' => ['ministry' => serializeMinistry($ministry)]],
+                ['$set' => ['ministry' => (new MinistryPresenter)->serialize($ministry)]],
                 ['upsert' => false]
             );
     }
@@ -322,7 +224,7 @@ class MinisterSitting implements SourceDatabaseAware
             ->selectCollection(self::COLLECTION)
             ->updateMany(
                 ['congressman.congressman_id' => $congressman['congressman_id']],
-                ['$set' => ['congressman' => serializeCongressman($congressman)]],
+                ['$set' => ['congressman' => (new CongressmanPresenter)->serialize($congressman)]],
                 ['upsert' => false]
             );
     }

@@ -54,6 +54,16 @@ return [
                 ->setIssueService($container->get(Service\Issue::class))
             ;
         },
+        Handler\AssemblyIssueCategory::class => function (ContainerInterface $container) {
+            return (new Handler\AssemblyIssueCategory())
+                ->setIssueService($container->get(Service\Issue::class))
+            ;
+        },
+        Handler\AssemblyIssueSuperCategory::class => function (ContainerInterface $container) {
+            return (new Handler\AssemblyIssueSuperCategory())
+                ->setIssueService($container->get(Service\Issue::class))
+            ;
+        },
         Handler\AssemblyGovernmentParties::class => function (ContainerInterface $container) {
             return (new Handler\AssemblyGovernmentParties())
                 ->setMinisterSittingService($container->get(Service\MinisterSitting::class))
@@ -119,6 +129,16 @@ return [
         Handler\AssemblyPlenaryAgendaItem::class => function (ContainerInterface $container) {
             return (new Handler\AssemblyPlenaryAgendaItem())
                 ->setPlenaryAgendaService($container->get(Service\PlenaryAgenda::class))
+            ;
+        },
+        Handler\AssemblyIssueSpeeches::class => function (ContainerInterface $container) {
+            return (new Handler\AssemblyIssueSpeeches())
+                ->setSpeechService($container->get(Service\Speech::class))
+            ;
+        },
+        Handler\AssemblyIssueSpeech::class => function (ContainerInterface $container) {
+            return (new Handler\AssemblyIssueSpeech())
+                ->setSpeechService($container->get(Service\Speech::class))
             ;
         },
         Handler\Ministries::class => function (ContainerInterface $container) {
@@ -296,6 +316,10 @@ return [
         },
         Service\PlenaryAgenda::class => function (ContainerInterface $container) {
             return (new Service\PlenaryAgenda)
+                ->setSourceDatabase($container->get(Database::class));
+        },
+        Service\Speech::class => function (ContainerInterface $container) {
+            return (new Service\Speech)
                 ->setSourceDatabase($container->get(Database::class));
         },
 

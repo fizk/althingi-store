@@ -2,14 +2,11 @@
 
 namespace App\Service;
 
-use MongoDB\Model\BSONDocument;
 use MongoDB\BSON\UTCDateTime;
 use App\Service\SourceDatabaseTrait;
 use App\Decorator\SourceDatabaseAware;
-use function App\{
-    deserializeInflation,
-    serializeInflation
-};
+use App\Presenter\InflationPresenter;
+use MongoDB\Model\BSONDocument;
 use DateTime;
 
 class Inflation implements SourceDatabaseAware
@@ -23,9 +20,7 @@ class Inflation implements SourceDatabaseAware
             ->selectCollection(self::COLLECTION)
             ->findOne(['_id' => $id]);
 
-        return $document
-            ? deserializeInflation($document)
-            : null;
+        return (new InflationPresenter)->unserialize($document);
     }
 
     public function fetchRange(DateTime $from, DateTime $to): array
@@ -42,14 +37,14 @@ class Inflation implements SourceDatabaseAware
             ]);
 
         return array_map(function ($document) {
-            return deserializeInflation($document);
+            return (new InflationPresenter)->unserialize($document);
         }, iterator_to_array($documents, false));
     }
 
     public function fetch(): array
     {
         return array_map(function (BSONDocument $document)  {
-            return deserializeInflation($document);
+            return (new InflationPresenter)->unserialize($document);
         }, iterator_to_array(
             $this->getSourceDatabase()->selectCollection(self::COLLECTION)->find()
         ));
@@ -60,15 +55,12 @@ class Inflation implements SourceDatabaseAware
      */
     public function store(mixed $object): int
     {
-        $document = [
-            '_id' => $object['id'],
-            ...serializeInflation($object),
-        ];
+        $document = (new InflationPresenter)->serialize($object);
 
         $result = $this->getSourceDatabase()
             ->selectCollection(self::COLLECTION)
             ->updateOne(
-                ['_id' => $object['id']],
+                ['_id' => $document['id']],
                 ['$set' => $document],
                 ['upsert' => true]
             );

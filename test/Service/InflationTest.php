@@ -7,6 +7,7 @@ use MongoDB\BSON\UTCDateTime;
 use PHPUnit\Framework\TestCase;
 use App\Service\Inflation;
 use App\DatabaseConnectionTrait;
+use App\Presenter\InflationPresenter;
 use DateTime;
 
 class InflationTest extends TestCase
@@ -83,12 +84,13 @@ class InflationTest extends TestCase
     public function testStoreNoAction()
     {
         //GIVEN
-        $this->getDatabase()->selectCollection(Inflation::COLLECTION)->insertOne([
-            '_id' => 1,
-            'id' => 1,
-            'date' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
-            'value' => 1.45,
-        ]);
+        $this->getDatabase()->selectCollection(Inflation::COLLECTION)->insertOne(
+            (new InflationPresenter)->serialize([
+                'id' => 1,
+                'date' => '2001-01-01',
+                'value' => 1.45,
+            ])
+        );
 
         //WHEN
         $result = (new Inflation())
@@ -121,12 +123,12 @@ class InflationTest extends TestCase
     public function testGetNotFound()
     {
         //GIVE
-        $this->getDatabase()->selectCollection(Inflation::COLLECTION)->insertOne([
-            '_id' => 1,
+        $this->getDatabase()->selectCollection(Inflation::COLLECTION)->insertOne(
+            (new InflationPresenter)->serialize([
             'id' => 1,
-            'date' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
+            'date' => '2001-01-01',
             'value' => 1.23,
-        ]);
+        ]));
 
         //WHEN
         $actual = (new Inflation())
@@ -142,12 +144,13 @@ class InflationTest extends TestCase
     public function testGet()
     {
         //GIVE
-        $this->getDatabase()->selectCollection(Inflation::COLLECTION)->insertOne([
-            '_id' => 1,
-            'id' => 1,
-            'date' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
-            'value' => 1.23,
-        ]);
+        $this->getDatabase()->selectCollection(Inflation::COLLECTION)->insertOne(
+            (new InflationPresenter)->serialize([
+                'id' => 1,
+                'date' => '2001-01-01',
+                'value' => 1.23,
+            ])
+        );
 
         //WHEN
         $actual = (new Inflation())
@@ -169,18 +172,16 @@ class InflationTest extends TestCase
     {
         //GIVE
         $this->getDatabase()->selectCollection(Inflation::COLLECTION)->insertMany([
-            [
-                '_id' => 1,
+            (new InflationPresenter)->serialize([
                 'id' => 1,
-                'date' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
+                'date' => '2001-01-01',
                 'value' => 1.23,
-            ],
-            [
-                '_id' => 2,
+            ]),
+            (new InflationPresenter)->serialize([
                 'id' => 2,
-                'date' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
+                'date' => '2001-01-01',
                 'value' => 1.23,
-            ],
+            ]),
         ]);
 
         //WHEN
@@ -210,18 +211,16 @@ class InflationTest extends TestCase
     {
         //GIVE
         $this->getDatabase()->selectCollection(Inflation::COLLECTION)->insertMany([
-            [
-                '_id' => 1,
+            (new InflationPresenter)->serialize([
                 'id' => 1,
-                'date' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
+                'date' => '2001-01-01',
                 'value' => 1.23,
-            ],
-            [
-                '_id' => 2,
+            ]),
+            (new InflationPresenter)->serialize([
                 'id' => 2,
-                'date' => new UTCDateTime((new DateTime('2001-02-01'))->getTimestamp() * 1000),
+                'date' => '2001-02-01',
                 'value' => 1.23,
-            ],
+            ]),
         ]);
 
         //WHEN
@@ -249,18 +248,16 @@ class InflationTest extends TestCase
     {
         //GIVE
         $this->getDatabase()->selectCollection(Inflation::COLLECTION)->insertMany([
-            [
-                '_id' => 1,
+            (new InflationPresenter)->serialize([
                 'id' => 1,
-                'date' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
+                'date' => '2001-01-01',
                 'value' => 1.23,
-            ],
-            [
-                '_id' => 2,
+            ]),
+            (new InflationPresenter)->serialize([
                 'id' => 2,
-                'date' => new UTCDateTime((new DateTime('2001-02-01'))->getTimestamp() * 1000),
+                'date' => '2001-02-01',
                 'value' => 1.23,
-            ],
+            ]),
         ]);
 
         //WHEN
@@ -287,18 +284,16 @@ class InflationTest extends TestCase
     {
         //GIVE
         $this->getDatabase()->selectCollection(Inflation::COLLECTION)->insertMany([
-            [
-                '_id' => 1,
+            (new InflationPresenter)->serialize([
                 'id' => 1,
-                'date' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
+                'date' => '2001-01-01',
                 'value' => 1.23,
-            ],
-            [
-                '_id' => 2,
+            ]),
+            (new InflationPresenter)->serialize([
                 'id' => 2,
-                'date' => new UTCDateTime((new DateTime('2001-02-01'))->getTimestamp() * 1000),
+                'date' => '2001-02-01',
                 'value' => 1.23,
-            ],
+            ]),
         ]);
 
         //WHEN

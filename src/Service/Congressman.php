@@ -2,13 +2,10 @@
 
 namespace App\Service;
 
-use MongoDB\Model\BSONDocument;
 use App\Service\SourceDatabaseTrait;
 use App\Decorator\SourceDatabaseAware;
-use function App\{
-    serializeCongressman,
-    deserializeCongressman
-};
+use App\Presenter\CongressmanPresenter;
+use MongoDB\Model\BSONDocument;
 
 class Congressman implements SourceDatabaseAware
 {
@@ -21,15 +18,13 @@ class Congressman implements SourceDatabaseAware
             ->selectCollection(self::COLLECTION)
             ->findOne(['_id' => $id]);
 
-        return $document
-            ? deserializeCongressman($document)
-            : null;
+        return (new CongressmanPresenter)->unserialize($document);
     }
 
     public function fetch(): array
     {
         return array_map(function (BSONDocument $document)  {
-            return deserializeCongressman($document);
+            return (new CongressmanPresenter)->unserialize($document);
         }, iterator_to_array(
             $this->getSourceDatabase()->selectCollection(self::COLLECTION)->find()
         ));
@@ -40,15 +35,12 @@ class Congressman implements SourceDatabaseAware
      */
     public function store(mixed $object): int
     {
-        $document = [
-            '_id' => $object['congressman_id'],
-            ...serializeCongressman($object),
-        ];
+        $document = (new CongressmanPresenter)->serialize($object);
 
         $result = $this->getSourceDatabase()
             ->selectCollection(self::COLLECTION)
             ->updateOne(
-                ['_id' => $object['congressman_id']],
+                ['_id' => $document['congressman_id']],
                 ['$set' => $document],
                 ['upsert' => true]
             );

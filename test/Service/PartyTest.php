@@ -6,6 +6,7 @@ use MongoDB\Model\BSONDocument;
 use PHPUnit\Framework\TestCase;
 use App\Service\Party;
 use App\DatabaseConnectionTrait;
+use App\Presenter\PartyPresenter;
 
 class PartyTest extends TestCase
 {
@@ -14,15 +15,6 @@ class PartyTest extends TestCase
     public function testStoreCreate()
     {
         //GIVEN
-        $expected = [ [
-            '_id' => 1,
-            'party_id' => 1,
-            'name' => 'name-1',
-            'abbr_short' => null,
-            'abbr_long' => null,
-            'color' => null,
-        ]];
-        $createdResultCode = 1;
 
         //WHEN
         $result = (new Party())
@@ -36,9 +28,21 @@ class PartyTest extends TestCase
         ]);
 
         //THEN
-        $actual = array_map(function(BSONDocument $item) {
-            return $item->getArrayCopy();
-        }, iterator_to_array($this->getDatabase()->selectCollection(Party::COLLECTION)->find([]), false));
+        $expected = [
+            new BSONDocument([
+                '_id' => 1,
+                'party_id' => 1,
+                'name' => 'name-1',
+                'abbr_short' => null,
+                'abbr_long' => null,
+                'color' => null,
+            ])
+        ];
+        $createdResultCode = 1;
+        $actual = iterator_to_array(
+            $this->getDatabase()->selectCollection(Party::COLLECTION)->find([]),
+            false
+        );
 
         $this->assertEquals($expected, $actual);
         $this->assertEquals($createdResultCode, $result);
@@ -47,24 +51,15 @@ class PartyTest extends TestCase
     public function testStoreNoAction()
     {
         //GIVEN
-        $expected = [ [
-            '_id' => 1,
-            'party_id' => 1,
-            'name' => 'name-1',
-            'abbr_short' => null,
-            'abbr_long' => null,
-            'color' => null,
-        ]];
-        $noActionResultCode = 0;
-
-        $this->getDatabase()->selectCollection(Party::COLLECTION)->insertOne([
-            '_id' => 1,
-            'party_id' => 1,
-            'name' => 'name-1',
-            'abbr_short' => null,
-            'abbr_long' => null,
-            'color' => null,
-        ]);
+        $this->getDatabase()->selectCollection(Party::COLLECTION)->insertOne(
+            (new PartyPresenter)->serialize([
+                'party_id' => 1,
+                'name' => 'name-1',
+                'abbr_short' => null,
+                'abbr_long' => null,
+                'color' => null,
+            ])
+        );
 
         //WHEN
         $result = (new Party())
@@ -78,9 +73,21 @@ class PartyTest extends TestCase
         ]);
 
         //THEN
-        $actual = array_map(function(BSONDocument $item) {
-            return $item->getArrayCopy();
-        }, iterator_to_array($this->getDatabase()->selectCollection(Party::COLLECTION)->find([]), false));
+        $expected = [
+            new BSONDocument([
+                '_id' => 1,
+                'party_id' => 1,
+                'name' => 'name-1',
+                'abbr_short' => null,
+                'abbr_long' => null,
+                'color' => null,
+            ])
+        ];
+        $noActionResultCode = 0;
+        $actual = iterator_to_array(
+            $this->getDatabase()->selectCollection(Party::COLLECTION)->find([]),
+            false
+        );
 
         $this->assertEquals($expected, $actual);
         $this->assertEquals($noActionResultCode, $result);
@@ -89,18 +96,18 @@ class PartyTest extends TestCase
     public function testGetNotFound()
     {
         //GIVE
-        $expected = null;
-
-        $this->getDatabase()->selectCollection(Party::COLLECTION)->insertOne([
-            '_id' => 1,
-            'party_id' => 1,
-            'name' => 'name-1',
-            'abbr_short' => null,
-            'abbr_long' => null,
-            'color' => null,
-        ]);
+        $this->getDatabase()->selectCollection(Party::COLLECTION)->insertOne(
+            (new PartyPresenter)->serialize([
+                'party_id' => 1,
+                'name' => 'name-1',
+                'abbr_short' => null,
+                'abbr_long' => null,
+                'color' => null,
+            ])
+        );
 
         //WHEN
+        $expected = null;
         $actual = (new Party())
             ->setSourceDatabase($this->getDatabase())
             ->get(2);
@@ -112,6 +119,17 @@ class PartyTest extends TestCase
     public function testGet()
     {
         //GIVE
+        $this->getDatabase()->selectCollection(Party::COLLECTION)->insertOne(
+            (new PartyPresenter)->serialize([
+                'party_id' => 1,
+                'name' => 'name-1',
+                'abbr_short' => null,
+                'abbr_long' => null,
+                'color' => null,
+            ])
+        );
+
+        //WHEN
         $expected = [
             '_id' => 1,
             'party_id' => 1,
@@ -120,17 +138,6 @@ class PartyTest extends TestCase
             'abbr_long' => null,
             'color' => null,
         ];
-
-        $this->getDatabase()->selectCollection(Party::COLLECTION)->insertOne([
-            '_id' => 1,
-            'party_id' => 1,
-            'name' => 'name-1',
-            'abbr_short' => null,
-            'abbr_long' => null,
-            'color' => null,
-        ]);
-
-        //WHEN
         $actual = (new Party())
             ->setSourceDatabase($this->getDatabase())
             ->get(1);
@@ -142,23 +149,25 @@ class PartyTest extends TestCase
     public function testFetch()
     {
         //GIVE
-        $expected = [[
-            '_id' => 1,
-            'party_id' => 1,
-            'name' => 'name-1',
-            'abbr_short' => null,
-            'abbr_long' => null,
-            'color' => null,
-        ], [
-            '_id' => 2,
-            'party_id' => 2,
-            'name' => 'name-1',
-            'abbr_short' => null,
-            'abbr_long' => null,
-            'color' => null,
-        ]];
-
         $this->getDatabase()->selectCollection(Party::COLLECTION)->insertMany([
+            (new PartyPresenter)->serialize([
+                'party_id' => 1,
+                'name' => 'name-1',
+                'abbr_short' => null,
+                'abbr_long' => null,
+                'color' => null,
+            ]),
+            (new PartyPresenter)->serialize([
+                'party_id' => 2,
+                'name' => 'name-1',
+                'abbr_short' => null,
+                'abbr_long' => null,
+                'color' => null,
+            ]),
+        ]);
+
+        //WHEN
+        $expected = [
             [
                 '_id' => 1,
                 'party_id' => 1,
@@ -174,10 +183,8 @@ class PartyTest extends TestCase
                 'abbr_short' => null,
                 'abbr_long' => null,
                 'color' => null,
-            ],
-        ]);
-
-        //WHEN
+            ]
+        ];
         $actual = (new Party())
             ->setSourceDatabase($this->getDatabase())
             ->fetch();

@@ -59,6 +59,8 @@ xdebug.client_host=host.docker.internal\n\
 xdebug.client_port=9003\n\
 xdebug.idekey=myKey\n\
 xdebug.remote_handler=dbgp" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini; \
+echo 'alias cover="XDEBUG_MODE=coverage /var/app/vendor/bin/phpunit --coverage-html=\"/var/app/test/docs\""\n' >> ~/.bashrc; \
+echo 'alias phpunit="/var/app/vendor/bin/phpunit"\n' >> ~/.bashrc; \
     fi ;
 
 RUN a2enmod rewrite;

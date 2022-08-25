@@ -7,6 +7,7 @@ use MongoDB\BSON\UTCDateTime;
 use PHPUnit\Framework\TestCase;
 use App\Service\Committee;
 use App\DatabaseConnectionTrait;
+use App\Presenter\CommitteePresenter;
 use DateTime;
 
 class CommitteeTest extends TestCase
@@ -51,11 +52,13 @@ class CommitteeTest extends TestCase
             'abbr_long' => 'abbr_long',
             'abbr_short' => 'abbr_short',
             'first' => new BSONDocument([
+                '_id' => 1,
                 'assembly_id' => 1,
                 'from' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
                 'to' => new UTCDateTime((new DateTime('2002-01-01'))->getTimestamp() * 1000),
             ]),
             'last' => new BSONDocument([
+                '_id' => 2,
                 'assembly_id' => 2,
                 'from' => new UTCDateTime((new DateTime('2003-01-01'))->getTimestamp() * 1000),
                 'to' => new UTCDateTime((new DateTime('2004-01-01'))->getTimestamp() * 1000),
@@ -71,19 +74,20 @@ class CommitteeTest extends TestCase
     public function testGet()
     {
         //GIVE
-        $this->getDatabase()->selectCollection(Committee::COLLECTION)->insertOne([
-            '_id' => 1,
-            'committee_id' => 1,
-            'name' => 'name',
-            'abbr_long' => 'abbr_long',
-            'abbr_short' => 'abbr_short',
-            'first' => [
-                'assembly_id' => 1,
-                'from' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
-                'to' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
-            ],
-            'last' => null,
-        ]);
+        $this->getDatabase()->selectCollection(Committee::COLLECTION)->insertOne(
+            (new CommitteePresenter)->serialize([
+                'committee_id' => 1,
+                'name' => 'name',
+                'abbr_long' => 'abbr_long',
+                'abbr_short' => 'abbr_short',
+                'first' => [
+                    'assembly_id' => 1,
+                    'from' => '2001-01-01',
+                    'to' => '2001-01-01',
+                ],
+                'last' => null,
+            ])
+        );
 
         //WHEN
         $actual = (new Committee())
@@ -98,6 +102,7 @@ class CommitteeTest extends TestCase
             'abbr_long' => 'abbr_long',
             'abbr_short' => 'abbr_short',
             'first' => [
+                '_id' => 1,
                 'assembly_id' => 1,
                 'from' => '2001-01-01T00:00:00+00:00',
                 'to' => '2001-01-01T00:00:00+00:00',
@@ -111,19 +116,20 @@ class CommitteeTest extends TestCase
     public function testGetNotFound()
     {
         //GIVE
-        $this->getDatabase()->selectCollection(Committee::COLLECTION)->insertOne([
-            '_id' => 1,
-            'committee_id' => 1,
-            'name' => 'name',
-            'abbr_long' => 'abbr_long',
-            'abbr_short' => 'abbr_short',
-            'first' => [
-                'assembly_id' => 1,
-                'from' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
-                'to' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
-            ],
-            'last' => null,
-        ]);
+        $this->getDatabase()->selectCollection(Committee::COLLECTION)->insertOne(
+            (new CommitteePresenter)->serialize([
+                'committee_id' => 1,
+                'name' => 'name',
+                'abbr_long' => 'abbr_long',
+                'abbr_short' => 'abbr_short',
+                'first' => [
+                    'assembly_id' => 1,
+                    'from' => '2001-01-01',
+                    'to' => '2001-01-01',
+                ],
+                'last' => null,
+            ])
+        );
 
         //WHEN
         $actual = (new Committee())
@@ -139,32 +145,32 @@ class CommitteeTest extends TestCase
     public function testFetch()
     {
         //GIVE
-        $this->getDatabase()->selectCollection(Committee::COLLECTION)->insertMany([
+        $this->getDatabase()->selectCollection(Committee::COLLECTION)->insertMany(
             [
-                '_id' => 1,
+            (new CommitteePresenter)->serialize([
                 'committee_id' => 1,
                 'name' => 'name',
                 'abbr_long' => 'abbr_long',
                 'abbr_short' => 'abbr_short',
                 'first' => [
                     'assembly_id' => 1,
-                    'from' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
-                    'to' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
+                    'from' => '2001-01-01',
+                    'to' => '2001-01-01',
                 ],
                 'last' => null,
-            ], [
-                '_id' => 2,
+            ]),
+            (new CommitteePresenter)->serialize([
                 'committee_id' => 2,
                 'name' => 'name',
                 'abbr_long' => 'abbr_long',
                 'abbr_short' => 'abbr_short',
                 'last' => [
                     'assembly_id' => 1,
-                    'from' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
-                    'to' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
+                    'from' => '2001-01-01',
+                    'to' => '2001-01-01',
                 ],
                 'first' => null,
-            ]
+            ])
         ]);
 
         //WHEN
@@ -181,6 +187,7 @@ class CommitteeTest extends TestCase
                 'abbr_long' => 'abbr_long',
                 'abbr_short' => 'abbr_short',
                 'first' => [
+                    '_id' => 1,
                     'assembly_id' => 1,
                     'from' => '2001-01-01T00:00:00+00:00',
                     'to' => '2001-01-01T00:00:00+00:00',
@@ -193,6 +200,7 @@ class CommitteeTest extends TestCase
                 'abbr_long' => 'abbr_long',
                 'abbr_short' => 'abbr_short',
                 'last' => [
+                    '_id' => 1,
                     'assembly_id' => 1,
                     'from' => '2001-01-01T00:00:00+00:00',
                     'to' => '2001-01-01T00:00:00+00:00',
@@ -208,37 +216,35 @@ class CommitteeTest extends TestCase
     {
         //GIVE
         $this->getDatabase()->selectCollection(Committee::COLLECTION)->insertMany([
-            [
-                '_id' => 1,
+            (new CommitteePresenter)->serialize([
                 'committee_id' => 1,
                 'name' => 'name',
                 'abbr_long' => 'abbr_long',
                 'abbr_short' => 'abbr_short',
                 'first' => [
                     'assembly_id' => 1,
-                    'from' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
-                    'to' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
+                    'from' => '2001-01-01',
+                    'to' => '2001-01-01',
                 ],
                 'last' => [
                     'assembly_id' => 2,
-                    'from' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
-                    'to' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
+                    'from' => '2001-01-01',
+                    'to' => '2001-01-01',
                 ],
-            ],
-            [
-                '_id' => 2,
+            ]),
+            (new CommitteePresenter)->serialize([
                 'committee_id' => 2,
                 'name' => 'name',
                 'abbr_long' => 'abbr_long',
                 'abbr_short' => 'abbr_short',
                 'first' => [
                     'assembly_id' => 2,
-                    'from' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
-                    'to' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
+                    'from' => '2001-01-01',
+                    'to' => '2001-01-01',
                 ],
                 'last' => null,
-            ],
-            [
+            ]),
+            (new CommitteePresenter)->serialize([
                 '_id' => 3,
                 'committee_id' => 3,
                 'name' => 'name',
@@ -246,11 +252,11 @@ class CommitteeTest extends TestCase
                 'abbr_short' => 'abbr_short',
                 'last' => [
                     'assembly_id' => 1,
-                    'from' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
-                    'to' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
+                    'from' => '2001-01-01',
+                    'to' => '2001-01-01',
                 ],
                 'first' => null,
-            ],
+            ]),
         ]);
 
         //WHEN
@@ -276,11 +282,13 @@ class CommitteeTest extends TestCase
                 'abbr_long' => 'abbr_long',
                 'abbr_short' => 'abbr_short',
                 'first' => new BSONDocument([
+                    '_id' => 1,
                     'assembly_id' => 1,
                     'from' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
                     'to' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
                 ]),
                 'last' => new BSONDocument([
+                    '_id' => 2,
                     'assembly_id' => 2,
                     'from' => new UTCDateTime((new DateTime('1978-01-01'))->getTimestamp() * 1000),
                     'to' => new UTCDateTime((new DateTime('1978-01-01'))->getTimestamp() * 1000),
@@ -293,6 +301,7 @@ class CommitteeTest extends TestCase
                 'abbr_long' => 'abbr_long',
                 'abbr_short' => 'abbr_short',
                 'first' => new BSONDocument([
+                    '_id' => 2,
                     'assembly_id' => 2,
                     'from' => new UTCDateTime((new DateTime('1978-01-01'))->getTimestamp() * 1000),
                     'to' => new UTCDateTime((new DateTime('1978-01-01'))->getTimestamp() * 1000),
@@ -306,6 +315,7 @@ class CommitteeTest extends TestCase
                 'abbr_long' => 'abbr_long',
                 'abbr_short' => 'abbr_short',
                 'last' => new BSONDocument([
+                    '_id' => 1,
                     'assembly_id' => 1,
                     'from' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
                     'to' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),

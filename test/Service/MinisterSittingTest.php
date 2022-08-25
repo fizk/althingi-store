@@ -7,6 +7,7 @@ use MongoDB\BSON\UTCDateTime;
 use PHPUnit\Framework\TestCase;
 use App\Service\MinisterSitting;
 use App\DatabaseConnectionTrait;
+use App\Presenter\MinisterSittingPresenter;
 use DateTime;
 
 class MinisterSittingTest extends TestCase
@@ -83,19 +84,22 @@ class MinisterSittingTest extends TestCase
             'from' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
             'to' => null,
             'assembly' => new BSONDocument([
+                '_id' => 1,
                 'assembly_id' => 1,
                 'from' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
                 'to' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
             ]),
             'ministry' => new BSONDocument([
+                '_id' => 2,
                 'ministry_id' => 2,
                 'name' => 'ministry-name-1',
                 'abbr_short' => 'abbr_short-1',
                 'abbr_long' => 'abbr_long-1',
-                'first' => 1,
-                'last' => 2,
+                'first' => null,
+                'last' => null,
             ]),
             'congressman' => new BSONDocument([
+                '_id' => 3,
                 'congressman_id' => 3,
                 'name' => 'name',
                 'birth' => new UTCDateTime((new DateTime('2005-01-01'))->getTimestamp() * 1000),
@@ -103,6 +107,7 @@ class MinisterSittingTest extends TestCase
                 'abbreviation' => 'abbreviation',
             ]),
             'congressman_constituency' => new BSONDocument([
+                '_id' => 4,
                 'constituency_id' => 4,
                 'name' => 'name',
                 'abbr_short' => 'abbr_short',
@@ -110,6 +115,7 @@ class MinisterSittingTest extends TestCase
                 'description' => 'description',
             ]),
             'congressman_party' => new BSONDocument([
+                '_id' => 5,
                 'party_id' => 5,
                 'name' => 'name',
                 'abbr_short' => 'abbr_short',
@@ -117,11 +123,13 @@ class MinisterSittingTest extends TestCase
                 'color' => 'color',
             ]),
             'first_ministry_assembly' => new BSONDocument([
+                '_id' => 1,
                 'assembly_id' => 1,
                 'from' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
                 'to' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
             ]),
             'last_ministry_assembly' => new BSONDocument([
+                '_id' => 2,
                 'assembly_id' => 2,
                 'from' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
                 'to' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
@@ -136,129 +144,15 @@ class MinisterSittingTest extends TestCase
     public function testGet()
     {
         //GIVE
-        $this->getDatabase()->selectCollection(MinisterSitting::COLLECTION)->insertOne([
-            '_id' => 1,
-            'minister_sitting_id' => 1,
-            'from' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
-            'to' => null,
-            'assembly' => [
-                'assembly_id' => 1,
-                'from' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
-                'to' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
-            ],
-            'ministry' => [
-                'ministry_id' => 2,
-                'name' => 'ministry-name-1',
-                'abbr_short' => 'abbr_short-1',
-                'abbr_long' => 'abbr_long-1',
-                'first' => 1,
-                'last' => 2,
-            ],
-            'congressman' => [
-                'congressman_id' => 3,
-                'name' => 'name',
-                'birth' => new UTCDateTime((new DateTime('2005-01-01'))->getTimestamp() * 1000),
-                'death' => null,
-                'abbreviation' => 'abbreviation',
-            ],
-            'congressman_constituency' => [
-                'constituency_id' => 4,
-                'name' => 'name',
-                'abbr_short' => 'abbr_short',
-                'abbr_long' => 'abbr_long',
-                'description' => 'description',
-            ],
-            'congressman_party' => [
-                'party_id' => 5,
-                'name' => 'name',
-                'abbr_short' => 'abbr_short',
-                'abbr_long' => 'abbr_long',
-                'color' => 'color',
-            ],
-            'first_ministry_assembly' => [
-                'assembly_id' => 1,
-                'from' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
-                'to' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
-            ],
-            'last_ministry_assembly' => [
-                'assembly_id' => 2,
-                'from' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
-                'to' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
-            ],
-        ]);
-
-        //WHEN
-        $actual = (new MinisterSitting())
-            ->setSourceDatabase($this->getDatabase())
-            ->get(1);
-
-        //THEN
-        $expected = [
-            '_id' => 1,
-            'minister_sitting_id' => 1,
-            'from' => '2001-01-01T00:00:00+00:00',
-            'to' => null,
-            'assembly' => [
-                'assembly_id' => 1,
-                'from' => '2001-01-01T00:00:00+00:00',
-                'to' => '2001-01-01T00:00:00+00:00',
-            ],
-            'ministry' => [
-                'ministry_id' => 2,
-                'name' => 'ministry-name-1',
-                'abbr_short' => 'abbr_short-1',
-                'abbr_long' => 'abbr_long-1',
-                'first' => 1,
-                'last' => 2,
-            ],
-            'congressman' => [
-                'congressman_id' => 3,
-                'name' => 'name',
-                'birth' => '2005-01-01T00:00:00+00:00',
-                'death' => null,
-                'abbreviation' => 'abbreviation',
-            ],
-            'congressman_constituency' => [
-                'constituency_id' => 4,
-                'name' => 'name',
-                'abbr_short' => 'abbr_short',
-                'abbr_long' => 'abbr_long',
-                'description' => 'description',
-            ],
-            'congressman_party' => [
-                'party_id' => 5,
-                'name' => 'name',
-                'abbr_short' => 'abbr_short',
-                'abbr_long' => 'abbr_long',
-                'color' => 'color',
-            ],
-            'first_ministry_assembly' => [
-                'assembly_id' => 1,
-                'from' => '2001-01-01T00:00:00+00:00',
-                'to' => '2001-01-01T00:00:00+00:00',
-            ],
-            'last_ministry_assembly' => [
-                'assembly_id' => 2,
-                'from' => '2001-01-01T00:00:00+00:00',
-                'to' => '2001-01-01T00:00:00+00:00',
-            ],
-        ];
-        $this->assertEquals($expected, $actual);
-    }
-
-    public function testFetch()
-    {
-        //GIVE
-        $this->getDatabase()->selectCollection(MinisterSitting::COLLECTION)->insertMany([
-            [
-                '_id' => 1,
+        $this->getDatabase()->selectCollection(MinisterSitting::COLLECTION)->insertOne(
+            (new MinisterSittingPresenter)->serialize([
                 'minister_sitting_id' => 1,
-                'from' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
+                'from' => '2001-01-01',
                 'to' => null,
                 'assembly' => [
                     'assembly_id' => 1,
-                    'from' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
-                    'to' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
+                    'from' => '2001-01-01',
+                    'to' => '2001-01-01',
                 ],
                 'ministry' => [
                     'ministry_id' => 2,
@@ -271,7 +165,7 @@ class MinisterSittingTest extends TestCase
                 'congressman' => [
                     'congressman_id' => 3,
                     'name' => 'name',
-                    'birth' => new UTCDateTime((new DateTime('2005-01-01'))->getTimestamp() * 1000),
+                    'birth' => '2005-01-01',
                     'death' => null,
                     'abbreviation' => 'abbreviation',
                 ],
@@ -291,15 +185,147 @@ class MinisterSittingTest extends TestCase
                 ],
                 'first_ministry_assembly' => [
                     'assembly_id' => 1,
-                    'from' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
-                    'to' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
+                    'from' => '2001-01-01',
+                    'to' => '2001-01-01',
                 ],
                 'last_ministry_assembly' => [
                     'assembly_id' => 2,
-                    'from' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
-                    'to' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
+                    'from' => '2001-01-01',
+                    'to' => '2001-01-01',
                 ],
-            ]
+            ])
+        );
+
+        //WHEN
+        $actual = (new MinisterSitting())
+            ->setSourceDatabase($this->getDatabase())
+            ->get(1);
+
+        //THEN
+        $expected = [
+            '_id' => 1,
+            'minister_sitting_id' => 1,
+            'from' => '2001-01-01T00:00:00+00:00',
+            'to' => null,
+            'assembly' => [
+                '_id' => 1,
+                'assembly_id' => 1,
+                'from' => '2001-01-01T00:00:00+00:00',
+                'to' => '2001-01-01T00:00:00+00:00',
+            ],
+            'ministry' => [
+                '_id' => 2,
+                'ministry_id' => 2,
+                'name' => 'ministry-name-1',
+                'abbr_short' => 'abbr_short-1',
+                'abbr_long' => 'abbr_long-1',
+                'first' => [
+                    '_id' => 1,
+                    'assembly_id' => 1,
+                    'from' => '2001-01-01T00:00:00+00:00',
+                    'to' => '2001-01-01T00:00:00+00:00',
+                ],
+                'last' => [
+                    '_id' => 2,
+                    'assembly_id' => 2,
+                    'from' => '2001-01-01T00:00:00+00:00',
+                    'to' => '2001-01-01T00:00:00+00:00',
+                ],
+            ],
+            'congressman' => [
+                '_id' => 3,
+                'congressman_id' => 3,
+                'name' => 'name',
+                'birth' => '2005-01-01T00:00:00+00:00',
+                'death' => null,
+                'abbreviation' => 'abbreviation',
+            ],
+            'congressman_constituency' => [
+                '_id' => 4,
+                'constituency_id' => 4,
+                'name' => 'name',
+                'abbr_short' => 'abbr_short',
+                'abbr_long' => 'abbr_long',
+                'description' => 'description',
+            ],
+            'congressman_party' => [
+                '_id' => 5,
+                'party_id' => 5,
+                'name' => 'name',
+                'abbr_short' => 'abbr_short',
+                'abbr_long' => 'abbr_long',
+                'color' => 'color',
+            ],
+            'first_ministry_assembly' => [
+                '_id' => 1,
+                'assembly_id' => 1,
+                'from' => '2001-01-01T00:00:00+00:00',
+                'to' => '2001-01-01T00:00:00+00:00',
+            ],
+            'last_ministry_assembly' => [
+                '_id' => 2,
+                'assembly_id' => 2,
+                'from' => '2001-01-01T00:00:00+00:00',
+                'to' => '2001-01-01T00:00:00+00:00',
+            ],
+        ];
+        $this->assertEquals($expected, $actual);
+    }
+
+    public function testFetch()
+    {
+        //GIVE
+        $this->getDatabase()->selectCollection(MinisterSitting::COLLECTION)->insertMany([
+            (new MinisterSittingPresenter)->serialize([
+                '_id' => 1,
+                'minister_sitting_id' => 1,
+                'from' => '2001-01-01',
+                'to' => null,
+                'assembly' => [
+                    'assembly_id' => 1,
+                    'from' => '2001-01-01',
+                    'to' => '2001-01-01',
+                ],
+                'ministry' => [
+                    'ministry_id' => 2,
+                    'name' => 'ministry-name-1',
+                    'abbr_short' => 'abbr_short-1',
+                    'abbr_long' => 'abbr_long-1',
+                    'first' => 1,
+                    'last' => 2,
+                ],
+                'congressman' => [
+                    'congressman_id' => 3,
+                    'name' => 'name',
+                    'birth' => '2005-01-01',
+                    'death' => null,
+                    'abbreviation' => 'abbreviation',
+                ],
+                'congressman_constituency' => [
+                    'constituency_id' => 4,
+                    'name' => 'name',
+                    'abbr_short' => 'abbr_short',
+                    'abbr_long' => 'abbr_long',
+                    'description' => 'description',
+                ],
+                'congressman_party' => [
+                    'party_id' => 5,
+                    'name' => 'name',
+                    'abbr_short' => 'abbr_short',
+                    'abbr_long' => 'abbr_long',
+                    'color' => 'color',
+                ],
+                'first_ministry_assembly' => [
+                    'assembly_id' => 1,
+                    'from' => '2001-01-01',
+                    'to' => '2001-01-01',
+                ],
+                'last_ministry_assembly' => [
+                    'assembly_id' => 2,
+                    'from' => '2001-01-01',
+                    'to' => '2001-01-01',
+                ],
+            ])
         ]);
 
         //WHEN
@@ -314,19 +340,32 @@ class MinisterSittingTest extends TestCase
             'from' => '2001-01-01T00:00:00+00:00',
             'to' => null,
             'assembly' => [
+                '_id' => 1,
                 'assembly_id' => 1,
                 'from' => '2001-01-01T00:00:00+00:00',
                 'to' => '2001-01-01T00:00:00+00:00',
             ],
             'ministry' => [
+                '_id' => 2,
                 'ministry_id' => 2,
                 'name' => 'ministry-name-1',
                 'abbr_short' => 'abbr_short-1',
                 'abbr_long' => 'abbr_long-1',
-                'first' => 1,
-                'last' => 2,
+                'first' => [
+                    '_id' => 1,
+                    'assembly_id' => 1,
+                    'from' => '2001-01-01T00:00:00+00:00',
+                    'to' => '2001-01-01T00:00:00+00:00',
+                ],
+                'last' => [
+                    '_id' => 2,
+                    'assembly_id' => 2,
+                    'from' => '2001-01-01T00:00:00+00:00',
+                    'to' => '2001-01-01T00:00:00+00:00',
+                ],
             ],
             'congressman' => [
+                '_id' => 3,
                 'congressman_id' => 3,
                 'name' => 'name',
                 'birth' => '2005-01-01T00:00:00+00:00',
@@ -334,6 +373,7 @@ class MinisterSittingTest extends TestCase
                 'abbreviation' => 'abbreviation',
             ],
             'congressman_constituency' => [
+                '_id' => 4,
                 'constituency_id' => 4,
                 'name' => 'name',
                 'abbr_short' => 'abbr_short',
@@ -341,6 +381,7 @@ class MinisterSittingTest extends TestCase
                 'description' => 'description',
             ],
             'congressman_party' => [
+                '_id' => 5,
                 'party_id' => 5,
                 'name' => 'name',
                 'abbr_short' => 'abbr_short',
@@ -348,11 +389,13 @@ class MinisterSittingTest extends TestCase
                 'color' => 'color',
             ],
             'first_ministry_assembly' => [
+                '_id' => 1,
                 'assembly_id' => 1,
                 'from' => '2001-01-01T00:00:00+00:00',
                 'to' => '2001-01-01T00:00:00+00:00',
             ],
             'last_ministry_assembly' => [
+                '_id' => 2,
                 'assembly_id' => 2,
                 'from' => '2001-01-01T00:00:00+00:00',
                 'to' => '2001-01-01T00:00:00+00:00',
@@ -365,15 +408,14 @@ class MinisterSittingTest extends TestCase
     {
         //GIVE
         $this->getDatabase()->selectCollection(MinisterSitting::COLLECTION)->insertMany([
-            [
-                '_id' => 1,
+            (new MinisterSittingPresenter)->serialize([
                 'minister_sitting_id' => 1,
-                'from' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
+                'from' => '2001-01-01',
                 'to' => null,
                 'assembly' => [
                     'assembly_id' => 1,
-                    'from' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
-                    'to' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
+                    'from' => '2001-01-01',
+                    'to' => '2001-01-01',
                 ],
                 'ministry' => [
                     'ministry_id' => 2,
@@ -386,7 +428,7 @@ class MinisterSittingTest extends TestCase
                 'congressman' => [
                     'congressman_id' => 3,
                     'name' => 'name',
-                    'birth' => new UTCDateTime((new DateTime('2005-01-01'))->getTimestamp() * 1000),
+                    'birth' => '2005-01-01',
                     'death' => null,
                     'abbreviation' => 'abbreviation',
                 ],
@@ -406,15 +448,15 @@ class MinisterSittingTest extends TestCase
                 ],
                 'first_ministry_assembly' => [
                     'assembly_id' => 1,
-                    'from' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
-                    'to' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
+                    'from' => '2001-01-01',
+                    'to' => '2001-01-01',
                 ],
                 'last_ministry_assembly' => [
                     'assembly_id' => 2,
-                    'from' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
-                    'to' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
+                    'from' => '2001-01-01',
+                    'to' => '2001-01-01',
                 ],
-            ]
+            ])
         ]);
 
         //WHEN
@@ -424,6 +466,7 @@ class MinisterSittingTest extends TestCase
 
         //THEN
         $expected =[ [
+            '_id' => 5,
             'party_id' => 5,
             'name' => 'name',
             'abbr_short' => 'abbr_short',
@@ -437,15 +480,14 @@ class MinisterSittingTest extends TestCase
     {
         //GIVE
         $this->getDatabase()->selectCollection(MinisterSitting::COLLECTION)->insertMany([
-            [
-                '_id' => 1,
+            (new MinisterSittingPresenter)->serialize([
                 'minister_sitting_id' => 1,
-                'from' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
+                'from' => '2001-01-01',
                 'to' => null,
                 'assembly' => [
                     'assembly_id' => 1,
-                    'from' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
-                    'to' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
+                    'from' => '2001-01-01',
+                    'to' => '2001-01-01',
                 ],
                 'ministry' => [
                     'ministry_id' => 2,
@@ -458,7 +500,7 @@ class MinisterSittingTest extends TestCase
                 'congressman' => [
                     'congressman_id' => 3,
                     'name' => 'name',
-                    'birth' => new UTCDateTime((new DateTime('2005-01-01'))->getTimestamp() * 1000),
+                    'birth' => '2005-01-01',
                     'death' => null,
                     'abbreviation' => 'abbreviation',
                 ],
@@ -478,15 +520,15 @@ class MinisterSittingTest extends TestCase
                 ],
                 'first_ministry_assembly' => [
                     'assembly_id' => 1,
-                    'from' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
-                    'to' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
+                    'from' => '2001-01-01',
+                    'to' => '2001-01-01',
                 ],
                 'last_ministry_assembly' => [
                     'assembly_id' => 2,
-                    'from' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
-                    'to' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
+                    'from' => '2001-01-01',
+                    'to' => '2001-01-01',
                 ],
-            ]
+            ])
         ]);
 
         //WHEN
@@ -502,14 +544,14 @@ class MinisterSittingTest extends TestCase
                 'name' => 'ministry-name-1',
                 'abbr_short' => 'abbr_short-1',
                 'abbr_long' => 'abbr_long-1',
-                'first' => 1,
-                'last' => 2,
                 'first_ministry_assembly' => [
+                    '_id' => 1,
                     'assembly_id' => 1,
                     'from' => '2001-01-01T00:00:00+00:00',
                     'to' => '2001-01-01T00:00:00+00:00',
                 ],
                 'last_ministry_assembly' => [
+                    '_id' => 2,
                     'assembly_id' => 2,
                     'from' => '2001-01-01T00:00:00+00:00',
                     'to' => '2001-01-01T00:00:00+00:00',
@@ -521,19 +563,22 @@ class MinisterSittingTest extends TestCase
                         'from' => '2001-01-01T00:00:00+00:00',
                         'to' => null,
                         'assembly' => [
+                            '_id' => 1,
                             'assembly_id' => 1,
                             'from' => '2001-01-01T00:00:00+00:00',
                             'to' => '2001-01-01T00:00:00+00:00',
                         ],
                         'ministry' => [
+                            '_id' => 2,
                             'ministry_id' => 2,
                             'name' => 'ministry-name-1',
                             'abbr_short' => 'abbr_short-1',
                             'abbr_long' => 'abbr_long-1',
-                            'first' => 1,
-                            'last' => 2,
+                            'first' => null,
+                            'last' => null,
                         ],
                         'congressman' => [
+                            '_id' => 3,
                             'congressman_id' => 3,
                             'name' => 'name',
                             'birth' => '2005-01-01T00:00:00+00:00',
@@ -541,6 +586,7 @@ class MinisterSittingTest extends TestCase
                             'abbreviation' => 'abbreviation',
                         ],
                         'congressman_constituency' => [
+                            '_id' => 4,
                             'constituency_id' => 4,
                             'name' => 'name',
                             'abbr_short' => 'abbr_short',
@@ -548,6 +594,7 @@ class MinisterSittingTest extends TestCase
                             'description' => 'description',
                         ],
                         'congressman_party' => [
+                            '_id' => 5,
                             'party_id' => 5,
                             'name' => 'name',
                             'abbr_short' => 'abbr_short',
@@ -565,15 +612,14 @@ class MinisterSittingTest extends TestCase
     {
         //GIVE
         $this->getDatabase()->selectCollection(MinisterSitting::COLLECTION)->insertMany([
-            [
-                '_id' => 1,
+            (new MinisterSittingPresenter)->serialize([
                 'minister_sitting_id' => 1,
-                'from' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
+                'from' => '2001-01-01',
                 'to' => null,
                 'assembly' => [
                     'assembly_id' => 2,
-                    'from' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
-                    'to' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
+                    'from' => '2001-01-01',
+                    'to' => '2001-01-01',
                 ],
                 'ministry' => [
                     'ministry_id' => 2,
@@ -586,7 +632,7 @@ class MinisterSittingTest extends TestCase
                 'congressman' => [
                     'congressman_id' => 3,
                     'name' => 'name',
-                    'birth' => new UTCDateTime((new DateTime('2005-01-01'))->getTimestamp() * 1000),
+                    'birth' => '2005-01-01',
                     'death' => null,
                     'abbreviation' => 'abbreviation',
                 ],
@@ -606,15 +652,15 @@ class MinisterSittingTest extends TestCase
                 ],
                 'first_ministry_assembly' => [
                     'assembly_id' => 2,
-                    'from' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
-                    'to' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
+                    'from' => '2001-01-01',
+                    'to' => '2001-01-01',
                 ],
                 'last_ministry_assembly' => [
                     'assembly_id' => 2,
-                    'from' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
-                    'to' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
+                    'from' => '2001-01-01',
+                    'to' => '2001-01-01',
                 ],
-            ]
+            ])
         ]);
 
         //WHEN
@@ -638,19 +684,22 @@ class MinisterSittingTest extends TestCase
                 'from' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
                 'to' => null,
                 'assembly' => new BSONDocument([
+                    '_id' => 2,
                     'assembly_id' => 2,
                     'from' => new UTCDateTime((new DateTime('1978-01-01'))->getTimestamp() * 1000),
                     'to' => new UTCDateTime((new DateTime('1978-01-01'))->getTimestamp() * 1000),
                 ]),
                 'ministry' => new BSONDocument([
+                    '_id' => 2,
                     'ministry_id' => 2,
                     'name' => 'ministry-name-1',
                     'abbr_short' => 'abbr_short-1',
                     'abbr_long' => 'abbr_long-1',
-                    'first' => 1,
-                    'last' => 2,
+                    'first' => null,
+                    'last' => null,
                 ]),
                 'congressman' => new BSONDocument([
+                    '_id' => 3,
                     'congressman_id' => 3,
                     'name' => 'name',
                     'birth' => new UTCDateTime((new DateTime('2005-01-01'))->getTimestamp() * 1000),
@@ -658,6 +707,7 @@ class MinisterSittingTest extends TestCase
                     'abbreviation' => 'abbreviation',
                 ]),
                 'congressman_constituency' => new BSONDocument([
+                    '_id' => 4,
                     'constituency_id' => 4,
                     'name' => 'name',
                     'abbr_short' => 'abbr_short',
@@ -665,6 +715,7 @@ class MinisterSittingTest extends TestCase
                     'description' => 'description',
                 ]),
                 'congressman_party' => new BSONDocument([
+                    '_id' => 5,
                     'party_id' => 5,
                     'name' => 'name',
                     'abbr_short' => 'abbr_short',
@@ -672,11 +723,13 @@ class MinisterSittingTest extends TestCase
                     'color' => 'color',
                 ]),
                 'first_ministry_assembly' => new BSONDocument([
+                    '_id' => 2,
                     'assembly_id' => 2,
                     'from' => new UTCDateTime((new DateTime('1978-01-01'))->getTimestamp() * 1000),
                     'to' => new UTCDateTime((new DateTime('1978-01-01'))->getTimestamp() * 1000),
                 ]),
                 'last_ministry_assembly' => new BSONDocument([
+                    '_id' => 2,
                     'assembly_id' => 2,
                     'from' => new UTCDateTime((new DateTime('1978-01-01'))->getTimestamp() * 1000),
                     'to' => new UTCDateTime((new DateTime('1978-01-01'))->getTimestamp() * 1000),
@@ -690,15 +743,14 @@ class MinisterSittingTest extends TestCase
     {
         //GIVE
         $this->getDatabase()->selectCollection(MinisterSitting::COLLECTION)->insertMany([
-            [
-                '_id' => 1,
+            (new MinisterSittingPresenter)->serialize([
                 'minister_sitting_id' => 1,
-                'from' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
+                'from' => '2001-01-01',
                 'to' => null,
                 'assembly' => [
                     'assembly_id' => 2,
-                    'from' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
-                    'to' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
+                    'from' => '2001-01-01',
+                    'to' => '2001-01-01',
                 ],
                 'ministry' => [
                     'ministry_id' => 2,
@@ -711,7 +763,7 @@ class MinisterSittingTest extends TestCase
                 'congressman' => [
                     'congressman_id' => 3,
                     'name' => 'name',
-                    'birth' => new UTCDateTime((new DateTime('2005-01-01'))->getTimestamp() * 1000),
+                    'birth' => '2005-01-01',
                     'death' => null,
                     'abbreviation' => 'abbreviation',
                 ],
@@ -731,15 +783,15 @@ class MinisterSittingTest extends TestCase
                 ],
                 'first_ministry_assembly' => [
                     'assembly_id' => 2,
-                    'from' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
-                    'to' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
+                    'from' => '2001-01-01',
+                    'to' => '2001-01-01',
                 ],
                 'last_ministry_assembly' => [
                     'assembly_id' => 2,
-                    'from' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
-                    'to' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
+                    'from' => '2001-01-01',
+                    'to' => '2001-01-01',
                 ],
-            ]
+            ])
         ]);
 
         //WHEN
@@ -765,19 +817,22 @@ class MinisterSittingTest extends TestCase
                 'from' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
                 'to' => null,
                 'assembly' => new BSONDocument([
+                    '_id' => 2,
                     'assembly_id' => 2,
                     'from' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
                     'to' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
                 ]),
                 'ministry' => new BSONDocument([
+                    '_id' => 2,
                     'ministry_id' => 2,
                     'name' => 'ministry-name-1',
                     'abbr_short' => 'abbr_short-1',
                     'abbr_long' => 'abbr_long-1',
-                    'first' => 1,
-                    'last' => 2,
+                    'first' => null,
+                    'last' => null,
                 ]),
                 'congressman' => new BSONDocument([
+                    '_id' => 3,
                     'congressman_id' => 3,
                     'name' => 'name',
                     'birth' => new UTCDateTime((new DateTime('2005-01-01'))->getTimestamp() * 1000),
@@ -785,6 +840,7 @@ class MinisterSittingTest extends TestCase
                     'abbreviation' => 'abbreviation',
                 ]),
                 'congressman_constituency' => new BSONDocument([
+                    '_id' => 4,
                     'constituency_id' => 4,
                     'name' => 'name',
                     'abbr_short' => 'abbr_short',
@@ -792,6 +848,7 @@ class MinisterSittingTest extends TestCase
                     'description' => 'description',
                 ]),
                 'congressman_party' => new BSONDocument([
+                    '_id' => 5,
                     'party_id' => 5,
                     'name' => 'name-updated',
                     'abbr_short' => 'abbr_short-updated',
@@ -799,11 +856,13 @@ class MinisterSittingTest extends TestCase
                     'color' => 'color-updated',
                 ]),
                 'first_ministry_assembly' => new BSONDocument([
+                    '_id' => 2,
                     'assembly_id' => 2,
                     'from' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
                     'to' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
                 ]),
                 'last_ministry_assembly' => new BSONDocument([
+                    '_id' => 2,
                     'assembly_id' => 2,
                     'from' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
                     'to' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
@@ -817,15 +876,14 @@ class MinisterSittingTest extends TestCase
     {
         //GIVE
         $this->getDatabase()->selectCollection(MinisterSitting::COLLECTION)->insertMany([
-            [
-                '_id' => 1,
+            (new MinisterSittingPresenter)->serialize([
                 'minister_sitting_id' => 1,
-                'from' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
+                'from' => '2001-01-01',
                 'to' => null,
                 'assembly' => [
                     'assembly_id' => 2,
-                    'from' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
-                    'to' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
+                    'from' => '2001-01-01',
+                    'to' => '2001-01-01',
                 ],
                 'ministry' => [
                     'ministry_id' => 2,
@@ -838,7 +896,7 @@ class MinisterSittingTest extends TestCase
                 'congressman' => [
                     'congressman_id' => 3,
                     'name' => 'name',
-                    'birth' => new UTCDateTime((new DateTime('2005-01-01'))->getTimestamp() * 1000),
+                    'birth' => '2005-01-01',
                     'death' => null,
                     'abbreviation' => 'abbreviation',
                 ],
@@ -858,15 +916,15 @@ class MinisterSittingTest extends TestCase
                 ],
                 'first_ministry_assembly' => [
                     'assembly_id' => 2,
-                    'from' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
-                    'to' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
+                    'from' => '2001-01-01',
+                    'to' => '2001-01-01',
                 ],
                 'last_ministry_assembly' => [
                     'assembly_id' => 2,
-                    'from' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
-                    'to' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
+                    'from' => '2001-01-01',
+                    'to' => '2001-01-01',
                 ],
-            ]
+            ])
         ]);
 
         //WHEN
@@ -892,19 +950,22 @@ class MinisterSittingTest extends TestCase
                 'from' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
                 'to' => null,
                 'assembly' => new BSONDocument([
+                    '_id' => 2,
                     'assembly_id' => 2,
                     'from' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
                     'to' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
                 ]),
                 'ministry' => new BSONDocument([
+                    '_id' => 2,
                     'ministry_id' => 2,
                     'name' => 'ministry-name-1',
                     'abbr_short' => 'abbr_short-1',
                     'abbr_long' => 'abbr_long-1',
-                    'first' => 1,
-                    'last' => 2,
+                    'first' => null,
+                    'last' => null,
                 ]),
                 'congressman' => new BSONDocument([
+                    '_id' => 3,
                     'congressman_id' => 3,
                     'name' => 'name',
                     'birth' => new UTCDateTime((new DateTime('2005-01-01'))->getTimestamp() * 1000),
@@ -912,6 +973,7 @@ class MinisterSittingTest extends TestCase
                     'abbreviation' => 'abbreviation',
                 ]),
                 'congressman_constituency' => new BSONDocument([
+                    '_id' => 4,
                     'constituency_id' => 4,
                     'name' => 'name-updated',
                     'abbr_short' => 'abbr_short-updated',
@@ -919,6 +981,7 @@ class MinisterSittingTest extends TestCase
                     'description' => 'description-updated',
                 ]),
                 'congressman_party' => new BSONDocument([
+                    '_id' => 5,
                     'party_id' => 5,
                     'name' => 'name',
                     'abbr_short' => 'abbr_short',
@@ -926,11 +989,13 @@ class MinisterSittingTest extends TestCase
                     'color' => 'color',
                 ]),
                 'first_ministry_assembly' => new BSONDocument([
+                    '_id' => 2,
                     'assembly_id' => 2,
                     'from' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
                     'to' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
                 ]),
                 'last_ministry_assembly' => new BSONDocument([
+                    '_id' => 2,
                     'assembly_id' => 2,
                     'from' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
                     'to' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
@@ -944,15 +1009,14 @@ class MinisterSittingTest extends TestCase
     {
         //GIVE
         $this->getDatabase()->selectCollection(MinisterSitting::COLLECTION)->insertMany([
-            [
-                '_id' => 1,
+            (new MinisterSittingPresenter)->serialize([
                 'minister_sitting_id' => 1,
-                'from' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
+                'from' => '2001-01-01',
                 'to' => null,
                 'assembly' => [
                     'assembly_id' => 2,
-                    'from' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
-                    'to' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
+                    'from' => '2001-01-01',
+                    'to' => '2001-01-01',
                 ],
                 'ministry' => [
                     'ministry_id' => 2,
@@ -965,7 +1029,7 @@ class MinisterSittingTest extends TestCase
                 'congressman' => [
                     'congressman_id' => 3,
                     'name' => 'name',
-                    'birth' => new UTCDateTime((new DateTime('2005-01-01'))->getTimestamp() * 1000),
+                    'birth' => '2005-01-01',
                     'death' => null,
                     'abbreviation' => 'abbreviation',
                 ],
@@ -985,15 +1049,15 @@ class MinisterSittingTest extends TestCase
                 ],
                 'first_ministry_assembly' => [
                     'assembly_id' => 2,
-                    'from' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
-                    'to' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
+                    'from' => '2001-01-01',
+                    'to' => '2001-01-01',
                 ],
                 'last_ministry_assembly' => [
                     'assembly_id' => 2,
-                    'from' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
-                    'to' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
+                    'from' => '2001-01-01',
+                    'to' => '2001-01-01',
                 ],
-            ]
+            ])
         ]);
 
         //WHEN
@@ -1020,19 +1084,22 @@ class MinisterSittingTest extends TestCase
                 'from' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
                 'to' => null,
                 'assembly' => new BSONDocument([
+                    '_id' => 2,
                     'assembly_id' => 2,
                     'from' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
                     'to' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
                 ]),
                 'ministry' => new BSONDocument([
+                    '_id' => 2,
                     'ministry_id' => 2,
                     'name' => 'ministry-name-1-update',
                     'abbr_short' => 'abbr_short-1-update',
                     'abbr_long' => 'abbr_long-1-update',
-                    'first' => 10,
-                    'last' => 20,
+                    'first' => null,
+                    'last' => null,
                 ]),
                 'congressman' => new BSONDocument([
+                    '_id' => 3,
                     'congressman_id' => 3,
                     'name' => 'name',
                     'birth' => new UTCDateTime((new DateTime('2005-01-01'))->getTimestamp() * 1000),
@@ -1040,6 +1107,7 @@ class MinisterSittingTest extends TestCase
                     'abbreviation' => 'abbreviation',
                 ]),
                 'congressman_constituency' => new BSONDocument([
+                    '_id' => 4,
                     'constituency_id' => 4,
                     'name' => 'name',
                     'abbr_short' => 'abbr_short',
@@ -1047,6 +1115,7 @@ class MinisterSittingTest extends TestCase
                     'description' => 'description',
                 ]),
                 'congressman_party' => new BSONDocument([
+                    '_id' => 5,
                     'party_id' => 5,
                     'name' => 'name',
                     'abbr_short' => 'abbr_short',
@@ -1054,11 +1123,13 @@ class MinisterSittingTest extends TestCase
                     'color' => 'color',
                 ]),
                 'first_ministry_assembly' => new BSONDocument([
+                    '_id' => 2,
                     'assembly_id' => 2,
                     'from' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
                     'to' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
                 ]),
                 'last_ministry_assembly' => new BSONDocument([
+                    '_id' => 2,
                     'assembly_id' => 2,
                     'from' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
                     'to' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
@@ -1072,15 +1143,14 @@ class MinisterSittingTest extends TestCase
     {
         //GIVE
         $this->getDatabase()->selectCollection(MinisterSitting::COLLECTION)->insertMany([
-            [
-                '_id' => 1,
+            (new MinisterSittingPresenter)->serialize([
                 'minister_sitting_id' => 1,
-                'from' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
+                'from' => '2001-01-01',
                 'to' => null,
                 'assembly' => [
                     'assembly_id' => 2,
-                    'from' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
-                    'to' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
+                    'from' => '2001-01-01',
+                    'to' => '2001-01-01',
                 ],
                 'ministry' => [
                     'ministry_id' => 2,
@@ -1093,7 +1163,7 @@ class MinisterSittingTest extends TestCase
                 'congressman' => [
                     'congressman_id' => 3,
                     'name' => 'name',
-                    'birth' => new UTCDateTime((new DateTime('2005-01-01'))->getTimestamp() * 1000),
+                    'birth' => '2005-01-01',
                     'death' => null,
                     'abbreviation' => 'abbreviation',
                 ],
@@ -1113,15 +1183,15 @@ class MinisterSittingTest extends TestCase
                 ],
                 'first_ministry_assembly' => [
                     'assembly_id' => 2,
-                    'from' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
-                    'to' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
+                    'from' => '2001-01-01',
+                    'to' => '2001-01-01',
                 ],
                 'last_ministry_assembly' => [
                     'assembly_id' => 2,
-                    'from' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
-                    'to' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
+                    'from' => '2001-01-01',
+                    'to' => '2001-01-01',
                 ],
-            ]
+            ])
         ]);
 
         //WHEN
@@ -1147,19 +1217,22 @@ class MinisterSittingTest extends TestCase
                 'from' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
                 'to' => null,
                 'assembly' => new BSONDocument([
+                    '_id' => 2,
                     'assembly_id' => 2,
                     'from' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
                     'to' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
                 ]),
                 'ministry' => new BSONDocument([
+                    '_id' => 2,
                     'ministry_id' => 2,
                     'name' => 'ministry-name-1',
                     'abbr_short' => 'abbr_short-1',
                     'abbr_long' => 'abbr_long-1',
-                    'first' => 1,
-                    'last' => 2,
+                    'first' => null,
+                    'last' => null,
                 ]),
                 'congressman' => new BSONDocument([
+                    '_id' => 3,
                     'congressman_id' => 3,
                     'name' => 'name-update',
                     'birth' => new UTCDateTime((new DateTime('1978-04-11'))->getTimestamp() * 1000),
@@ -1167,6 +1240,7 @@ class MinisterSittingTest extends TestCase
                     'abbreviation' => 'abbreviation-update',
                 ]),
                 'congressman_constituency' => new BSONDocument([
+                    '_id' => 4,
                     'constituency_id' => 4,
                     'name' => 'name',
                     'abbr_short' => 'abbr_short',
@@ -1174,6 +1248,7 @@ class MinisterSittingTest extends TestCase
                     'description' => 'description',
                 ]),
                 'congressman_party' => new BSONDocument([
+                    '_id' => 5,
                     'party_id' => 5,
                     'name' => 'name',
                     'abbr_short' => 'abbr_short',
@@ -1181,11 +1256,13 @@ class MinisterSittingTest extends TestCase
                     'color' => 'color',
                 ]),
                 'first_ministry_assembly' => new BSONDocument([
+                    '_id' => 2,
                     'assembly_id' => 2,
                     'from' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
                     'to' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
                 ]),
                 'last_ministry_assembly' => new BSONDocument([
+                    '_id' => 2,
                     'assembly_id' => 2,
                     'from' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
                     'to' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),

@@ -7,6 +7,7 @@ use MongoDB\BSON\UTCDateTime;
 use PHPUnit\Framework\TestCase;
 use App\Service\Congressman;
 use App\DatabaseConnectionTrait;
+use App\Presenter\CongressmanPresenter;
 use DateTime;
 
 class CongressmanTest extends TestCase
@@ -52,14 +53,15 @@ class CongressmanTest extends TestCase
     public function testGet()
     {
         //GIVE
-        $this->getDatabase()->selectCollection(Congressman::COLLECTION)->insertOne([
-            '_id' => 1,
-            'congressman_id' => 1,
-            'name' => 'string',
-            'birth' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
-            'death' => null,
-            'abbreviation' => 'abbreviation',
-        ]);
+        $this->getDatabase()->selectCollection(Congressman::COLLECTION)->insertOne(
+            (new CongressmanPresenter)->serialize([
+                'congressman_id' => 1,
+                'name' => 'string',
+                'birth' => '2001-01-01',
+                'death' => null,
+                'abbreviation' => 'abbreviation',
+            ]
+        ));
 
         //WHEN
         $actual = (new Congressman())
@@ -82,22 +84,20 @@ class CongressmanTest extends TestCase
     {
         //GIVE
         $this->getDatabase()->selectCollection(Congressman::COLLECTION)->insertMany([
-            [
-                '_id' => 1,
+            (new CongressmanPresenter)->serialize([
                 'congressman_id' => 1,
                 'name' => 'string',
-                'birth' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
+                'birth' => '2001-01-01',
                 'death' => null,
                 'abbreviation' => 'abbreviation',
-            ],
-            [
-                '_id' => 2,
+            ]),
+            (new CongressmanPresenter)->serialize([
                 'congressman_id' => 2,
                 'name' => 'string',
-                'birth' => new UTCDateTime((new DateTime('2001-01-01'))->getTimestamp() * 1000),
+                'birth' => '2001-01-01',
                 'death' => null,
                 'abbreviation' => 'abbreviation',
-            ]
+            ])
         ]);
 
         //WHEN

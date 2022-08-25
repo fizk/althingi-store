@@ -2,11 +2,13 @@
 
 namespace App\Service;
 
-use MongoDB\Model\BSONDocument;
 use App\Service\SourceDatabaseTrait;
 use App\Decorator\SourceDatabaseAware;
-use function App\{deserializeAssembly, serializeAssembly};
-use function App\{serializeMinistry, deserializeMinistry};
+use App\Presenter\{
+    MinistryPresenter,
+    AssemblyPresenter
+};
+use MongoDB\Model\BSONDocument;
 
 class Ministry implements SourceDatabaseAware
 {
@@ -19,29 +21,13 @@ class Ministry implements SourceDatabaseAware
             ->selectCollection(self::COLLECTION)
             ->findOne(['_id' => $id]);
 
-        return $document ? [
-            ...deserializeMinistry($document),
-            'first' => $document['first']
-                ? deserializeAssembly($document['first'])
-                : null,
-            'last' => $document['last']
-                ? deserializeAssembly($document['last'])
-                : null,
-        ] : null;
+        return (new MinistryPresenter)->unserialize($document);
     }
 
     public function fetch(): array
     {
         return array_map(function (BSONDocument $document) {
-            return [
-                ...deserializeMinistry($document),
-                'first' => $document['first']
-                    ? deserializeAssembly($document['first'])
-                    : null,
-                'last' => $document['last']
-                    ? deserializeAssembly($document['last'])
-                    : null,
-            ];
+            return (new MinistryPresenter)->unserialize($document);
         }, iterator_to_array(
             $this->getSourceDatabase()->selectCollection(self::COLLECTION)->find()
         ));
@@ -52,21 +38,12 @@ class Ministry implements SourceDatabaseAware
      */
     public function store(mixed $object): int
     {
-        $document = [
-            '_id' => $object['ministry_id'],
-            ...serializeMinistry($object),
-            'first' => $object['first']
-                ? serializeAssembly($object['first'])
-                : null,
-            'last' => $object['last']
-                ? serializeAssembly($object['last'])
-                : null,
-        ];
+        $document = (new MinistryPresenter)->serialize($object);
 
         $result = $this->getSourceDatabase()
             ->selectCollection(self::COLLECTION)
             ->updateOne(
-                ['_id' => $object['ministry_id']],
+                ['_id' => $document['ministry_id']],
                 ['$set' => $document],
                 ['upsert' => true]
             );
@@ -84,7 +61,7 @@ class Ministry implements SourceDatabaseAware
             ->selectCollection(self::COLLECTION)
             ->updateMany(
                 ['first.assembly_id' => $assembly['assembly_id']],
-                ['$set' => ['first' => serializeAssembly($assembly)]],
+                ['$set' => ['first' => (new AssemblyPresenter)->serialize($assembly)]],
                 ['upsert' => false]
             );
 
@@ -92,7 +69,7 @@ class Ministry implements SourceDatabaseAware
             ->selectCollection(self::COLLECTION)
             ->updateMany(
                 ['last.assembly_id' => $assembly['assembly_id']],
-                ['$set' => ['last' => serializeAssembly($assembly)]],
+                ['$set' => ['last' => (new AssemblyPresenter)->serialize($assembly)]],
                 ['upsert' => false]
             );
 

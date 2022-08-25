@@ -4,8 +4,8 @@ namespace App\Service;
 
 use App\Service\SourceDatabaseTrait;
 use App\Decorator\SourceDatabaseAware;
+use App\Presenter\AssemblyPresenter;
 use MongoDB\Model\BSONDocument;
-use function App\{deserializeAssembly, serializeAssembly};
 
 class Assembly implements SourceDatabaseAware
 {
@@ -18,16 +18,22 @@ class Assembly implements SourceDatabaseAware
             ->selectCollection(self::COLLECTION)
             ->findOne(['_id' => $id]);
 
-        return $document ? deserializeAssembly($document) : null;
+        return (new AssemblyPresenter())->unserialize($document);
     }
 
     public function fetch(): array
     {
+        $documents = $this->getSourceDatabase()->selectCollection(self::COLLECTION)->aggregate([
+            [
+                '$sort' => [
+                    'assembly_id' => -1
+                ]
+            ]
+        ]);
+
         return array_map(function (BSONDocument $document)  {
-            return deserializeAssembly($document);
-        }, iterator_to_array(
-            $this->getSourceDatabase()->selectCollection(self::COLLECTION)->find()
-        ));
+            return (new AssemblyPresenter())->unserialize($document);
+        }, iterator_to_array($documents));
     }
 
     /**
@@ -35,15 +41,12 @@ class Assembly implements SourceDatabaseAware
      */
     public function store(mixed $object): int
     {
-        $document = [
-            '_id' => $object['assembly_id'],
-            ...serializeAssembly($object),
-        ];
+        $document = (new AssemblyPresenter())->serialize($object);
 
         $result = $this->getSourceDatabase()
             ->selectCollection(self::COLLECTION)
             ->updateOne(
-                ['_id' => $object['assembly_id']],
+                ['_id' => $document['assembly_id']],
                 ['$set' => $document],
                 ['upsert' => true]
             );

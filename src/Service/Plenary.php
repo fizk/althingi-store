@@ -4,8 +4,9 @@ namespace App\Service;
 
 use App\Service\SourceDatabaseTrait;
 use App\Decorator\SourceDatabaseAware;
+use App\Presenter\AssemblyPresenter;
+use App\Presenter\PlenaryPresenter;
 use MongoDB\Model\BSONDocument;
-use function App\{deserializePlenary, serializePlenary, serializeAssembly};
 
 class Plenary implements SourceDatabaseAware
 {
@@ -52,7 +53,7 @@ class Plenary implements SourceDatabaseAware
         ]);
         $documents->rewind();
         $document = $documents->current();
-        return $document ? deserializePlenary($document) : null;
+        return (new PlenaryPresenter)->unserialize($document);
     }
 
     public function fetch(): array
@@ -72,7 +73,7 @@ class Plenary implements SourceDatabaseAware
         ]);
 
         return array_map(function (BSONDocument $document) {
-            return deserializePlenary($document);
+            return (new PlenaryPresenter)->unserialize($document);
         }, iterator_to_array($documents));
     }
 
@@ -98,7 +99,7 @@ class Plenary implements SourceDatabaseAware
         ]);
 
         return array_map(function (BSONDocument $document) {
-            return deserializePlenary($document);
+            return (new PlenaryPresenter)->unserialize($document);
         }, iterator_to_array($documents));
     }
 
@@ -107,19 +108,12 @@ class Plenary implements SourceDatabaseAware
      */
     public function store(mixed $object): int
     {
-        $id = [
-            'assembly_id' => $object['assembly']['assembly_id'],
-            'plenary_id' => $object['plenary_id'],
-        ];
-        $document = [
-            '_id' => $id,
-            ...serializePlenary($object),
-        ];
+        $document = (new PlenaryPresenter)->serialize($object);
 
         $result = $this->getSourceDatabase()
             ->selectCollection(self::COLLECTION)
             ->updateOne(
-                ['_id' => $id],
+                ['_id' => $document['_id']],
                 ['$set' => $document],
                 ['upsert' => true]
             );
@@ -137,7 +131,7 @@ class Plenary implements SourceDatabaseAware
             ->selectCollection(self::COLLECTION)
             ->updateMany(
                 ['assembly.assembly_id' => $assembly['assembly_id']],
-                ['$set' => ['assembly' => serializeAssembly($assembly)]],
+                ['$set' => ['assembly' => (new AssemblyPresenter)->serialize($assembly)]],
                 ['upsert' => false]
             );
     }

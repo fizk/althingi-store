@@ -28,9 +28,10 @@ $request = ServerRequestFactory::fromGlobals(
 $manager = new ServiceManager(require_once './config/service.php');
 $emitter = new SapiEmitter();
 
-$match = $manager->get(RouteInterface::class)->match($request);
 
 try {
+    $match = $manager->get(RouteInterface::class)->match($request);
+
     if ($match) {
         foreach ($match->getAttributes() as $name => $value) {
             $request = $request->withAttribute($name, $value);

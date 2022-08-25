@@ -15,8 +15,7 @@
             "App\\": ["src/", "test/"]
         },
         "files": [
-            "src/functions.php" ,
-            "src/transformers.php"
+            "src/functions.php"
         ]
     },
     "require-dev": {

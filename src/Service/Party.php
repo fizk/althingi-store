@@ -2,10 +2,10 @@
 
 namespace App\Service;
 
-use MongoDB\Model\BSONDocument;
 use App\Service\SourceDatabaseTrait;
 use App\Decorator\SourceDatabaseAware;
-use function App\{deserializeParty, serializeParty};
+use App\Presenter\PartyPresenter;
+use MongoDB\Model\BSONDocument;
 
 class Party implements SourceDatabaseAware
 {
@@ -18,15 +18,13 @@ class Party implements SourceDatabaseAware
             ->selectCollection(self::COLLECTION)
             ->findOne(['_id' => $id]);
 
-        return $document
-            ? deserializeParty($document)
-            : null;
+        return (new PartyPresenter)->unserialize($document);
     }
 
     public function fetch(): array
     {
         return array_map(function (BSONDocument $document)  {
-            return deserializeParty($document);
+            return (new PartyPresenter)->unserialize($document);
         }, iterator_to_array(
             $this->getSourceDatabase()->selectCollection(self::COLLECTION)->find()
         ));
@@ -37,15 +35,12 @@ class Party implements SourceDatabaseAware
      */
     public function store(mixed $object): int
     {
-        $document = [
-            '_id' => $object['party_id'],
-            ...serializeParty($object),
-        ];
+        $document = (new PartyPresenter)->serialize($object);
 
         $result = $this->getSourceDatabase()
             ->selectCollection(self::COLLECTION)
             ->updateOne(
-                ['_id' => $object['party_id']],
+                ['_id' => $document['_id']],
                 ['$set' => $document],
                 ['upsert' => true]
             );

@@ -2,13 +2,10 @@
 
 namespace App\Service;
 
-use MongoDB\Model\BSONDocument;
 use App\Service\SourceDatabaseTrait;
 use App\Decorator\SourceDatabaseAware;
-use function App\{
-    serializeConstituency,
-    deserializeConstituency
-};
+use App\Presenter\ConstituencyPresenter;
+use MongoDB\Model\BSONDocument;
 
 class Constituency implements SourceDatabaseAware
 {
@@ -21,15 +18,13 @@ class Constituency implements SourceDatabaseAware
             ->selectCollection(self::COLLECTION)
             ->findOne(['_id' => $id]);
 
-        return $document
-            ? deserializeConstituency($document)
-            : null;
+        return (new ConstituencyPresenter)->unserialize($document);
     }
 
     public function fetch(): array
     {
         return array_map(function (BSONDocument $document)  {
-            return deserializeConstituency($document);
+            return (new ConstituencyPresenter)->unserialize($document);
         }, iterator_to_array(
             $this->getSourceDatabase()->selectCollection(self::COLLECTION)->find()
         ));
@@ -40,15 +35,12 @@ class Constituency implements SourceDatabaseAware
      */
     public function store(mixed $object): int
     {
-        $document = [
-            '_id' => $object['constituency_id'],
-            ...serializeConstituency($object),
-        ];
+        $document = (new ConstituencyPresenter)->serialize($object);
 
         $result = $this->getSourceDatabase()
             ->selectCollection(self::COLLECTION)
             ->updateOne(
-                ['_id' => $object['constituency_id']],
+                ['_id' => $document['constituency_id']],
                 ['$set' => $document],
                 ['upsert' => true]
             );

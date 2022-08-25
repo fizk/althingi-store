@@ -4,14 +4,13 @@ namespace App\Service;
 
 use App\Service\SourceDatabaseTrait;
 use App\Decorator\SourceDatabaseAware;
-use MongoDB\Model\BSONDocument;
-use function App\{
-    deserializePlenaryAgenda,
-    serializeAssembly,
-    serializeIssue,
-    serializePlenary,
-    serializePlenaryAgenda
+use App\Presenter\{
+    EmbeddedIssuePresenter,
+    AssemblyPresenter,
+    EmbeddedPlenaryPresenter,
+    PlenaryAgendaPresenter
 };
+use MongoDB\Model\BSONDocument;
 
 class PlenaryAgenda implements SourceDatabaseAware
 {
@@ -20,15 +19,22 @@ class PlenaryAgenda implements SourceDatabaseAware
 
     private $addFields = [
         'issue.assembly' => '$assembly',
+        'plenary.assembly' => '$assembly',
         'issue._id' => [
-            'assembly_id' => '$issue.assembly_id',
+            'assembly_id' => '$assembly.assembly_id',
             'issue_id' => '$issue.issue_id',
             'category' => '$issue.category',
         ],
-        'plenary.assembly' => '$assembly',
         'plenary._id' => [
-            'assembly_id' => '$plenary.assembly_id',
+            'assembly_id' => '$assembly.assembly_id',
             'plenary_id' => '$plenary.plenary_id',
+        ],
+        'plenary.duration' => [
+            '$dateDiff' => [
+                'startDate' => '$plenary.from',
+                'endDate' => '$plenary.to',
+                'unit' => 'minute',
+            ]
         ]
     ];
 
@@ -51,7 +57,7 @@ class PlenaryAgenda implements SourceDatabaseAware
             ]);
         $documents->rewind();
         $document = $documents->current();
-        return $document ? deserializePlenaryAgenda($document) : null;
+        return (new PlenaryAgendaPresenter)->unserialize($document);
     }
 
     public function fetchByPlenary(int $assemblyId, int $plenaryId): array
@@ -71,7 +77,7 @@ class PlenaryAgenda implements SourceDatabaseAware
         ]);
 
         return array_map(function (BSONDocument $document)  {
-            return deserializePlenaryAgenda($document);
+            return (new PlenaryAgendaPresenter)->unserialize($document);
         }, iterator_to_array($documents));
     }
 
@@ -80,20 +86,12 @@ class PlenaryAgenda implements SourceDatabaseAware
      */
     public function store(mixed $object): int
     {
-        $id = [
-            'assembly_id' => (int) $object['assembly']['assembly_id'],
-            'plenary_id' => (int) $object['plenary']['plenary_id'],
-            'item_id' => (int) $object['item_id']
-        ];
-        $document = [
-            '_id' => $id,
-            ...serializePlenaryAgenda($object),
-        ];
+        $document = (new PlenaryAgendaPresenter)->serialize($object);
 
         $result = $this->getSourceDatabase()
             ->selectCollection(self::COLLECTION)
             ->updateOne(
-                ['_id' => $id],
+                ['_id' => $document['_id']],
                 ['$set' => $document],
                 ['upsert' => true]
             );
@@ -111,7 +109,7 @@ class PlenaryAgenda implements SourceDatabaseAware
             ->selectCollection(self::COLLECTION)
             ->updateMany(
                 ['assembly.assembly_id' => $assembly['assembly_id']],
-                ['$set' => ['assembly' => serializeAssembly($assembly)]],
+                ['$set' => ['assembly' => (new AssemblyPresenter)->serialize($assembly)]],
                 ['upsert' => false]
             );
     }
@@ -126,10 +124,10 @@ class PlenaryAgenda implements SourceDatabaseAware
             ->selectCollection(self::COLLECTION)
             ->updateMany(
                 [
-                    'plenary.plenary_id' => $plenary['plenary_id'],
-                    'plenary.assembly_id' => $plenary['assembly_id'],
+                    'plenary._id.assembly_id' => $plenary['assembly_id'],
+                    'plenary._id.plenary_id' => $plenary['plenary_id'],
                 ],
-                ['$set' => ['plenary' => serializePlenary($plenary)]],
+                ['$set' => ['plenary' => (new EmbeddedPlenaryPresenter)->serialize($plenary)]],
                 ['upsert' => false]
             );
     }
@@ -218,14 +216,11 @@ class PlenaryAgenda implements SourceDatabaseAware
             ->selectCollection(self::COLLECTION)
             ->updateMany(
                 [
-                    'issue.assembly_id' => isset($issue['assembly_id'])
-                        /** @todo do I need this? */
-                        ? $issue['assembly_id']
-                        : $issue['assembly']['assembly_id'],
-                    'issue.issue_id' => $issue['issue_id'],
-                    'issue.category' => $issue['category'],
+                    'issue._id.assembly_id' => $issue['assembly_id'],
+                    'issue._id.issue_id' => $issue['issue_id'],
+                    'issue._id.category' => $issue['category'],
                 ],
-                ['$set' => ['issue' => serializeIssue($issue)]],
+                ['$set' => ['issue' => (new EmbeddedIssuePresenter)->serialize($issue)]],
                 ['upsert' => false]
             );
     }

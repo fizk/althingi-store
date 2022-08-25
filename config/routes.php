@@ -22,7 +22,15 @@ return (new Route('root', '', []))
                     )
                     ->addRoute(new Route('loggjafarthing.item.plenaries', '/thingfundir', ['handler' => Handler\AssemblyPlenaries::class]))
                     ->addRoute(new Route('loggjafarthing.item.issues', '/thingmal(/)?(?<category>(a|b))?', ['handler' => Handler\AssemblyIssues::class]))
-                    ->addRoute(new Route('loggjafarthing.item.issue.item', '/thingmal/(?<issue_id>\d+)/(?<category>(a|b))', ['handler' => Handler\AssemblyIssue::class]))
+                    ->addRoute(
+                        (new Route('loggjafarthing.item.issue.item', '/thingmal/(?<category>(a|b))/(?<issue_id>\d+)', ['handler' => Handler\AssemblyIssue::class]))
+                            ->addRoute(new Route('loggjafarthing.item.issue.item.category', '/efnisflokkar', ['handler' => Handler\AssemblyIssueCategory::class]))
+                            ->addRoute(new Route('loggjafarthing.item.issue.item.supercategory', '/efnishopar', ['handler' => Handler\AssemblyIssueSuperCategory::class]))
+                            ->addRoute(
+                                (new Route('loggjafarthing.item.issue.item.speeches', '/readur', ['handler' => Handler\AssemblyIssueSpeeches::class]))
+                                    ->addRoute(new Route('loggjafarthing.item.issue.item.speec', '/(?<speech_id>\w+)', ['handler' => Handler\AssemblyIssueSpeech::class]))
+                            )
+                    )
                     ->addRoute(
                         (new Route('loggjafarthing.item.sessions', '/thingsetur', ['handler' => Handler\AssemblySittings::class]))
                             ->addRoute(new Route('loggjafarthing.item.sessions.committees', '/nefndir', ['handler' => Handler\AssemblyCommitteeSittings::class]))
