@@ -2,12 +2,12 @@
 
 namespace App\Handler;
 
-use Psr\Http\Server\RequestHandlerInterface;
-use Psr\Http\Message\{ResponseInterface, ServerRequestInterface};
-use Laminas\Diactoros\Response\{JsonResponse};
 use App\Service;
 use App\Handler\HandlerTrait;
 use App\Decorator\{ServiceCongressmanSittingAware};
+use Laminas\Diactoros\Response\{JsonResponse};
+use Psr\Http\Server\RequestHandlerInterface;
+use Psr\Http\Message\{ResponseInterface, ServerRequestInterface};
 
 class AssemblyParties implements
     RequestHandlerInterface,

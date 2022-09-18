@@ -2,8 +2,8 @@
 
 namespace App\Response;
 
-use Laminas\Diactoros\Response\JsonResponse;
 use Psr\Http\Message\RequestInterface;
+use Laminas\Diactoros\Response\JsonResponse;
 use Throwable;
 
 class ErrorResponse extends JsonResponse

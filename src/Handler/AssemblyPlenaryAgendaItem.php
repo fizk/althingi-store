@@ -2,12 +2,12 @@
 
 namespace App\Handler;
 
-use Psr\Http\Message\{ResponseInterface, ServerRequestInterface};
-use Psr\Http\Server\RequestHandlerInterface;
-use Laminas\Diactoros\Response\{EmptyResponse, JsonResponse};
 use App\Service;
 use App\Handler\HandlerTrait;
 use App\Decorator\{ServicePlenaryAgendaAware};
+use Laminas\Diactoros\Response\{EmptyResponse, JsonResponse};
+use Psr\Http\Message\{ResponseInterface, ServerRequestInterface};
+use Psr\Http\Server\RequestHandlerInterface;
 
 class AssemblyPlenaryAgendaItem implements
     RequestHandlerInterface,
@@ -27,7 +27,8 @@ class AssemblyPlenaryAgendaItem implements
 
         return $agenda
             ? new JsonResponse($agenda, 200)
-            : new EmptyResponse(404);
+            : new EmptyResponse(404)
+            ;
     }
 
     public function put(ServerRequestInterface $request): ResponseInterface

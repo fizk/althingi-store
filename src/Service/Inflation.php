@@ -2,10 +2,10 @@
 
 namespace App\Service;
 
-use MongoDB\BSON\UTCDateTime;
 use App\Service\SourceDatabaseTrait;
 use App\Decorator\SourceDatabaseAware;
 use App\Presenter\InflationPresenter;
+use MongoDB\BSON\UTCDateTime;
 use MongoDB\Model\BSONDocument;
 use DateTime;
 

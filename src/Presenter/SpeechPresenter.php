@@ -2,9 +2,9 @@
 
 namespace App\Presenter;
 
-use DateTime;
 use MongoDB\BSON\UTCDateTime;
 use MongoDB\Model\BSONDocument;
+use DateTime;
 
 class SpeechPresenter implements Presenter
 {
@@ -64,6 +64,7 @@ class SpeechPresenter implements Presenter
             'iteration' => $document['iteration'] ?? null,
             'word_count' => $document['word_count'] ?? null,
             'validated' => $document['validated'] ?? false,
+            'duration' => $document['duration'] ?? 0,
         ];
     }
 }

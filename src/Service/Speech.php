@@ -4,7 +4,7 @@ namespace App\Service;
 
 use App\Service\SourceDatabaseTrait;
 use App\Decorator\SourceDatabaseAware;
-use App\Presenter\SpeechPresenter;
+use App\Presenter\{SpeechPresenter, SpeechAggregatePresenter};
 use MongoDB\Model\BSONDocument;
 
 class Speech implements SourceDatabaseAware
@@ -16,6 +16,13 @@ class Speech implements SourceDatabaseAware
     private array $addFields = [
         'issue.assembly' => '$assembly',
         'plenary.assembly' => '$assembly',
+        'duration' => [
+            '$dateDiff' => [
+                'startDate' => '$from',
+                'endDate' => '$to',
+                'unit' => 'minute',
+            ]
+        ]
     ];
 
     public function get(int $id): ?array
@@ -115,6 +122,85 @@ class Speech implements SourceDatabaseAware
             'next' => $nextId,
             'terminal' => $terminal,
         ];
+    }
+
+    public function fetchAggregateByIssue(int $assemblyId, int $issueId, string $category): array
+    {
+        $documents = $this->getSourceDatabase()->selectCollection(self::COLLECTION)->aggregate([
+            [
+                '$match' => [
+                    '_id.assembly_id' => $assemblyId,
+                    '_id.issue_id' => $issueId,
+                    '_id.category' => $category
+                ]
+            ],
+            [
+                '$group' => [
+                    '_id' => '$congressman._id',
+                    'total' => ['$count' => (object)[]],
+                    'congressman' => ['$first' => '$congressman'],
+                    'parties' => ['$addToSet' => '$congressman_party'],
+                    'constituencies' => ['$addToSet' => '$congressman_constituency'],
+                    'type' => ['$addToSet' => '$congressman_type'],
+                    'time' => [
+                        '$sum' => [
+                            '$dateDiff' => [
+                                'startDate' => '$from',
+                                'endDate' => '$to',
+                                'unit' => 'second',
+                            ]
+                        ]
+                    ]
+                ],
+            ],
+            [
+                '$sort' => ['time' => -1]
+            ]
+        ]);
+
+        return array_map(function (BSONDocument $document) {
+            return (new SpeechAggregatePresenter)->unserialize($document);
+        }, iterator_to_array($documents));
+    }
+
+    public function fetchAggregateByAssembly(int $assemblyId, int $limit = 10): array
+    {
+        $documents = $this->getSourceDatabase()->selectCollection(self::COLLECTION)->aggregate([
+            [
+                '$match' => [
+                    '_id.assembly_id' => $assemblyId,
+                ]
+            ],
+            [
+                '$group' => [
+                    '_id' => '$congressman._id',
+                    'total' => ['$count' => (object)[]],
+                    'congressman' => ['$first' => '$congressman'],
+                    'parties' => ['$addToSet' => '$congressman_party'],
+                    'constituencies' => ['$addToSet' => '$congressman_constituency'],
+                    'type' => ['$addToSet' => '$congressman_type'],
+                    'time' => [
+                        '$sum' => [
+                            '$dateDiff' => [
+                                'startDate' => '$from',
+                                'endDate' => '$to',
+                                'unit' => 'second',
+                            ]
+                        ]
+                    ]
+                ],
+            ],
+            [
+                '$sort' => ['time' => -1]
+            ],
+            [
+                '$limit' => $limit
+            ]
+        ]);
+
+        return array_map(function (BSONDocument $document) {
+            return (new SpeechAggregatePresenter)->unserialize($document);
+        }, iterator_to_array($documents));
     }
 
     /**

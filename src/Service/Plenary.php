@@ -4,8 +4,7 @@ namespace App\Service;
 
 use App\Service\SourceDatabaseTrait;
 use App\Decorator\SourceDatabaseAware;
-use App\Presenter\AssemblyPresenter;
-use App\Presenter\PlenaryPresenter;
+use App\Presenter\{AssemblyPresenter, PlenaryPresenter};
 use MongoDB\Model\BSONDocument;
 
 class Plenary implements SourceDatabaseAware

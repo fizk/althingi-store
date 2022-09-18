@@ -2,13 +2,12 @@
 
 namespace App\Handler;
 
-use Psr\Http\Message\{ResponseInterface, ServerRequestInterface};
-use Psr\Http\Server\RequestHandlerInterface;
-use Laminas\Diactoros\Response\JsonResponse;
 use App\Service;
 use App\Handler\HandlerTrait;
 use App\Decorator\ServiceCongressmanSittingAware;
-use Laminas\Diactoros\Response\EmptyResponse;
+use Laminas\Diactoros\Response\{JsonResponse, EmptyResponse};
+use Psr\Http\Message\{ResponseInterface, ServerRequestInterface};
+use Psr\Http\Server\RequestHandlerInterface;
 
 class CongressmanSitting implements
     RequestHandlerInterface,
@@ -25,7 +24,8 @@ class CongressmanSitting implements
 
         return $congressmanSitting
             ? new JsonResponse($congressmanSitting, 200)
-            : new EmptyResponse(404);
+            : new EmptyResponse(404)
+            ;
     }
 
     public function put(ServerRequestInterface $request): ResponseInterface

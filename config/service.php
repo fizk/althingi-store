@@ -35,6 +35,7 @@ return [
                 ->setCommitteeSittingService($container->get(Service\CommitteeSitting::class))
                 ->setMinisterSittingService($container->get(Service\MinisterSitting::class))
                 ->setPresidentSittingService($container->get(Service\PresidentSitting::class))
+                ->setPlenaryService($container->get(Service\Plenary::class))
                 ->setPlenaryAgendaService($container->get(Service\PlenaryAgenda::class))
             ;
         },
@@ -139,6 +140,26 @@ return [
         Handler\AssemblyIssueSpeech::class => function (ContainerInterface $container) {
             return (new Handler\AssemblyIssueSpeech())
                 ->setSpeechService($container->get(Service\Speech::class))
+            ;
+        },
+        Handler\AssemblyIssueSpeechAggregation::class => function (ContainerInterface $container) {
+            return (new Handler\AssemblyIssueSpeechAggregation())
+                ->setSpeechService($container->get(Service\Speech::class))
+            ;
+        },
+        Handler\AssemblySpeechAggregation::class => function (ContainerInterface $container) {
+            return (new Handler\AssemblySpeechAggregation())
+                ->setSpeechService($container->get(Service\Speech::class))
+            ;
+        },
+        Handler\AssemblyContentCategories::class => function (ContainerInterface $container) {
+            return (new Handler\AssemblyContentCategories())
+                ->setIssueService($container->get(Service\Issue::class))
+            ;
+        },
+        Handler\AssemblyIssuesStatuses::class => function (ContainerInterface $container) {
+            return (new Handler\AssemblyIssuesStatuses())
+                ->setIssueService($container->get(Service\Issue::class))
             ;
         },
         Handler\Ministries::class => function (ContainerInterface $container) {
@@ -257,8 +278,21 @@ return [
                 ->setPresidentSittingService($container->get(Service\PresidentSitting::class))
             ;
         },
-
-
+        Handler\AssemblyIssueDocuments::class => function (ContainerInterface $container) {
+            return (new Handler\AssemblyIssueDocuments())
+                ->setDocumentService($container->get(Service\Document::class))
+            ;
+        },
+        Handler\AssemblyIssueDocument::class => function (ContainerInterface $container) {
+            return (new Handler\AssemblyIssueDocument())
+                ->setDocumentService($container->get(Service\Document::class))
+            ;
+        },
+        Handler\AssemblyIssueDocumentsOutcome::class => function (ContainerInterface $container) {
+            return (new Handler\AssemblyIssueDocumentsOutcome())
+                ->setDocumentService($container->get(Service\Document::class))
+            ;
+        },
 
 
 
@@ -320,6 +354,10 @@ return [
         },
         Service\Speech::class => function (ContainerInterface $container) {
             return (new Service\Speech)
+                ->setSourceDatabase($container->get(Database::class));
+        },
+        Service\Document::class => function (ContainerInterface $container) {
+            return (new Service\Document)
                 ->setSourceDatabase($container->get(Database::class));
         },
 

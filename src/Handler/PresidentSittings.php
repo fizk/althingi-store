@@ -2,14 +2,12 @@
 
 namespace App\Handler;
 
-use Psr\Http\Server\RequestHandlerInterface;
-use Psr\Http\Message\{ResponseInterface, ServerRequestInterface};
-use Laminas\Diactoros\Response\{JsonResponse};
 use App\Service;
 use App\Handler\HandlerTrait;
-use App\Decorator\{
-    ServicePresidentSittingAware
-};
+use App\Decorator\{ServicePresidentSittingAware};
+use Laminas\Diactoros\Response\{JsonResponse};
+use Psr\Http\Server\RequestHandlerInterface;
+use Psr\Http\Message\{ResponseInterface, ServerRequestInterface};
 
 class PresidentSittings implements
     RequestHandlerInterface,
@@ -21,9 +19,10 @@ class PresidentSittings implements
 
     public function get(ServerRequestInterface $request): ResponseInterface
     {
-        $presidentSittings = $this->presidentSittingService->fetch();
-
-        return new JsonResponse($presidentSittings, 200);
+        return new JsonResponse(
+            $this->presidentSittingService->fetch(),
+            200
+        );
     }
 
     public function setPresidentSittingService(service\PresidentSitting $presidentSitting): self

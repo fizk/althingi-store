@@ -6,8 +6,7 @@ use App\Decorator\ServiceCongressmanSittingAware;
 use App\Service\CongressmanSitting;
 use Laminas\Diactoros\Response\EmptyResponse;
 use Laminas\Diactoros\Response\JsonResponse;
-use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Message\{ServerRequestInterface, ResponseInterface};
 use Psr\Http\Server\RequestHandlerInterface;
 
 class AssemblyCongressman implements RequestHandlerInterface, ServiceCongressmanSittingAware

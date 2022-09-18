@@ -152,4 +152,92 @@ class IssuesTest extends TestCase {
         $this->assertEquals(Handler\AssemblyIssueSpeech::class, $match->getParam('handler'));
         $this->assertEquals($expectedAttributes, $match->getAttributes());
     }
+
+    public function testThingmalAllThingskjol()
+    {
+        // GIVEN
+        $request = $this->createRequest('/loggjafarthing/1/thingmal/a/2/thingskjol');
+
+        // WHEN
+        $match = $this->getRoutesDefinitions()->match($request);
+
+        // THEN
+        $expectedAttributes = [
+            'assembly_id' => 1,
+            'issue_id' => 2,
+            'category' => 'a',
+        ];
+        $this->assertEquals(Handler\AssemblyIssueDocuments::class, $match->getParam('handler'));
+        $this->assertEquals($expectedAttributes, $match->getAttributes());
+    }
+
+    public function testThingmalSingleThingskjol()
+    {
+        // GIVEN
+        $request = $this->createRequest('/loggjafarthing/1/thingmal/a/2/thingskjol/3');
+
+        // WHEN
+        $match = $this->getRoutesDefinitions()->match($request);
+
+        // THEN
+        $expectedAttributes = [
+            'assembly_id' => 1,
+            'issue_id' => 2,
+            'category' => 'a',
+            'document_id' => 3,
+        ];
+        $this->assertEquals(Handler\AssemblyIssueDocument::class, $match->getParam('handler'));
+        $this->assertEquals($expectedAttributes, $match->getAttributes());
+    }
+
+    public function testThingmalSingleThingskjolVote()
+    {
+        // GIVEN
+        $request = $this->createRequest('/loggjafarthing/1/thingmal/a/2/thingskjol/3/atkaedagreidsla');
+
+        // WHEN
+        $match = $this->getRoutesDefinitions()->match($request);
+
+        // THEN
+        $expectedAttributes = [
+            'assembly_id' => 1,
+            'issue_id' => 2,
+            'category' => 'a',
+            'document_id' => 3,
+        ];
+        $this->assertEquals(Handler\AssemblyIssueDocumentsOutcome::class, $match->getParam('handler'));
+        $this->assertEquals($expectedAttributes, $match->getAttributes());
+    }
+
+    public function testThingmalStatusAggregation()
+    {
+        // GIVEN
+        $request = $this->createRequest('/loggjafarthing/1/thingmal/stodur');
+
+        // WHEN
+        $match = $this->getRoutesDefinitions()->match($request);
+
+        // THEN
+        $expectedAttributes = [
+            'assembly_id' => 1,
+        ];
+        $this->assertEquals(Handler\AssemblyIssuesStatuses::class, $match->getParam('handler'));
+        $this->assertEquals($expectedAttributes, $match->getAttributes());
+    }
+
+    public function testThingmalContentTypeAggregation()
+    {
+        // GIVEN
+        $request = $this->createRequest('/loggjafarthing/1/thingmal/efnisflokkar');
+
+        // WHEN
+        $match = $this->getRoutesDefinitions()->match($request);
+
+        // THEN
+        $expectedAttributes = [
+            'assembly_id' => 1,
+        ];
+        $this->assertEquals(Handler\AssemblyContentCategories::class, $match->getParam('handler'));
+        $this->assertEquals($expectedAttributes, $match->getAttributes());
+    }
 }

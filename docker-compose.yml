@@ -3,6 +3,8 @@ version: '3'
 services:
     run:
         container_name: local-althingi-store-run
+        labels:
+            - althingi_service=store
         build:
             context: .
             dockerfile: Dockerfile

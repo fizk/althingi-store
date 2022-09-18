@@ -2,13 +2,13 @@
 
 namespace App\Handler;
 
-use Psr\Http\Message\{ResponseInterface, ServerRequestInterface};
-use Psr\Http\Server\RequestHandlerInterface;
-use Laminas\Diactoros\Response\JsonResponse;
 use App\Service;
 use App\Handler\HandlerTrait;
 use App\Decorator\ServiceSpeechAware;
 use Laminas\Diactoros\Response\EmptyResponse;
+use Psr\Http\Message\{ResponseInterface, ServerRequestInterface};
+use Psr\Http\Server\RequestHandlerInterface;
+use Laminas\Diactoros\Response\JsonResponse;
 
 class AssemblyIssueSpeech implements
     RequestHandlerInterface,

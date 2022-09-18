@@ -2,9 +2,6 @@
 
 namespace App\Handler;
 
-use Psr\Http\Message\{ResponseInterface, ServerRequestInterface};
-use Psr\Http\Server\RequestHandlerInterface;
-use Laminas\Diactoros\Response\{EmptyResponse, JsonResponse};
 use App\Service;
 use App\Handler\HandlerTrait;
 use App\Decorator\{
@@ -15,6 +12,9 @@ use App\Decorator\{
     ServicePresidentSittingAware,
     ServicePlenaryAgendaAware,
 };
+use Laminas\Diactoros\Response\{EmptyResponse, JsonResponse};
+use Psr\Http\Message\{ResponseInterface, ServerRequestInterface};
+use Psr\Http\Server\RequestHandlerInterface;
 
 class Constituency implements
     RequestHandlerInterface,
@@ -36,11 +36,14 @@ class Constituency implements
 
     public function get(ServerRequestInterface $request): ResponseInterface
     {
-        $party = $this->constituencyService->get($request->getAttribute('constituency_id'));
+        $party = $this->constituencyService->get(
+            $request->getAttribute('constituency_id')
+        );
 
         return $party
             ? new JsonResponse($party, 200)
-            : new EmptyResponse(404);
+            : new EmptyResponse(404)
+            ;
     }
 
     public function put(ServerRequestInterface $request): ResponseInterface

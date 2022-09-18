@@ -2,12 +2,12 @@
 
 namespace App\Handler;
 
-use Psr\Http\Server\RequestHandlerInterface;
-use Psr\Http\Message\{ResponseInterface, ServerRequestInterface};
-use Laminas\Diactoros\Response\{EmptyResponse, JsonResponse};
 use App\Service;
 use App\Handler\HandlerTrait;
 use App\Decorator\{ServiceInflationAware};
+use Laminas\Diactoros\Response\{EmptyResponse, JsonResponse};
+use Psr\Http\Server\RequestHandlerInterface;
+use Psr\Http\Message\{ResponseInterface, ServerRequestInterface};
 
 class Inflation implements
     RequestHandlerInterface,
@@ -19,11 +19,14 @@ class Inflation implements
 
     public function get(ServerRequestInterface $request): ResponseInterface
     {
-        $inflation = $this->inflationService->get($request->getAttribute('id'));
+        $inflation = $this->inflationService->get(
+            $request->getAttribute('id')
+        );
 
         return $inflation
             ? new JsonResponse($inflation, 200)
-            : new EmptyResponse(404);
+            : new EmptyResponse(404)
+            ;
     }
 
     public function put(ServerRequestInterface $request): ResponseInterface

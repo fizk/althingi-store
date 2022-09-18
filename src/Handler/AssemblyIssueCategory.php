@@ -2,12 +2,12 @@
 
 namespace App\Handler;
 
-use Psr\Http\Server\RequestHandlerInterface;
-use Psr\Http\Message\{ResponseInterface, ServerRequestInterface};
-use Laminas\Diactoros\Response\{EmptyResponse, JsonResponse};
 use App\Service;
 use App\Handler\HandlerTrait;
 use App\Decorator\{ServiceIssueAware};
+use Laminas\Diactoros\Response\{EmptyResponse};
+use Psr\Http\Server\RequestHandlerInterface;
+use Psr\Http\Message\{ResponseInterface, ServerRequestInterface};
 
 class AssemblyIssueCategory implements
     RequestHandlerInterface,

@@ -2,12 +2,12 @@
 
 namespace App\Handler;
 
-use Psr\Http\Message\{ResponseInterface, ServerRequestInterface};
-use Psr\Http\Server\RequestHandlerInterface;
-use Laminas\Diactoros\Response\{EmptyResponse, JsonResponse};
 use App\Service;
 use App\Handler\HandlerTrait;
 use App\Decorator\ServiceMinisterSittingAware;
+use Laminas\Diactoros\Response\{EmptyResponse, JsonResponse};
+use Psr\Http\Message\{ResponseInterface, ServerRequestInterface};
+use Psr\Http\Server\RequestHandlerInterface;
 
 class MinisterSitting implements
     RequestHandlerInterface,
@@ -24,7 +24,8 @@ class MinisterSitting implements
 
         return $ministerSitting
             ? new JsonResponse($ministerSitting, 200)
-            : new EmptyResponse(404);
+            : new EmptyResponse(404)
+            ;
     }
 
     public function put(ServerRequestInterface $request): ResponseInterface

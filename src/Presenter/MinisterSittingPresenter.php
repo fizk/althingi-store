@@ -2,9 +2,9 @@
 
 namespace App\Presenter;
 
-use DateTime;
 use MongoDB\BSON\UTCDateTime;
 use MongoDB\Model\BSONDocument;
+use DateTime;
 
 class MinisterSittingPresenter implements Presenter
 {

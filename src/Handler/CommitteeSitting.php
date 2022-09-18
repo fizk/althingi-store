@@ -2,12 +2,12 @@
 
 namespace App\Handler;
 
-use App\Decorator\ServiceCommitteeSittingAware;
-use Psr\Http\Message\{ResponseInterface, ServerRequestInterface};
-use Psr\Http\Server\RequestHandlerInterface;
-use Laminas\Diactoros\Response\{EmptyResponse, JsonResponse};
 use App\Service;
 use App\Handler\HandlerTrait;
+use App\Decorator\ServiceCommitteeSittingAware;
+use Laminas\Diactoros\Response\{EmptyResponse, JsonResponse};
+use Psr\Http\Message\{ResponseInterface, ServerRequestInterface};
+use Psr\Http\Server\RequestHandlerInterface;
 
 class CommitteeSitting implements
     RequestHandlerInterface,
@@ -19,11 +19,14 @@ class CommitteeSitting implements
 
     public function get(ServerRequestInterface $request): ResponseInterface
     {
-        $party = $this->committeeSittingService->get($request->getAttribute('committee_sitting_id'));
+        $party = $this->committeeSittingService->get(
+            $request->getAttribute('committee_sitting_id')
+        );
 
         return $party
             ? new JsonResponse($party, 200)
-            : new EmptyResponse(404);
+            : new EmptyResponse(404)
+            ;
     }
 
     public function put(ServerRequestInterface $request): ResponseInterface

@@ -2,18 +2,19 @@
 
 namespace App\Handler;
 
+use App\Service;
+use App\Handler\{HandlerTrait, QueryParamTrait};
+use App\Decorator\{ServiceCongressmanSittingAware};
+use Laminas\Diactoros\Response\{JsonResponse};
 use Psr\Http\Server\RequestHandlerInterface;
 use Psr\Http\Message\{ResponseInterface, ServerRequestInterface};
-use Laminas\Diactoros\Response\{JsonResponse};
-use App\Service;
-use App\Handler\HandlerTrait;
-use App\Decorator\{ServiceCongressmanSittingAware};
 
 class AssemblySittings implements
     RequestHandlerInterface,
     ServiceCongressmanSittingAware
 {
     use HandlerTrait;
+    use QueryParamTrait;
 
     private Service\CongressmanSitting $congressmanSittingService;
 
@@ -22,13 +23,11 @@ class AssemblySittings implements
      */
     public function get(ServerRequestInterface $request): ResponseInterface
     {
-        $params = $request->getQueryParams();
-        $type = true;
-        if (array_key_exists('tegund', $params)) {
-            $type = $params['tegund'] === 'varamenn' ? false : true;
-        }
         $parties = $this->congressmanSittingService
-            ->fetchCongressmenSessions($request->getAttribute('assembly_id'), $type);
+            ->fetchCongressmenSessions(
+                $request->getAttribute('assembly_id'),
+                $this->extractCongressmanIsPrimary($request)
+            );
 
         return new JsonResponse($parties, 200);
     }

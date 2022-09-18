@@ -223,6 +223,9 @@ class IssueTest extends TestCase
 
         // THEN
         $expected = [
+            'terminal' => true,
+            'next' => null,
+            'list' => [
             [
                 '_id' => [
                     'assembly_id' => 140,
@@ -255,7 +258,7 @@ class IssueTest extends TestCase
                 'content_categories' => [],
                 'content_super_categories' => [],
             ]
-        ];
+        ]];
         $this->assertEquals($expected, $actual);
     }
 

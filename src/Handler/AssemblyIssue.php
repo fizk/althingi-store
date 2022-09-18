@@ -2,12 +2,12 @@
 
 namespace App\Handler;
 
-use Psr\Http\Server\RequestHandlerInterface;
-use Psr\Http\Message\{ResponseInterface, ServerRequestInterface};
-use Laminas\Diactoros\Response\{EmptyResponse, JsonResponse};
 use App\Service;
 use App\Handler\HandlerTrait;
 use App\Decorator\{ServiceIssueAware, ServicePlenaryAgendaAware};
+use Laminas\Diactoros\Response\{EmptyResponse, JsonResponse};
+use Psr\Http\Server\RequestHandlerInterface;
+use Psr\Http\Message\{ResponseInterface, ServerRequestInterface};
 
 class AssemblyIssue implements
     RequestHandlerInterface,
@@ -28,7 +28,8 @@ class AssemblyIssue implements
         );
         return $document
             ? new JsonResponse($document, 200)
-            : new EmptyResponse(404);
+            : new EmptyResponse(404)
+            ;
     }
 
     public function put(ServerRequestInterface $request): ResponseInterface

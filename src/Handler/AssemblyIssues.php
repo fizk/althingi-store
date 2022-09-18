@@ -2,18 +2,19 @@
 
 namespace App\Handler;
 
+use App\Service;
+use App\Handler\{HandlerTrait, QueryParamTrait};
+use App\Decorator\{ServiceIssueAware};
+use Laminas\Diactoros\Response\{JsonResponse};
 use Psr\Http\Server\RequestHandlerInterface;
 use Psr\Http\Message\{ResponseInterface, ServerRequestInterface};
-use Laminas\Diactoros\Response\{JsonResponse};
-use App\Service;
-use App\Handler\HandlerTrait;
-use App\Decorator\{ServiceIssueAware};
 
 class AssemblyIssues implements
     RequestHandlerInterface,
     ServiceIssueAware
 {
     use HandlerTrait;
+    use QueryParamTrait;
 
     private Service\Issue $issueService;
     private Service\PlenaryAgenda $plenaryAgendaService;
@@ -23,7 +24,8 @@ class AssemblyIssues implements
         $documents = $this->issueService->fetchByAssembly(
             $request->getAttribute('assembly_id'),
             $request->getAttribute('category'),
-            $request->getQueryParams(),
+            $this->extractPointer($request),
+            $this->extractType($request),
         );
         return new JsonResponse($documents, 200);
     }

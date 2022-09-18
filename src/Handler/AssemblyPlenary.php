@@ -2,15 +2,15 @@
 
 namespace App\Handler;
 
-use Psr\Http\Server\RequestHandlerInterface;
-use Psr\Http\Message\{ResponseInterface, ServerRequestInterface};
-use Laminas\Diactoros\Response\{EmptyResponse, JsonResponse};
 use App\Service;
 use App\Handler\HandlerTrait;
 use App\Decorator\{
     ServicePlenaryAgendaAware,
     ServicePlenaryAware
 };
+use Laminas\Diactoros\Response\{EmptyResponse, JsonResponse};
+use Psr\Http\Message\{ResponseInterface, ServerRequestInterface};
+use Psr\Http\Server\RequestHandlerInterface;
 
 class AssemblyPlenary implements
     RequestHandlerInterface,
@@ -39,7 +39,8 @@ class AssemblyPlenary implements
 
         return $plenary
             ? new JsonResponse($plenary, 200)
-            : new EmptyResponse(404);
+            : new EmptyResponse(404)
+            ;
     }
 
     public function put(ServerRequestInterface $request): ResponseInterface

@@ -2,9 +2,6 @@
 
 namespace App\Handler;
 
-use Psr\Http\Server\RequestHandlerInterface;
-use Psr\Http\Message\{ResponseInterface, ServerRequestInterface};
-use Laminas\Diactoros\Response\{EmptyResponse, JsonResponse};
 use App\Service;
 use App\Handler\HandlerTrait;
 use App\Decorator\{
@@ -15,6 +12,9 @@ use App\Decorator\{
     ServicePresidentSittingAware,
     ServicePlenaryAgendaAware,
 };
+use Laminas\Diactoros\Response\{EmptyResponse, JsonResponse};
+use Psr\Http\Server\RequestHandlerInterface;
+use Psr\Http\Message\{ResponseInterface, ServerRequestInterface};
 
 class Congressman implements
     RequestHandlerInterface,
@@ -36,11 +36,14 @@ class Congressman implements
 
     public function get(ServerRequestInterface $request): ResponseInterface
     {
-        $assembly = $this->congressmanService->get($request->getAttribute('congressman_id'));
+        $assembly = $this->congressmanService->get(
+            $request->getAttribute('congressman_id')
+        );
 
         return $assembly
             ? new JsonResponse($assembly, 200)
-            : new EmptyResponse(404);
+            : new EmptyResponse(404)
+            ;
     }
 
     public function put(ServerRequestInterface $request): ResponseInterface

@@ -2,12 +2,12 @@
 
 namespace App\Handler;
 
-use Psr\Http\Server\RequestHandlerInterface;
-use Psr\Http\Message\{ResponseInterface, ServerRequestInterface};
-use Laminas\Diactoros\Response\{JsonResponse};
 use App\Service;
 use App\Handler\HandlerTrait;
 use App\Decorator\{ServicePlenaryAware};
+use Laminas\Diactoros\Response\{JsonResponse};
+use Psr\Http\Server\RequestHandlerInterface;
+use Psr\Http\Message\{ResponseInterface, ServerRequestInterface};
 
 class AssemblyPlenaries implements
     RequestHandlerInterface,
@@ -26,7 +26,9 @@ class AssemblyPlenaries implements
 
     public function get(ServerRequestInterface $request): ResponseInterface
     {
-        $plenary = $this->plenaryService->fetchByAssembly($request->getAttribute('assembly_id'));
+        $plenary = $this->plenaryService->fetchByAssembly(
+            $request->getAttribute('assembly_id')
+        );
         return new JsonResponse($plenary, 200);
     }
 

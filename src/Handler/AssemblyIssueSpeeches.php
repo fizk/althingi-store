@@ -2,30 +2,30 @@
 
 namespace App\Handler;
 
+use App\Service;
+use App\Decorator\ServiceSpeechAware;
+use App\Handler\{HandlerTrait, QueryParamTrait};
+use Laminas\Diactoros\Response\JsonResponse;
 use Psr\Http\Message\{ResponseInterface, ServerRequestInterface};
 use Psr\Http\Server\RequestHandlerInterface;
-use Laminas\Diactoros\Response\JsonResponse;
-use App\Service;
-use App\Handler\HandlerTrait;
-use App\Decorator\ServiceSpeechAware;
 
 class AssemblyIssueSpeeches implements
     RequestHandlerInterface,
     ServiceSpeechAware
 {
     use HandlerTrait;
+    use QueryParamTrait;
 
     private Service\Speech $speechService;
 
     public function get(ServerRequestInterface $request): ResponseInterface
     {
-        $params = $request->getQueryParams();
         return new JsonResponse(
             $this->speechService->fetchByIssue(
                 $request->getAttribute('assembly_id'),
                 $request->getAttribute('issue_id'),
                 $request->getAttribute('category'),
-                isset($params['bendill']) ? $params['bendill'] : null
+                $this->extractPointer($request)
             ),
             200
         );
